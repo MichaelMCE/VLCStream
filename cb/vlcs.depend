@@ -1,0 +1,1172 @@
+# depslib dependency file v1.0
+1502237400 source:k:\code\mylcd\examples\vlc\album.c
+	"common.h"
+
+1502237765 k:\code\mylcd\examples\vlc\common.h
+	<shlwapi.h>
+	<inttypes.h>
+	<windows.h>
+	<time.h>
+	<math.h>
+	<mylcd.h>
+	<shlobj.h>
+	<vlc/libvlc_version.h>
+	"memory.h"
+	"lock.h"
+	"libmylcd.h"
+	"stack.h"
+	"ui.h"
+	"vlsprocess.h"
+	"list.h"
+	"settings.h"
+	"tags.h"
+	"fileal.h"
+	"playlistsort.h"
+	"editbox.h"
+	"funstuff.h"
+	"input.h"
+	"tree.h"
+	"artc.h"
+	"imagec.h"
+	"jobcon.h"
+	"cc/cc.h"
+	"page.h"
+	"cmdparser.h"
+	"fileext.h"
+	"filebrowser.h"
+	"filepane.h"
+	"exppanel.h"
+	"playlist.h"
+	"playlistc.h"
+	"playlistManager.h"
+	"m3u.h"
+	"stringcache.h"
+	"bass.h"
+	"picqueue.h"
+	"swatch.h"
+	"timer.h"
+	"marquee.h"
+	"winm.h"
+	"vlcstream.h"
+	"cpu.h"
+	"drawvolume.h"
+	"shelf.h"
+	"plm.h"
+	"album.h"
+	"m3u.h"
+	"keyboard.h"
+	"search.h"
+	"videofilter.h"
+	"transform.h"
+	"videotransform.h"
+	"ctrloverlay.h"
+	"fileio.h"
+	"meta.h"
+	"vlc.h"
+	"vlceventcb.h"
+	"mediastats.h"
+	"textoverlay.h"
+	"chapter.h"
+	"es.h"
+	"imgovr.h"
+	"exit.h"
+	"cfg.h"
+	"sub.h"
+	"libvlceq.h"
+	"eq.h"
+	"alarm.h"
+	"epg.h"
+	"plytv.h"
+	"plypanel.h"
+	"plypane.h"
+	"imgpane.h"
+	"clock.h"
+	"tetris.h"
+	"taskman.h"
+	"home.h"
+	"hotkeys.h"
+	"config.h"
+	"hook/hook.h"
+	"sbui.h"
+	"vaudio.h"
+	"garmin.h"
+	"antplus.h"
+	<sbuicb.h>
+	"ext.h"
+
+1497172916 k:\code\mylcd\include\mylcd.h
+	"mylcdconfig.h"
+	"mylcdtypes.h"
+
+1523402073 k:\code\mylcd\include\mylcdconfig.h
+	<stdio.h>
+	<stdint.h>
+	<stdlib.h>
+	<unistd.h>
+	<sys/types.h>
+	<stdarg.h>
+	<ctype.h>
+	<wchar.h>
+	<wtypes.h>
+
+1492023495 k:\code\mylcd\include\mylcdtypes.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_version.h
+
+1434701070 k:\code\mylcd\examples\vlc\memory.h
+	"dralloc.h"
+
+1357302385 k:\code\mylcd\examples\vlc\dralloc.h
+
+1426526062 k:\code\mylcd\examples\vlc\lock.h
+
+1434357472 k:\code\mylcd\examples\vlc\libmylcd.h
+
+1431915555 k:\code\mylcd\examples\vlc\cpu.h
+
+1523009389 k:\code\mylcd\examples\vlc\ui.h
+
+1425233326 k:\code\mylcd\examples\vlc\list.h
+
+1361040489 k:\code\mylcd\examples\vlc\zoom.h
+
+1351503744 k:\code\mylcd\examples\vlc\button.h
+
+1437945452 k:\code\mylcd\examples\vlc\settings.h
+
+1425909873 k:\code\mylcd\examples\vlc\tags.h
+
+1360586452 k:\code\mylcd\examples\vlc\fileal.h
+
+1295559610 k:\code\mylcd\examples\vlc\playlistsort.h
+
+1440291918 k:\code\mylcd\examples\vlc\editbox.h
+
+1360614994 k:\code\mylcd\examples\vlc\funstuff.h
+
+1383566033 k:\code\mylcd\examples\vlc\cmdparser.h
+
+1435775179 k:\code\mylcd\examples\vlc\input.h
+
+1428746237 k:\code\mylcd\examples\vlc\playlist.h
+
+1434473999 k:\code\mylcd\examples\vlc\playlistc.h
+
+1426714586 k:\code\mylcd\examples\vlc\playlistmanager.h
+
+1415010495 k:\code\mylcd\examples\vlc\tree.h
+
+1437683995 k:\code\mylcd\examples\vlc\cc\cc.h
+	"label.h"
+	"button.h"
+	"button2.h"
+	"slider.h"
+	"scrollbar.h"
+	"lb.h"
+	"panel.h"
+	"tv.h"
+	"keypad.h"
+	"pane.h"
+	"graph.h"
+	"listbox.h"
+
+1433274866 k:\code\mylcd\examples\vlc\cc\label.h
+
+1437161519 k:\code\mylcd\examples\vlc\cc\button.h
+
+1420564555 k:\code\mylcd\examples\vlc\cc\slider.h
+
+1428879958 k:\code\mylcd\examples\vlc\cc\scrollbar.h
+
+1429296205 k:\code\mylcd\examples\vlc\cc\listbox.h
+
+1420235971 k:\code\mylcd\examples\vlc\cc\panel.h
+
+1425830686 k:\code\mylcd\examples\vlc\cc\tv.h
+
+1386081815 k:\code\mylcd\examples\vlc\m3u.h
+
+1437387273 k:\code\mylcd\examples\vlc\stringcache.h
+
+1436571337 k:\code\mylcd\examples\vlc\page.h
+
+1385839560 k:\code\mylcd\examples\vlc\imagec.h
+
+1389800606 k:\code\mylcd\examples\vlc\swatch.h
+
+1411201175 k:\code\mylcd\examples\vlc\timer.h
+
+1362744663 k:\code\mylcd\examples\vlc\artworkqueue.h
+	<vlc/vlc.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\vlc.h
+	<vlc/libvlc_structures.h>
+	<vlc/libvlc.h>
+	<vlc/libvlc_media.h>
+	<vlc/libvlc_media_player.h>
+	<vlc/libvlc_media_list.h>
+	<vlc/libvlc_media_list_player.h>
+	<vlc/libvlc_media_library.h>
+	<vlc/libvlc_media_discoverer.h>
+	<vlc/libvlc_events.h>
+	<vlc/libvlc_vlm.h>
+	<vlc/deprecated.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_structures.h
+	<stdint.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc.h
+	<stdarg.h>
+	<vlc/libvlc_structures.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media_player.h
+	<stdbool.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media_list.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media_list_player.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media_library.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_media_discoverer.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_events.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\libvlc_vlm.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc\deprecated.h
+
+1437439010 k:\code\mylcd\examples\vlc\marquee.h
+
+1502099918 k:\code\mylcd\examples\vlc\vlcstream.h
+	"vlcheaders.h"
+
+1330195706 k:\code\mylcd\examples\vlc\sdk\include\vlc_common.h
+	"vlc_config.h"
+	<stdlib.h>
+	<stdarg.h>
+	<string.h>
+	<stdio.h>
+	<inttypes.h>
+	<stddef.h>
+	<stdbool.h>
+	<malloc.h>
+	<sys/syslimits.h>
+	<sys/stat.h>
+	<windows.h>
+	<os2.h>
+	"vlc_mtime.h"
+	"vlc_threads.h"
+	<vlc_arrays.h>
+	<tchar.h>
+	<AvailabilityMacros.h>
+	<malloc.h>
+	"vlc_objects.h"
+	"vlc_variables.h"
+	"vlc_main.h"
+	"vlc_configuration.h"
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_config.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_mtime.h
+
+1377954360 k:\code\mylcd\examples\vlc\sdk\include\vlc_threads.h
+	<process.h>
+	<errno.h>
+	<unistd.h>
+	<pthread.h>
+	<mach/semaphore.h>
+	<mach/task.h>
+	<semaphore.h>
+	<libkern/OSAtomic.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_arrays.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_objects.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_variables.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_main.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_configuration.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_input.h
+	<vlc_es.h>
+	<vlc_meta.h>
+	<vlc_epg.h>
+	<vlc_events.h>
+	<vlc_input_item.h>
+	<string.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_es.h
+	<vlc_fourcc.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_fourcc.h
+	<vlc_common.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_meta.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_epg.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_events.h
+	<vlc_arrays.h>
+	<vlc_meta.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_input_item.h
+	<vlc_meta.h>
+	<vlc_epg.h>
+	<vlc_events.h>
+	<string.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_cpu.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_rand.h
+
+1358372575 k:\code\mylcd\examples\vlc\artwork.h
+
+1321634304 k:\code\mylcd\examples\vlc\drawvolume.h
+
+1420815031 k:\code\mylcd\examples\vlc\shelf.h
+
+1420814433 k:\code\mylcd\examples\vlc\plm.h
+
+1384278994 k:\code\mylcd\examples\vlc\album.h
+
+1377897010 k:\code\mylcd\examples\vlc\test.h
+
+1425300100 k:\code\mylcd\examples\vlc\winm.h
+
+1348575020 k:\code\mylcd\examples\vlc\videofilter.h
+
+1420498986 k:\code\mylcd\examples\vlc\transform.h
+
+1385400779 k:\code\mylcd\examples\vlc\videotransform.h
+
+1429468838 k:\code\mylcd\examples\vlc\ctrloverlay.h
+
+1419975272 k:\code\mylcd\examples\vlc\fileio.h
+
+1364377996 k:\code\mylcd\examples\vlc\browser.h
+
+1426271491 k:\code\mylcd\examples\vlc\meta.h
+
+1426249855 k:\code\mylcd\examples\vlc\vlc.h
+	"libvlceq.h"
+
+1415823990 k:\code\mylcd\examples\vlc\libvlceq.h
+	<vlc_aout_intf.h>
+	<vlc_access.h>
+	<vlc_aout.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_aout_intf.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_access.h
+	<vlc_block.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_block.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_aout.h
+	"vlc_es.h"
+	<vlc_block.h>
+
+1382272231 k:\code\mylcd\examples\vlc\vlceventcb.h
+
+1392332190 k:\code\mylcd\examples\vlc\mediastats.h
+
+1418766252 k:\code\mylcd\examples\vlc\chapter.h
+
+1377897085 k:\code\mylcd\examples\vlc\es.h
+
+1425223341 k:\code\mylcd\examples\vlc\epg.h
+
+1385922250 k:\code\mylcd\examples\vlc\imgovr.h
+
+1377897085 k:\code\mylcd\examples\vlc\exit.h
+
+1321932396 k:\code\mylcd\examples\vlc\sort.h
+
+1425341744 k:\code\mylcd\examples\vlc\cfg.h
+
+1418768440 k:\code\mylcd\examples\vlc\sub.h
+
+1436898861 k:\code\mylcd\examples\vlc\eq.h
+
+1421710333 k:\code\mylcd\examples\vlc\plytv.h
+
+1384721116 k:\code\mylcd\examples\vlc\plypanel.h
+
+1437999408 k:\code\mylcd\examples\vlc\clock.h
+
+1345029008 k:\code\mylcd\examples\vlc\morph.h
+
+1377893410 k:\code\mylcd\examples\vlc\lorenz.h
+
+1377893410 k:\code\mylcd\examples\vlc\mandel.h
+
+1377893485 k:\code\mylcd\examples\vlc\distort.h
+
+1354371568 k:\code\mylcd\examples\vlc\particles.h
+
+1377893410 k:\code\mylcd\examples\vlc\rollc.h
+
+1377897010 k:\code\mylcd\examples\vlc\tetris.h
+	"tetris/stc.h"
+	"tetris/platform.h"
+
+1343336484 k:\code\mylcd\examples\vlc\tetris\stc.h
+	"platform.h"
+
+1341226072 k:\code\mylcd\examples\vlc\tetris\platform.h
+	"mylcd.h"
+	"../common.h"
+
+1433759743 k:\code\mylcd\examples\vlc\home.h
+
+1415024750 k:\code\mylcd\examples\vlc\hotkeys.h
+
+1420120986 k:\code\mylcd\examples\vlc\config.h
+
+1418914799 k:\code\mylcd\examples\vlc\hook\hook.h
+	"../ext.h"
+
+1410171951 k:\code\mylcd\examples\vlc\sbui.h
+
+1385051968 k:\code\mylcd\examples\vlc\hrm.h
+
+1354383076 k:\code\mylcd\examples\vlc\opengl\mylcdgl.h
+	<gl/gl.h>
+	<GL/glu.h>
+	"glext.h"
+	<gl/wglext.h>
+
+1297613240 k:\code\mylcd\examples\vlc\opengl\glext.h
+	<windows.h>
+	<stddef.h>
+
+1325113284 k:\code\mylcd\examples\vlc\g19cb.h
+
+1396864939 source:k:\code\mylcd\examples\vlc\artwork.c
+	"common.h"
+
+1364909800 source:k:\code\mylcd\examples\vlc\artworkqueue.c
+	"common.h"
+
+1364483027 source:k:\code\mylcd\examples\vlc\browser.c
+	"common.h"
+	<winreg.h>
+
+1357402296 source:k:\code\mylcd\examples\vlc\button.c
+	"common.h"
+
+1437163334 source:k:\code\mylcd\examples\vlc\cc\button.c
+	"../common.h"
+
+1444039859 source:k:\code\mylcd\examples\vlc\cc\cc.c
+	"../common.h"
+
+1440421031 source:k:\code\mylcd\examples\vlc\cc\label.c
+	"../common.h"
+
+1429295561 source:k:\code\mylcd\examples\vlc\cc\listbox.c
+	"../common.h"
+
+1423712619 source:k:\code\mylcd\examples\vlc\cc\panel.c
+	"../common.h"
+
+1428537015 source:k:\code\mylcd\examples\vlc\cc\scrollbar.c
+	"../common.h"
+
+1423739308 source:k:\code\mylcd\examples\vlc\cc\slider.c
+	"../common.h"
+
+1425830708 source:k:\code\mylcd\examples\vlc\cc\tv.c
+	"../common.h"
+
+1502195377 source:k:\code\mylcd\examples\vlc\cfg.c
+	"common.h"
+
+1502237572 source:k:\code\mylcd\examples\vlc\chapter.c
+	"common.h"
+
+1502237060 source:k:\code\mylcd\examples\vlc\clock.c
+	"common.h"
+	<time.h>
+
+1502194675 source:k:\code\mylcd\examples\vlc\cmdparser.c
+	"common.h"
+	"antplus/anthrm.h"
+
+1502236994 source:k:\code\mylcd\examples\vlc\common.c
+	"common.h"
+	<wininet.h>
+	"sec_api/tchar_s.h"
+	"sec_api/wchar_s.h"
+
+1502237073 source:k:\code\mylcd\examples\vlc\config.c
+	"common.h"
+
+1433621830 source:k:\code\mylcd\examples\vlc\cpu.c
+	"common.h"
+
+1525841300 source:k:\code\mylcd\examples\vlc\ctrloverlay.c
+	"common.h"
+
+1353977028 source:k:\code\mylcd\examples\vlc\distort.c
+	"common.h"
+
+1383134481 source:k:\code\mylcd\examples\vlc\drawvolume.c
+	"common.h"
+
+1440291905 source:k:\code\mylcd\examples\vlc\editbox.c
+	"common.h"
+
+1502237377 source:k:\code\mylcd\examples\vlc\epg.c
+	"common.h"
+
+1502183833 source:k:\code\mylcd\examples\vlc\eq.c
+	"common.h"
+
+1502237388 source:k:\code\mylcd\examples\vlc\es.c
+	"common.h"
+
+1399497025 source:k:\code\mylcd\examples\vlc\exit.c
+	"common.h"
+
+1488931451 source:k:\code\mylcd\examples\vlc\fileal.c
+	"common.h"
+
+1422115425 source:k:\code\mylcd\examples\vlc\fileio.c
+	"common.h"
+	"reg.h"
+
+1352897468 k:\code\mylcd\examples\vlc\reg.h
+
+1364072380 source:k:\code\mylcd\examples\vlc\funstuff.c
+	"common.h"
+
+1336854564 source:k:\code\mylcd\examples\vlc\g19cb.c
+	"common.h"
+	"../../src/g19/g19.h"
+
+1318260946 k:\code\mylcd\src\g19\g19.h
+	"../g15/lglcd.dll/lglcd.h"
+
+1318256712 k:\code\mylcd\src\g15\lglcd.dll\lglcd.h
+
+1502237029 source:k:\code\mylcd\examples\vlc\home.c
+	"common.h"
+	<pdh.h>
+	<assert.h>
+
+1419893623 source:k:\code\mylcd\examples\vlc\hotkeys.c
+	"common.h"
+	<psapi.h>
+
+1385051945 source:k:\code\mylcd\examples\vlc\hrm.c
+	"common.h"
+	"antplus/anthrm.h"
+
+1400750186 k:\code\mylcd\examples\vlc\antplus\anthrm.h
+
+1434661972 source:k:\code\mylcd\examples\vlc\imagec.c
+	"common.h"
+
+1502195025 source:k:\code\mylcd\examples\vlc\imgovr.c
+	"common.h"
+
+1428894839 source:k:\code\mylcd\examples\vlc\input.c
+	"common.h"
+
+1433763218 source:k:\code\mylcd\examples\vlc\libmylcd.c
+	"common.h"
+
+1502237475 source:k:\code\mylcd\examples\vlc\libvlceq.c
+	"common.h"
+	<input_internal.h>
+
+1321707206 k:\code\mylcd\examples\vlc\sdk\include\input_internal.h
+	<vlc_access.h>
+	<vlc_demux.h>
+	<vlc_input.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_demux.h
+	<vlc_es.h>
+	<vlc_stream.h>
+	<vlc_es_out.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_stream.h
+	<vlc_block.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_es_out.h
+
+1426886334 source:k:\code\mylcd\examples\vlc\list.c
+	"common.h"
+
+1431192406 source:k:\code\mylcd\examples\vlc\lock.c
+	"common.h"
+
+1363387378 source:k:\code\mylcd\examples\vlc\lorenz.c
+	"common.h"
+
+1437162587 source:k:\code\mylcd\examples\vlc\m3u.c
+	"common.h"
+
+1363387469 source:k:\code\mylcd\examples\vlc\mandel.c
+	"common.h"
+
+1437439422 source:k:\code\mylcd\examples\vlc\marquee.c
+	"common.h"
+
+1411492538 source:k:\code\mylcd\examples\vlc\mediastats.c
+	"common.h"
+
+1414431047 source:k:\code\mylcd\examples\vlc\memory.c
+	"common.h"
+
+1502237505 source:k:\code\mylcd\examples\vlc\meta.c
+	"common.h"
+
+1463216270 source:k:\code\mylcd\examples\vlc\page.c
+	"common.h"
+
+1363387378 source:k:\code\mylcd\examples\vlc\particles.c
+	"common.h"
+
+1502237233 source:k:\code\mylcd\examples\vlc\playlist.c
+	"common.h"
+
+1502237514 source:k:\code\mylcd\examples\vlc\playlistc.c
+	"common.h"
+
+1434475666 source:k:\code\mylcd\examples\vlc\playlistmanager.c
+	"common.h"
+
+1358544202 source:k:\code\mylcd\examples\vlc\playlistplm.c
+	"common.h"
+
+1444038945 source:k:\code\mylcd\examples\vlc\playlistsort.c
+	"common.h"
+
+1502237656 source:k:\code\mylcd\examples\vlc\plm.c
+	"common.h"
+
+1502237711 source:k:\code\mylcd\examples\vlc\plypanel.c
+	"common.h"
+
+1433019888 source:k:\code\mylcd\examples\vlc\plytv.c
+	"common.h"
+
+1363387443 source:k:\code\mylcd\examples\vlc\rollc.c
+	"common.h"
+
+1502194928 source:k:\code\mylcd\examples\vlc\sbui.c
+	<math.h>
+	"common.h"
+
+1352065814 k:\code\mylcd\src\sbui\sbuicb.h
+
+1502236679 source:k:\code\mylcd\examples\vlc\settings.c
+	"common.h"
+
+1420818287 source:k:\code\mylcd\examples\vlc\shelf.c
+	"common.h"
+
+1360457784 source:k:\code\mylcd\examples\vlc\sort.c
+	"common.h"
+
+1437383762 source:k:\code\mylcd\examples\vlc\stringcache.c
+	"common.h"
+
+1502237351 source:k:\code\mylcd\examples\vlc\sub.c
+	"common.h"
+
+1389800745 source:k:\code\mylcd\examples\vlc\swatch.c
+	"common.h"
+
+1425909873 source:k:\code\mylcd\examples\vlc\tags.c
+	"common.h"
+
+1428264591 source:k:\code\mylcd\examples\vlc\tetris.c
+	"common.h"
+
+1425081497 source:k:\code\mylcd\examples\vlc\timer.c
+	"common.h"
+
+1420541819 source:k:\code\mylcd\examples\vlc\transform.c
+	<math.h>
+	"common.h"
+
+1415010495 source:k:\code\mylcd\examples\vlc\tree.c
+	"common.h"
+
+1358544248 source:k:\code\mylcd\examples\vlc\video_epg.c
+	"config.h"
+	<time.h>
+	<vlc_common.h>
+	<vlc_vout.h>
+	<vlc_vout_osd.h>
+	<vlc_events.h>
+	<vlc_input_item.h>
+	<vlc_epg.h>
+
+1330195828 k:\code\mylcd\examples\vlc\sdk\include\vlc_vout.h
+	<vlc_picture.h>
+	<vlc_filter.h>
+	<vlc_subpicture.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_picture.h
+	<vlc_es.h>
+
+1330195780 k:\code\mylcd\examples\vlc\sdk\include\vlc_filter.h
+	<vlc_es.h>
+	<vlc_picture.h>
+	<vlc_subpicture.h>
+	<vlc_mouse.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_subpicture.h
+	<vlc_picture.h>
+	<vlc_text_style.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_text_style.h
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_mouse.h
+
+1329502286 k:\code\mylcd\examples\vlc\sdk\include\vlc_vout_osd.h
+	<vlc_spu.h>
+
+1329502286 k:\code\mylcd\examples\vlc\sdk\include\vlc_spu.h
+	<vlc_subpicture.h>
+
+1356964008 source:k:\code\mylcd\examples\vlc\videofilter.c
+	"common.h"
+
+1420723070 source:k:\code\mylcd\examples\vlc\videotransform.c
+	"common.h"
+
+1502237247 source:k:\code\mylcd\examples\vlc\vlc.c
+	"common.h"
+	<vlc_common.h>
+	<vlc_epg.h>
+	<vlc_vout.h>
+	<input_internal.h>
+	<vout_internal.h>
+
+1330195224 k:\code\mylcd\examples\vlc\sdk\include\vout_internal.h
+	<vlc_picture_fifo.h>
+	<vlc_picture_pool.h>
+	<vlc_vout_display.h>
+	<vlc_vout_wrapper.h>
+	"vout_control.h"
+	"control.h"
+	"snapshot.h"
+	"statistic.h"
+	"chrono.h"
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_picture_fifo.h
+	<vlc_picture.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_picture_pool.h
+	<vlc_picture.h>
+
+1330182570 k:\code\mylcd\examples\vlc\sdk\include\vlc_vout_display.h
+	<vlc_es.h>
+	<vlc_picture.h>
+	<vlc_picture_pool.h>
+	<vlc_subpicture.h>
+	<vlc_mouse.h>
+	<vlc_vout_window.h>
+
+1329505886 k:\code\mylcd\examples\vlc\sdk\include\vlc_vout_window.h
+	<vlc_common.h>
+
+1327348726 k:\code\mylcd\examples\vlc\sdk\include\vlc_vout_wrapper.h
+	<vlc_vout_display.h>
+
+1327348728 k:\code\mylcd\examples\vlc\sdk\include\vout_control.h
+
+1327348728 k:\code\mylcd\examples\vlc\sdk\include\control.h
+
+1327348728 k:\code\mylcd\examples\vlc\sdk\include\snapshot.h
+	<vlc_picture.h>
+
+1327348728 k:\code\mylcd\examples\vlc\sdk\include\statistic.h
+
+1330182768 k:\code\mylcd\examples\vlc\sdk\include\chrono.h
+
+1488931409 source:k:\code\mylcd\examples\vlc\vlceventcb.c
+	"common.h"
+
+1523009846 source:k:\code\mylcd\examples\vlc\vlcstream.c
+	"common.h"
+	<rgbmasks.h>
+	<conio.h>
+
+1273327476 k:\code\mylcd\src\rgbmasks.h
+
+1525641177 source:k:\code\mylcd\examples\vlc\winm.c
+	"common.h"
+	<dbt.h>
+	<shlobj.h>
+	<initguid.h>
+	<shobjidl.h>
+	<dbt.h>
+	<initguid.h>
+	<gdiplus/gdiplus.h>
+
+1361356214 source:k:\code\mylcd\examples\vlc\zoom.c
+	"common.h"
+
+1363391010 source:k:\code\mylcd\examples\vlc\opengl\defrc.c
+	"../common.h"
+	"mylcdgl.h"
+	"matrix.h"
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+
+865540106 k:\code\mylcd\examples\vlc\opengl\matrix.h
+
+1363390876 source:k:\code\mylcd\examples\vlc\opengl\gl_lorenz.c
+	"../common.h"
+	"mylcdgl.h"
+
+1363390876 source:k:\code\mylcd\examples\vlc\opengl\gl_mandelbrot.c
+	"../common.h"
+	"mylcdgl.h"
+	"shader.h"
+
+1354328294 k:\code\mylcd\examples\vlc\opengl\shader.h
+
+1363390876 source:k:\code\mylcd\examples\vlc\opengl\gl_particles.c
+	"../common.h"
+	"mylcdgl.h"
+	<math.h>
+
+1363390903 source:k:\code\mylcd\examples\vlc\opengl\gl_rc.c
+	"../common.h"
+	"mylcdgl.h"
+	<math.h>
+
+1363391098 source:k:\code\mylcd\examples\vlc\opengl\matrix.c
+	"../common.h"
+	"matrix.h"
+	<math.h>
+
+1363390819 source:k:\code\mylcd\examples\vlc\opengl\mylcdgl.c
+	"../common.h"
+	"mylcdgl.h"
+
+1490981799 source:k:\code\mylcd\examples\vlc\antplus\anthrm.c
+	"../common.h"
+	<process.h>
+	"anthrm.h"
+	"garminhr.h"
+
+1400506364 k:\code\mylcd\examples\vlc\antplus\garminhr.h
+	"../common.h"
+	"libantplus.h"
+
+1399202104 k:\code\mylcd\examples\vlc\antplus\libantplus.h
+	<lusb0_usb.h>
+
+1310455972 k:\code\mylcd\contribs\x32\include\lusb0_usb.h
+	<stdlib.h>
+	<windows.h>
+	<pshpack1.h>
+	<poppack.h>
+
+1400749252 source:k:\code\mylcd\examples\vlc\antplus\garminhr.c
+	"../common.h"
+	"garminhr.h"
+
+1404813927 source:k:\code\mylcd\examples\vlc\antplus\libantplus.c
+	"../common.h"
+	<unistd.h>
+	<sys/types.h>
+	<ctype.h>
+	<lusb0_usb.h>
+	"libantplus.h"
+
+1502183924 source:k:\code\mylcd\examples\vlc\tetris\stc.c
+	"stc.h"
+	<stdlib.h>
+
+1428265411 source:k:\code\mylcd\examples\vlc\tetris\twrap.c
+	"../common.h"
+	"stc.h"
+
+1427308187 k:\code\mylcd\examples\vlc\cc\lb.h
+
+1428746379 source:k:\code\mylcd\examples\vlc\cc\lb.c
+	"../common.h"
+
+1426286867 k:\code\mylcd\examples\vlc\cc\keypad.h
+
+1486054069 k:\code\mylcd\examples\vlc\filebrowser.h
+
+1381765102 k:\code\mylcd\examples\vlc\explorer.h
+
+1417035320 k:\code\mylcd\examples\vlc\exppanel.h
+
+1425696899 k:\code\mylcd\examples\vlc\keyboard.h
+
+1375356009 k:\code\mylcd\src\sbui20\sbuicb.h
+
+1381848549 k:\code\mylcd\src\sbui153\sbuicb.h
+
+1427384342 source:k:\code\mylcd\examples\vlc\cc\keypad.c
+	"../common.h"
+
+1426286986 source:k:\code\mylcd\examples\vlc\keyboard.c
+	"common.h"
+
+1386190324 source:k:\code\mylcd\examples\vlc\explorer.c
+	"common.h"
+
+1502237359 source:k:\code\mylcd\examples\vlc\exppanel.c
+	"common.h"
+	<winioctl.h>
+
+1434661938 k:\code\mylcd\examples\vlc\stack.h
+
+1432726156 k:\code\mylcd\examples\vlc\artc.h
+
+1384555358 k:\code\mylcd\examples\vlc\jobcon.h
+	<vlc/vlc.h>
+
+1421884976 k:\code\mylcd\examples\vlc\cc\button2.h
+
+1433607976 k:\code\mylcd\examples\vlc\cc\pane.h
+
+1427576024 k:\code\mylcd\examples\vlc\filepane.h
+
+1425155316 k:\code\mylcd\examples\vlc\plypane.h
+
+1386033140 k:\code\mylcd\examples\vlc\imgpane.h
+
+1407607811 k:\code\mylcd\examples\vlc\bass.h
+	"bass/bass.h"
+	"bass/basswasapi.h"
+
+1511181655 source:k:\code\mylcd\examples\vlc\filebrowser.c
+	"common.h"
+	"reg.h"
+	<gdiplus.h>
+	<ddk/ntddstor.h>
+	<shellapi.h>
+	<ntddstor.h>
+
+1436899030 source:k:\code\mylcd\examples\vlc\cc\button2.c
+	"../common.h"
+
+1502194509 source:k:\code\mylcd\examples\vlc\artc.c
+	"common.h"
+
+1433767845 source:k:\code\mylcd\examples\vlc\cc\pane.c
+	"../common.h"
+	<process.h>
+
+1502237210 source:k:\code\mylcd\examples\vlc\filepane.c
+	"common.h"
+
+1502237220 source:k:\code\mylcd\examples\vlc\imgpane.c
+	"common.h"
+
+1502237520 source:k:\code\mylcd\examples\vlc\plypane.c
+	"common.h"
+
+1434702313 source:k:\code\mylcd\examples\vlc\stack.c
+	"common.h"
+
+1434311262 k:\code\mylcd\examples\vlc\process.h
+	<windows.h>
+	<tlhelp32.h>
+	<psapi.h>
+	<winternl.h>
+	<ddk/ntapi.h>
+	<ddk/ntddk.h>
+
+1438810918 k:\code\mylcd\examples\vlc\cc\graph.h
+
+1417794874 k:\code\mylcd\examples\vlc\fileext.h
+
+1415910408 k:\code\mylcd\examples\vlc\bass\bass.h
+	<wtypes.h>
+	<stdint.h>
+
+1378723006 k:\code\mylcd\examples\vlc\bass\basswasapi.h
+	"bass.h"
+
+1392853366 k:\code\mylcd\examples\vlc\picqueue.h
+
+1434473564 k:\code\mylcd\examples\vlc\search.h
+
+1399756392 k:\code\mylcd\examples\vlc\textoverlay.h
+
+1414150292 k:\code\mylcd\examples\vlc\alarm.h
+
+1434122897 k:\code\mylcd\examples\vlc\taskman.h
+
+1434325078 k:\code\mylcd\examples\vlc\ext.h
+	"crc.h"
+
+1409347095 k:\code\mylcd\examples\vlc\crc.h
+
+1395368459 k:\code\mylcd\examples\vlc\vaudio.h
+
+1400750110 k:\code\mylcd\examples\vlc\antplus.h
+	"antplus/garminhr.h"
+	"antplus/anthrm.h"
+
+1419289125 k:\code\mylcd\include\sbuicb.h
+
+1273331076 k:\code\mylcd\include\rgbmasks.h
+
+1436896194 k:\code\mylcd\examples\vlc\vlcheaders.h
+	<vlc_common.h>
+	<vlc_input.h>
+	<vlc_epg.h>
+	<vlc/vlc.h>
+	<vlc/libvlc_version.h>
+	<vlc_cpu.h>
+	<vlc_rand.h>
+
+1438813060 source:k:\code\mylcd\examples\vlc\cc\graph.c
+	"../common.h"
+
+1523009725 source:k:\code\mylcd\examples\vlc\search.c
+	"common.h"
+
+1525815886 source:k:\code\mylcd\examples\vlc\taskman.c
+	"common.h"
+
+1409347107 source:k:\code\mylcd\examples\vlc\crc.c
+	<ctype.h>
+	<stdlib.h>
+	<stdio.h>
+	<windows.h>
+
+1436901882 source:k:\code\mylcd\examples\vlc\alarm.c
+	"common.h"
+
+1502237253 source:k:\code\mylcd\examples\vlc\antplus.c
+	"common.h"
+
+1397944444 source:k:\code\mylcd\examples\vlc\picqueue.c
+	"common.h"
+
+1525841796 source:k:\code\mylcd\examples\vlc\process.c
+	"common.h"
+	<time.h>
+
+1411492567 source:k:\code\mylcd\examples\vlc\textoverlay.c
+	"common.h"
+
+1502095905 source:k:\code\mylcd\examples\vlc\ext.c
+	"common.h"
+
+1502195104 source:k:\code\mylcd\examples\vlc\fileext.c
+	"common.h"
+
+1463216102 source:k:\code\mylcd\examples\vlc\bass.c
+	"common.h"
+
+1434312677 source:k:\code\mylcd\examples\vlc\vaudio.cpp
+	<windows.h>
+	<stdio.h>
+	<stdlib.h>
+	<wtypes.h>
+	<endpointvolume.h>
+	<mmdeviceapi.h>
+	"common.h"
+
+1419036622 source:k:\code\mylcd\examples\vlc\vlcstream.rc
+
+1441969746 k:\code\mylcd\examples\vlc\vlsprocess.h
+	<tlhelp32.h>
+	<psapi.h>
+	<winternl.h>
+	<ddk/ntapi.h>
+	<ddk/ntddk.h>
+
+1440611768 k:\code\mylcd\examples\vlc\garmin.h
+	"tcx.h"
+
+1440628687 k:\code\mylcd\examples\vlc\tcx.h
+	"mxml/mxml.h"
+
+1434756309 k:\code\mylcd\examples\vlc\mxml\mxml.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<errno.h>
+	<inttypes.h>
+	<windows.h>
+
+1465040218 source:k:\code\mylcd\examples\vlc\tcx.c
+	"common.h"
+	"mxml/mxml.h"
+	"tcx.h"
+
+1502237042 source:k:\code\mylcd\examples\vlc\garmin.c
+	"common.h"
+
+1434757852 source:k:\code\mylcd\examples\vlc\mxml\mxml-attr.c
+	"../common.h"
+	"config.h"
+	"mxml.h"
+
+1525842538 k:\code\mylcd\examples\vlc\mxml\config.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdarg.h>
+	<ctype.h>
+
+1434756969 source:k:\code\mylcd\examples\vlc\mxml\mxml-entity.c
+	"../common.h"
+	"mxml-private.h"
+
+1263278413 k:\code\mylcd\examples\vlc\mxml\mxml-private.h
+	"config.h"
+	"mxml.h"
+
+1502184420 source:k:\code\mylcd\examples\vlc\mxml\mxml-file.c
+	<windows.h>
+	<tlhelp32.h>
+	<psapi.h>
+	<winternl.h>
+	"mxml-private.h"
+	"config.h"
+	"../common.h"
+
+1434757551 source:k:\code\mylcd\examples\vlc\mxml\mxml-index.c
+	"../common.h"
+	"config.h"
+	"mxml.h"
+
+1434757570 source:k:\code\mylcd\examples\vlc\mxml\mxml-node.c
+	"../common.h"
+	"config.h"
+	"mxml.h"
+
+1525843025 source:k:\code\mylcd\examples\vlc\mxml\mxml-private.c
+	"../common.h"
+	"mxml-private.h"
+
+1434532856 source:k:\code\mylcd\examples\vlc\mxml\mxml-search.c
+	"config.h"
+	"mxml.h"
+
+1434756969 source:k:\code\mylcd\examples\vlc\mxml\mxml-set.c
+	"../common.h"
+	"config.h"
+	"mxml.h"
+
+1434756969 source:k:\code\mylcd\examples\vlc\mxml\mxml-string.c
+	"../common.h"
+	"config.h"
+

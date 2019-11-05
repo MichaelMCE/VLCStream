@@ -1,0 +1,11 @@
+prefix=/home/buildslave/slave/vlc-bin-win64-x86_64/build/build/_win32
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: LibVLC control API
+Description: VLC media player external control library
+Version: 3.0.0-git-20141110-0403
+Cflags: -I${includedir}
+Libs: -L${libdir} -lvlc
+Libs.private: -lvlccore 

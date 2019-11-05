@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="vlcs" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="C:/Program Files (x86)/vlc/dbvlcs" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="C:/Program Files (x86)/vlc" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Option projectIncludeDirsRelation="2" />
+				<Option projectLibDirsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-Wno-error=unused-parameter" />
+					<Add directory="../sdk/include" />
+					<Add directory="../../../include" />
+					<Add directory="../../../lib/x32" />
+					<Add directory="../../../contribs/x32/include" />
+					<Add directory="../../../contribs/x32/lib" />
+				</Compiler>
+				<Linker>
+					<Add library="m" />
+					<Add library="libmylcddll" />
+					<Add library="../hook/libhook.a" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="../sdk/lib/libvlc.dll.a" />
+					<Add library="../sdk/lib/libvlccore.dll.a" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
+					<Add library="psapi" />
+					<Add library="shlwapi" />
+					<Add library="usb" />
+					<Add directory="../../../contribs/x32/lib" />
+					<Add directory="../../../lib/x32" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="C:/Program Files (x86)/vlc/vlcs" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="C:/Program Files (x86)/vlc" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Option projectIncludeDirsRelation="2" />
+				<Option projectLibDirsRelation="2" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-Wextra" />
+					<Add option="-m32" />
+					<Add option="-Wno-error=unused-parameter" />
+					<Add directory="../sdk/include" />
+					<Add directory="../../../include" />
+					<Add directory="../../../lib/x32" />
+					<Add directory="../../../contribs/x32/include" />
+					<Add directory="../../../contribs/x32/lib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add option="--output-format=coff" />
+					<Add option="--target=pe-i386" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+					<Add option="-static-libgcc" />
+					<Add option="-static-libstdc++" />
+					<Add library="stdc++" />
+					<Add library="m" />
+					<Add library="libmylcddll" />
+					<Add library="../hook/x32/libhook.a" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="../sdk/lib/libvlc.dll.a" />
+					<Add library="../sdk/lib/libvlccore.dll.a" />
+					<Add library="usb" />
+					<Add library="ntdll" />
+					<Add library="setupapi" />
+					<Add library="pdh" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
+					<Add library="psapi" />
+					<Add library="shlwapi" />
+					<Add library="dxguid" />
+					<Add library="dinput" />
+					<Add library="ole32" />
+					<Add library="../bass/x32/bass.lib" />
+					<Add library="../bass/x32/basswasapi.lib" />
+					<Add library="comctl32" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="gdiplus" />
+					<Add library="mingw32" />
+					<Add directory="../../../contribs/x32/lib" />
+					<Add directory="../../../lib/x32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-march=k8" />
+			<Add option="-fomit-frame-pointer" />
+			<Add option="-fexpensive-optimizations" />
+			<Add option="-O3" />
+			<Add option="-Winit-self" />
+			<Add option="-Wcast-align" />
+			<Add option="-Wunreachable-code" />
+			<Add option="-Wfatal-errors" />
+			<Add option="-m32" />
+			<Add option="-minline-all-stringops" />
+			<Add option="-std=gnu11" />
+			<Add option="-fno-strict-aliasing" />
+			<Add option="-funroll-loops" />
+			<Add option="-finline-functions" />
+			<Add option="-ftree-vectorizer-verbose=0" />
+			<Add option="-fvariable-expansion-in-unroller" />
+			<Add option="-ftree-loop-distribution" />
+			<Add option="-fmath-errno" />
+			<Add option="-ffast-math" />
+			<Add option="-Ofast" />
+			<Add option="-Werror" />
+			<Add option="-Wno-cpp" />
+			<Add option="-Wno-error=unused-parameter" />
+			<Add option="-Wno-error=sign-compare" />
+			<Add option="-Wno-error=float-equal" />
+			<Add option="-Wlarger-than=262144" />
+			<Add option="-fno-exceptions" />
+			<Add option="-mwin32" />
+			<Add option="-fgcse-las" />
+			<Add option="-fgcse-sm" />
+			<Add option="-fgcse-lm" />
+			<Add option="-fmodulo-sched-allow-regmoves" />
+			<Add option="-fmodulo-sched" />
+			<Add option="-mfpmath=sse,387" />
+			<Add option="-msse2" />
+			<Add option="-msse" />
+			<Add option="-mmmx" />
+			<Add option="-mthreads" />
+			<Add option="-fno-common" />
+			<Add option="-Wno-unused-parameter" />
+			<Add option="-Wno-sign-compare" />
+			<Add option="-march=native" />
+			<Add option="-mtune=native" />
+			<Add option="-Wl,--stack,18388608" />
+			<Add option="-ftree-vectorize" />
+			<Add option="-floop-interchange" />
+			<Add option="-floop-strip-mine" />
+			<Add option="-floop-block" />
+			<Add option="-D__MSVCRT_VERSION__=0x0701" />
+			<Add option="-D_WIN32" />
+			<Add option="-D_M_IX86" />
+			<Add option="-D_WIN32_WINNT=0x0701" />
+			<Add option="-DWINVER=0x0701" />
+			<Add option="-D__WIN32__=1" />
+			<Add option="-DHAVE_SSE2" />
+			<Add option="-DUSE_SSE2" />
+			<Add option="-DUSE_MMX2" />
+			<Add option="-DHAVE_MMX2" />
+			<Add option="-DUSE_SSE" />
+			<Add option="-DHAVE_SSE" />
+			<Add option="-DHAVE_MMX" />
+			<Add option="-DUSE_MMX" />
+			<Add option="-DWIN32=1" />
+			<Add option="-DNDEBUG=1" />
+			<Add option="-D_NDEBUG=1" />
+			<Add option="-DPSAPI_VERSION=1" />
+		</Compiler>
+		<Linker>
+			<Add option="-s" />
+			<Add option="-m32" />
+			<Add library="pthread" />
+			<Add library="wininet" />
+		</Linker>
+		<Unit filename="../alarm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../album.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../antplus.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../antplus/anthrm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../antplus/garminhr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../antplus/libantplus.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../artc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../artwork.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../artworkqueue.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../bass.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/button.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/button.h" />
+		<Unit filename="../cc/button2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/cc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/cc.h" />
+		<Unit filename="../cc/graph.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/keypad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/keypad.h" />
+		<Unit filename="../cc/label.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/label.h" />
+		<Unit filename="../cc/lb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/listbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/listbox.h" />
+		<Unit filename="../cc/pane.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/panel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/panel.h" />
+		<Unit filename="../cc/scrollbar.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/scrollbar.h" />
+		<Unit filename="../cc/slider.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/slider.h" />
+		<Unit filename="../cc/tv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cc/tv.h" />
+		<Unit filename="../cfg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../chapter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../clock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cmdparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common.h" />
+		<Unit filename="../config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../cpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../crc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../ctrloverlay.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../drawvolume.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../editbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../epg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../eq.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../es.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../exit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../explorer.h" />
+		<Unit filename="../exppanel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../exppanel.h" />
+		<Unit filename="../ext.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../fileal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../filebrowser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../filebrowser.h" />
+		<Unit filename="../fileext.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../fileio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../filepane.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../funstuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../g19cb.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../garmin.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../home.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../hotkeys.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../imagec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../imgovr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../imgpane.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../input.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../keyboard.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../keyboard.h" />
+		<Unit filename="../libmylcd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../libvlceq.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../lock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../m3u.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../marquee.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mediastats.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../meta.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-attr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-entity.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-index.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-node.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-search.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-set.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../mxml/mxml-string.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../page.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../picqueue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../playlist.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../playlistc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../playlistmanager.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../playlistsort.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../plm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../plypane.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../plypanel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../plytv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../process.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../sbui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../search.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../settings.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shelf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../sort.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../stack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../stringcache.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../swatch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tags.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../taskman.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tcx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tetris.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tetris/stc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tetris/twrap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../textoverlay.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../timer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../transform.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../tree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../ui.h" />
+		<Unit filename="../vaudio.cpp" />
+		<Unit filename="../videotransform.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../vlc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../vlceventcb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../vlcstream.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../vlcstream.h" />
+		<Unit filename="../vlcstream.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="../winm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../zoom.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

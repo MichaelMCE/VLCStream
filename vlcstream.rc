@@ -1,0 +1,53 @@
+APP_ICON		ICON		"icons/vlcstream.ico"
+APP_PRIMARY		ICON		"icons/hk16.ico"
+APP_SECONDARY	ICON		"icons/hkalt16.ico"
+BM_FOLDER		BITMAP		"icons/folder13.bmp"
+BM_PLAYING		BITMAP		"icons/playing13.bmp"
+BM_FOLDERPLY	BITMAP		"icons/folderply13.bmp"
+BM_POSITION		BITMAP		"icons/pos13.bmp"
+BM_PLAY			BITMAP		"icons/play13.bmp"
+BM_PAUSE		BITMAP		"icons/pause13.bmp"
+BM_STOP			BITMAP		"icons/stop13.bmp"
+BM_PREV			BITMAP		"icons/prev13.bmp"
+BM_NEXT			BITMAP		"icons/next13.bmp"
+BM_VLC			BITMAP		"icons/vlc13.bmp"
+BM_MUTE			BITMAP		"icons/speaker13.bmp"
+BM_MUTED		BITMAP		"icons/muted13.bmp"
+BM_VOLUME		BITMAP		"icons/vol13.bmp"
+BM_CHAPTERS		BITMAP		"icons/chapter13.bmp"
+BM_PROGRAMME	BITMAP		"icons/dvb13.bmp"
+
+
+
+#define VERSION_NUMBER		16,04,13,806
+#define VERSION_NUMBER_STR "16,04,13,806"
+
+
+1 VERSIONINFO
+FILETYPE 2
+FILEOS 4
+PRODUCTVERSION VERSION_NUMBER
+FILEVERSION VERSION_NUMBER
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "340904E4"
+    BEGIN
+      VALUE "Comments", "mylcd.sourceforge.net"
+      VALUE "CompanyName", "mylcd.sourceforge.net"
+      VALUE "ProductName", "VLCStream"
+      VALUE "ProductVersion", VERSION_NUMBER_STR
+      VALUE "FileVersion", "16042013-0.80.6"
+      VALUE "FileDescription", "VLCStream media player"
+      VALUE "LegalCopyright", "Copyright \251 2013 Michael McElligott - http://mylcd.sourceforge.net"
+      VALUE "LegalTrademarks", "VLC media player is a registered trademark of VideoLAN"
+      VALUE "OriginalFilename", "vlcstream.exe"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x3409, 0x4E4
+  END
+END
+
+

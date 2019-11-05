@@ -1,0 +1,4 @@
+
+
+call gccpath.bat
+call gcc -O3 -minline-all-stringops -fno-strict-aliasing -fno-exceptions -D__MSVCRT_VERSION__=0x0601 -Wall -Werror -D_WIN32 -D_M_IX86 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -funroll-loops -finline-functions -ftree-vectorizer-verbose=0 -fvariable-expansion-in-unroller -ftree-loop-distribution -fno-signed-zeros -fno-trapping-math -fno-math-errno -ffast-math -s -pipe -fgcse-las -fgcse-sm -fgcse-lm -fmodulo-sched -fmodulo-sched-allow-regmoves -O3 -Wno-error=format -m32 -shared -Wl,--output-def=mxml.def -Wl,--dll -Wl,--out-implib=mxml.a mxml-*.c -IM:\MinGW\x86_64-w64-mingw32\include\ddk\ -lntdll -o mxml.dll
