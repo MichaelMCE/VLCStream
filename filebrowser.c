@@ -393,7 +393,7 @@ static inline TFBSORT *fbQsBuild (TTREE *tree, const int id, int *listTotal, con
 		  		else if (treeEntryIsBranch(subentry))
 		  			strncpy(sortlist[ct].string, subentry->name, MAX_PATH_UTF8);
 		  		else
-		  			strncpy(sortlist[ct].string, " ", 1);
+		  			strcpy(sortlist[ct].string, " ");
 
 			  	break;
 			}

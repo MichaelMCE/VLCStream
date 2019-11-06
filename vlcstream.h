@@ -199,6 +199,8 @@ typedef struct{
 	int annouce;
 }TSNAPSHOT;
 
+#define KIDHOTKEYS_TOTAL (32)
+
 typedef struct{
 	TSKIN skin;
 	TGUIINPUT cursor;
@@ -286,7 +288,7 @@ typedef struct{
 		int globalEnabled;		// global hotkeys enabled (vlc)
 		int localEnabled;		// local hotkeys enabled (cursor/kbd hook)
 				
-		ATOM kid[32];		// keyboard media keys
+		ATOM kid[KIDHOTKEYS_TOTAL];		// keyboard media keys
 		char cursor;		// global hotkey to enable mouse hook, default is ctrl+shift+'A'
 		char console;		// internal console prompt, default is ctrl+shift+'L'
 	}hotkeys;

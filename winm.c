@@ -3189,7 +3189,7 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 		}
 		
 		if (vp->gui.hotkeys.globalEnabled || vp->gui.hotkeys.localEnabled){
-			for (int i = 0; i < (sizeof(kid)/sizeof(ATOM)); i++){
+			for (int i = 0; i < KIDHOTKEYS_TOTAL; i++){
 				if (kid[i]){
 					UnregisterHotKey(vp->gui.hMsgWin, kid[i]);
 					GlobalDeleteAtom(kid[i]);

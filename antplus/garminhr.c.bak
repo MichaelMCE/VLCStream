@@ -90,6 +90,7 @@ int channelEvent (const int chan, const int eventId, const unsigned char *payLoa
 		hr->rate->currentSequence = payLoad[STREAM_RXBROADCAST_DEV120_SEQ];
 		if (hr->rate->currentSequence != hr->rate->previousSequence){
 	  		//memcpy(&hr->rate->bpm[0], &hr->rate->bpm[1], (HRBMP_BUFFERLENGTH*sizeof(unsigned char))-sizeof(unsigned char));
+	  		//memcpy(&hr->rate->bpm[0], &hr->rate->bpm[1], HRBMP_BUFFERLENGTH-1);
 	  		for (int i = 0; i < HRBMP_BUFFERLENGTH-1; i++)
 	  			hr->rate->bpm[i] = hr->rate->bpm[i+1];
 	  		

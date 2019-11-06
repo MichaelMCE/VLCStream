@@ -159,7 +159,7 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 		double range;
 		
 		if (!sheet->stats.ceiling){
-			range = abs(sheet->stats.max - sheet->stats.min)+1.0;
+			range = fabs(sheet->stats.max - sheet->stats.min)+1.0;
 		}else{
 			double max = MAX(sheet->stats.ceiling, sheet->stats.max);
 			//min = MAX(sheet->stats.floor, sheet->stats.min);

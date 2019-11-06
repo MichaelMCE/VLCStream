@@ -172,7 +172,7 @@ typedef struct {
 							// at which point it is then either enabled (ready to fire) or disabled (do not fire)
 							// when fired, state will be set to fired
 	int id;
-	char timeStr[ALARM_MAXTIMEDIGITS+1];		// for visual reference
+	char timeStr[ALARM_MAXTIMEDIGITS+3];		// for visual reference
 	int action;				// what to do when fired (ALARM_ACT_)
 	int keepAlive;			// retain alarm instance after firing, otherwise its auto-deleted
 	int wakeOnIdle;			// when triggering and is idle, leave idle if set

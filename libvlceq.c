@@ -359,6 +359,7 @@ int libvlc_media_player_set_equalizer (libvlc_media_player_t *p_mi, libvlc_equal
     for (int i = 0; i < EQZ_BANDS_MAX; i++){
     	__mingw_snprintf(psz_band, sizeof(psz_band)-1, "%.07f ", p_equalizer->f_amp[i]);
     	strncat(psz_bands, psz_band, sizeof(psz_band)-1);
+		psz_bands[EQZ_BANDS_MAX*16] = 0;
     }
     
     input_thread_t *p_input_thread = libvlc_get_input_thread(p_mi);

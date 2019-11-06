@@ -1025,7 +1025,7 @@ static inline int scaleTextScaleSet (TLABEL *label, TFRAME *frame, TTEXTSCALE *s
 	else
 		y = fh2;
 
-	const int ty = abs((label->metrics.height+8) - (scale->textHeight*mod)) / 2;
+	const int ty = fabs((label->metrics.height+8) - (scale->textHeight*mod)) / 2;
 	labelItemPositionSet(label, scale->lblIdText, 0, ty);
 
 	ccSetPosition(label, (fw-label->metrics.width)/2, y-(scale->textHeight/2.0));
@@ -1418,7 +1418,7 @@ static inline int page_plyctrlStartup (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, c
 
 
 	btn = buttonsCreateButton(btns, L"ctrlovr/timestamp.png", L"ctrlovr/timestamp.png", VBUTTON_TIMESTMP, 1, 0, 0, 0);
-	ccSetPosition(btn, abs((ccGetWidth(btn) - fw)/2.0), y+2);
+	ccSetPosition(btn, fabs((ccGetWidth(btn) - fw)/2.0), y+2);
 	buttonFaceTextSet(btn, BUTTON_PRI, "0:00/0:00", PF_CLIPWRAP|PF_MIDDLEJUSTIFY, CTRLOVR_TIMESTAMP_FONT, 0, 0);
 	buttonFaceTextSet(btn, BUTTON_SEC, "0:00/0:00", PF_CLIPWRAP|PF_MIDDLEJUSTIFY, CTRLOVR_TIMESTAMP_FONT, 0, 0);
 	buttonFaceTextColourSet(btn, BUTTON_PRI, 255<<24|COL_WHITE, 255<<24|COL_BLACK, 200<<24|COL_BLUE_SEA_TINT);

@@ -1410,7 +1410,7 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 			if (!isScaled)
 				text->offset.x = (abs(str->width - maxW)>>1);
 			else
-				text->offset.x = abs((int)(str->width * scale) - maxW) >> 1;
+				text->offset.x = abs((str->width * scale) - maxW) >> 1;
 
 			int col = x + text->offset.x;
 			if (col < text->pos.x) col = x + text->pos.x;

@@ -506,6 +506,7 @@ int alarmUiGetAlarmTime (TALARM *alarm, char *buffer)
 	TALARMTIMER *alm = alarmIdToAlm(alarm, alarm->active.aid);
 	if (alm){
 		strncpy(buffer, alm->timeStr, ALARM_MAXTIMEDIGITS);
+		buffer[ALARM_MAXTIMEDIGITS] = 0;
 		return 1;
 	}
 	return 0;
@@ -973,7 +974,7 @@ static inline char *alarmTimeAlarmToStr (TALARM *alarm, char *tstr)
 
 static inline int alarmTimeAlarmToInt (TALARM *alarm)
 {
-	char tstr[ALARM_MAXTIMEDIGITS+1] = {0};
+	char tstr[ALARM_MAXTIMEDIGITS+3] = {0};
 	for (int i = 0; i < ALARM_MAXTIMEDIGITS; i++){
 		TLABELSTR *lblstr = alarm->ui.time[i];
 		tstr[i] = labelItemDataGet(lblstr->label, lblstr->strId);
@@ -995,7 +996,7 @@ static inline void alarmTimeSetColour (TALARM *alarm, const unsigned int colI, c
 	  	}
 	}
 	
-	char tstr[ALARM_MAXTIMEDIGITS+1];
+	char tstr[ALARM_MAXTIMEDIGITS+3];
   	alarmTimeAlarmToStr(alarm, tstr);
   	alarmUiSetAlarmTime(alarm, tstr);
 }
@@ -1037,7 +1038,7 @@ static inline int64_t alarmLblstr_cb (const void *object, const int msg, const i
 		}
 		labelItemDataSet(lblstr->label, lblstr->strId, c);
 		
-		char buffer[ALARM_MAXTIMEDIGITS+1] = {0};
+		char buffer[ALARM_MAXTIMEDIGITS+3] = {0};
 		char *tstr = buffer;
 		TALARMTIMER *alm = alarmIdToAlm(alarm, alarm->ui.aid);
 		if (alm) tstr = alm->timeStr;

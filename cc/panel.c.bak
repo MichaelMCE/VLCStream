@@ -652,7 +652,7 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 			}
 			
 			int dt = (int)(swipe->dt*10);
-			if (dt && abs(swipe->dy) >= swipe->dragMinV){
+			if (dt && (abs(swipe->dy) >= swipe->dragMinV){
 				swipe->adjust = swipe->dy;
 				swipe->decayFactor = fabs(swipe->velocity * 10.0);
 

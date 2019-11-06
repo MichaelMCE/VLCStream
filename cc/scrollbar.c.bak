@@ -141,7 +141,7 @@ static inline void _drawScrollBar (TSCROLLBAR *scrollbar, TFRAME *des, const int
 
 	tabH -= 0.75;
 	if (tabY+tabH > scrollbar->metrics.y + scrollbar->metrics.height)
-		tabY -= fabs((tabY+tabH) - (scrollbar->metrics.y+scrollbar->metrics.height));
+		tabY -= abs((tabY+tabH) - (scrollbar->metrics.y+scrollbar->metrics.height));
 		
 	lDrawRectangleFilled(des, scrollbar->metrics.x+1, tabY+1.0, scrollbar->metrics.x+scrollbar->metrics.width-1, (tabY+tabH)-1.0, (190<<24)|COL_BLUE_SEA_TINT);
 	lDrawRectangle(des, scrollbar->metrics.x, tabY, scrollbar->metrics.x+scrollbar->metrics.width, tabY+tabH, (160<<24)|0xFFFFFF);

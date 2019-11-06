@@ -1072,7 +1072,7 @@ static inline void drawRuler (TTCX *tcx, TFRAME *frame, const int y, const int c
 	double value = width * tcx->route.ruler.metersPerPixelH;		// scaled value
 	if (value < 0.001) value = 0.001;	// 1cm
 
-	int x1 = abs(frame->width - width) / 2;
+	int x1 = abs((int)(frame->width-width)) / 2;
 	int x2 = x1 + width-1;
 		
 	lDrawLine(frame, x1, y-barDepth, x1, y-thickness-1, colour);
@@ -1743,7 +1743,7 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 
 				double x = tcx->route.offset.x - tcx->route.offset.deltaX;
 				double y = tcx->route.offset.y - tcx->route.offset.deltaY;
-				if (abs(x) >= 2 && abs(y) >= 2){
+				if (fabs(x) >= 2 && fabs(y) >= 2){
 #if 1
 					tcx->route.offset.modified.x = x;
 					tcx->route.offset.modified.y = y;

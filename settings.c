@@ -549,10 +549,10 @@ int settingsWriteKeys (FILE *fp, TCFGENTRY **config)
 			break;
 
 		  case CFG_INT64:{
-		  	char buffer[64];
-		  	_i64toa(*(int64_t*)entry->ptr, buffer, 10);
+		  	char buffer64[64];
+		  	_i64toa(*(int64_t*)entry->ptr, buffer64, 10);
 		  	//slen = _snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %I64i", entry->key, *(int64_t*)entry->ptr);
-		  	slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %s", entry->key, buffer);
+		  	slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %s", entry->key, buffer64);
 		  	settingsWriteLine(fp, buffer, slen, entry->comment);
 			break;
 		  }

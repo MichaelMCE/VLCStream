@@ -24,7 +24,7 @@
 #ifndef _VLCHEADERS_H_
 #define _VLCHEADERS_H_
 
-//#include <pthread.h>
+#include <pthread.h>
 #include <vlc_common.h>
 #include <vlc_input.h>
 #include <vlc_epg.h>

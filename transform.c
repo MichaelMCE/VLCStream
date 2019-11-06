@@ -407,8 +407,8 @@ void rotateBilinear (TFRAME *frame, TFRAME *des, const int degrees)
 	const float _angle = ((float)-degrees/180.0f) * M_PI;
 	const int bpp = 4;
 	const int _pitch = frame->pitch;
-	const int _width = (int)(abs((float)frame->width*cos(_angle)) + abs((float)frame->height*sin(_angle)) + 0.5f);
-	const int _height = (int)(abs((float)frame->width*sin(_angle)) + abs((float)frame->height*cos(_angle)) + 0.5f);
+	const int _width = (int)(fabs((float)frame->width*cos(_angle)) + fabs((float)frame->height*sin(_angle)) + 0.5f);
+	const int _height = (int)(fabs((float)frame->width*sin(_angle)) + fabs((float)frame->height*cos(_angle)) + 0.5f);
 	const int srcWidth = frame->width;
 	const int srcHeight = frame->height;
 	
@@ -511,8 +511,8 @@ void rotateNearestNeighbour (TFRAME *frame, TFRAME *des, const int degrees, cons
 	const float _angle = ((float)-degrees/180.0f) * M_PI;
 	int m_iBpp = 4;
 	int m_iPitch = frame->pitch;
-	int _width = (int)(abs((float)frame->width*cos(_angle)) + abs((float)frame->height*sin(_angle)) + 0.5f);
-	int _height = (int)(abs((float)frame->width*sin(_angle)) + abs((float)frame->height*cos(_angle)) + 0.5f);
+	int _width = (int)(fabs((float)frame->width*cos(_angle)) + fabs((float)frame->height*sin(_angle)) + 0.5f);
+	int _height = (int)(fabs((float)frame->width*sin(_angle)) + fabs((float)frame->height*cos(_angle)) + 0.5f);
 	
 	int _pitch = m_iBpp * _width;
 	while ((_pitch & 3) != 0)
@@ -573,8 +573,8 @@ void rotateBicubic (TFRAME *frame, TFRAME *des, const int degrees, int bgColor)
 
 	float _angle = ((float)-degrees/180.0f) * M_PI;
 	int m_iBpp = 4;
-	int _width = (int)(abs((float)frame->width*cos(_angle)) + abs((float)frame->height*sin(_angle)) + 0.5f);
-	int _height = (int)(abs((float)frame->width*sin(_angle)) + abs((float)frame->height*cos(_angle)) + 0.5f);
+	int _width = (int)(fabs((float)frame->width*cos(_angle)) + fabs((float)frame->height*sin(_angle)) + 0.5f);
+	int _height = (int)(fabs((float)frame->width*sin(_angle)) + fabs((float)frame->height*cos(_angle)) + 0.5f);
 	
 	int _pitch = m_iBpp * _width;
 	while ((_pitch & 3) != 0)
