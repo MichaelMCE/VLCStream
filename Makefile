@@ -34,7 +34,7 @@ CONTRIBS =../../contribs/$(SYSARCH)/
 #CFLAGSARCH = -march=pentium3 -mtune=pentium3 -m32 -mthreads -Wl,--stack,8388608
 #CFLAGSARCH = -march=pentium4 -mtune=pentium4 -m32 -mthreads -Wl,--stack,8388608
 #CFLAGSARCH = -march=amdfam10 -mtune=amdfam10 -m32 -mthreads -fno-common -Wl,--stack,8388608
-CFLAGSARCH = -march=native -mtune=native -fno-common
+CFLAGSARCH = -march=i686 -mtune=i686 -fno-common
 #  -Wl,--stack,18388608
 
 GLOP = -floop-interchange -floop-strip-mine -floop-block
