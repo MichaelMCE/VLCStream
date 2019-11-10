@@ -1,4 +1,4 @@
-VLCStream - A media player for the SwitchBlade UI using VLC v2.0.x
+VLCStream - A desktop media player.
 
 
 Install:
@@ -314,10 +314,12 @@ Feedback and suggestions welcomed.
 
 Michael McElligott
 web: http://mylcd.sourceforge.net
+https://github.com/MichaelMCE/VLCStream
 
 Contact:
 Email: okio@users.sourceforge.net
 http://mylcd.sourceforge.net/vlc/index.html
+
 
 ----------------------------------
 
