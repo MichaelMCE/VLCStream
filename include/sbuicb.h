@@ -1,11 +1,6 @@
 
-// libmylcd
-// An LCD framebuffer library
-// Michael McElligott
-// okio@users.sourceforge.net
-
-//  Copyright (c) 2005-2012  Michael McElligott
-//
+//  Copyright (c) Michael McElligott
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
 //  as published by the Free Software Foundation; either version 2
@@ -14,7 +9,10 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU LIBRARY GENERAL PUBLIC LICENSE for more details.
+//  GNU LIBRARY GENERAL PUBLIC LICENSE for details.
+
+
+
 
 
 #ifndef _SBUICB153_H_
