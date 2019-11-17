@@ -1,4 +1,4 @@
-VLCStream - A desktop media player with support for external displays.
+VLCStream - A desktop and/or headless media player with native support for touch input and external displays
 
 
 Install:
