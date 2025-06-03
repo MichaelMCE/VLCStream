@@ -137,6 +137,7 @@ static inline int fileext_extlistBuild (TFILEEXT *fileext)
 			if (!fileext->total)
 				my_free(fileext->exts);
 		}
+		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
 	}
 

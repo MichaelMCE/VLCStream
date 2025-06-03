@@ -473,8 +473,9 @@ static inline int page_ghkInitalize (TGLOBALHOTKEYS *ghk, TVLCPLAYER *vp, const 
 			}
 			ghk->totalKeys = validKeys;
 		}
+		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		my_free(strList);
+		//my_free(strList);
 	}
 	
 	return 1;

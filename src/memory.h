@@ -27,7 +27,7 @@
 
 
 
-#define MEM_DEBUG		0
+#define MEM_DEBUG		1
 #define funcname		__FILE__
 #define linenumber		(__LINE__)
 
@@ -52,11 +52,11 @@ MYLCD_EXPORT void * my_Memcpy (void *s1, const void *s2, size_t n)
 //MYLCD_EXPORT void my_MemStatsDump (THWD *hw);
 
 
-
 #if USEEXTMEMFUNC
 
 
-//#define my_memcpy(s1,s2,n)	my_Memcpy(s1, s2, n)
+#define my_memcpy(s1,s2,n)	my_Memcpy(s1, s2, n)
+
 #if USE_MMX_MEMCPY
 #define my_memcpy			mmx_memcpy
 else
@@ -93,12 +93,12 @@ else
 #define my_strdup(p)		dr_strdup((p))
 #define my_wcsdup(p)		dr_wcsdup((p))
 #else
-#define my_malloc(n)		malloc(n)
-#define my_calloc(n, e)		calloc(n, e)
-#define my_realloc(p, n)	realloc(p, n)
-#define my_free(p)			free(p)
-#define my_strdup(p)		strdup(p)
-#define my_wcsdup(p)		wcsdup(p)
+#define my_malloc(n)		malloc((n))
+#define my_calloc(n, e)		calloc((n), (e))
+#define my_realloc(p, n)	realloc((p), (n))
+#define my_free(p)			free((p))
+#define my_strdup(p)		strdup((p))
+#define my_wcsdup(p)		wcsdup((p))
 #endif
 
 #else

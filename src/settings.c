@@ -95,9 +95,21 @@ char *cfg_configStrListItem (str_list *strList, const int index)
 		return NULL;
 }
 
-void cfg_configStrListFree (str_list *strList)
+str_list *cfg_configStrListNew (const int total)
+{
+	str_list *strList = my_calloc(1, sizeof(str_list));
+	if (strList)
+		strList->total = total;
+		
+	//printf("# cfg_configStrListNew %p\n", strList);
+	return strList;
+}
+
+void cfg_configStrListFreeStrings (str_list *strList)
 {
 	if (strList){
+		//printf("# cfg_configStrListFree %p\n", strList);
+		
 		for (int j = 0; j < strList->total; j++){
 			if (strList->strings[j])
 				my_free(strList->strings[j]);
@@ -105,12 +117,18 @@ void cfg_configStrListFree (str_list *strList)
 	}
 }
 
-str_list *cfg_configStrListNew (const int total)
+
+void cfg_configStrListFree (str_list *strList)
 {
-	str_list *strList = my_calloc(1, sizeof(str_list));
-	if (strList)
-		strList->total = total;
-	return strList;
+	if (strList){
+		//printf("# cfg_configStrListFree %p\n", strList);
+		
+		/*for (int j = 0; j < strList->total; j++){
+			if (strList->strings[j])
+				my_free(strList->strings[j]);
+		}*/
+		my_free(strList);
+	}
 }
 
 str_list *cfg_configStrListDup (const str_list *strList)
@@ -227,11 +245,13 @@ void cfg_configFree (TCFGENTRY **config)
 						my_free(entry->ptr);
 
 				}else if (entry->type == CFG_STRLIST){
-					cfg_configStrListFree(&entry->u.strList);
+					cfg_configStrListFreeStrings(&entry->u.strList);
 
 					if (entry->ptr){
+						//printf("entry->ptr %p\n", entry->ptr);
+						cfg_configStrListFreeStrings(entry->ptr);
 		  				cfg_configStrListFree(entry->ptr);
-		  				my_free(entry->ptr);
+		  				//my_free(entry->ptr);
 				  	}
 				}
 				my_free(entry->key);
@@ -315,8 +335,9 @@ void cfg_configApplyDefaults (TCFGENTRY **config)
 
 		  case CFG_STRLIST:
 		  	if (entry->ptr){
+		  		cfg_configStrListFreeStrings(entry->ptr);
 		  		cfg_configStrListFree(entry->ptr);
-		  		my_free(entry->ptr);
+		  		//my_free(entry->ptr);
 		  	}
 		  	str_list *strList = cfg_configStrListDup(&entry->u.strList);
 		  	entry->ptr = strList;
@@ -435,7 +456,10 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 			break;
 
 		  case CFG_HEX:
-		  	sscanf(key->value, "%I64X", (uint64_t*)entry->ptr);
+		  	//#define HEX64 "%I64X"
+		  	#define HEX64 "%llX"
+		  	sscanf(key->value, HEX64, (uint64_t*)entry->ptr);
+		  	//sscanf(key->value, "%X", (uint32_t*)entry->ptr);
 			break;
 
 		  case CFG_STRING:
@@ -470,8 +494,9 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 		  			}
 
 		  			if (entry->ptr){
+		  				cfg_configStrListFreeStrings(entry->ptr);
 		  				cfg_configStrListFree(entry->ptr);
-		  				my_free(entry->ptr);
+		  				//my_free(entry->ptr);
 		  			}
 		  			entry->ptr = strList;
 		  		}
@@ -763,8 +788,9 @@ int cfg_keySet (TCFGENTRY **config, const char *key, void *value)
 
 		  case CFG_STRLIST:
 		  	if (entry->ptr){
+		  		cfg_configStrListFreeStrings(entry->ptr);
 		  		cfg_configStrListFree(entry->ptr);
-		  		my_free(entry->ptr);
+		  		//my_free(entry->ptr);
 		  	}
 		  	//entry->ptr = cfg_configStrListDup(value);
 		  	entry->ptr = value;

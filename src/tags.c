@@ -276,7 +276,8 @@ int tagIsTitleAvailableByHash (TMETATAGCACHE *tagc, const unsigned int hash)
 char *tagRetrieveByHash (TMETATAGCACHE *tagc, const unsigned int hash, const int tagid, char *buffer, const size_t len)
 {
 	*buffer = 0;
-	if (!len || !hash || tagid < 0 || tagid >= MTAG_TOTAL) return NULL;
+	if (!len || !hash || tagid < 0 || tagid >= MTAG_TOTAL)	
+		return NULL;
 
 	if (_tagLock(tagc)){
 		TMETAITEM *item = _tagFindEntryByHash(tagc, hash);
@@ -295,7 +296,7 @@ char *tagRetrieveDup (TMETATAGCACHE *tagc, const unsigned int hash, const int ta
 	if (_tagLock(tagc)){
 		TMETAITEM *item = _tagFindEntryByHash(tagc, hash);
 		if (item && item->tag[tagid])
-			tag = strdup(item->tag[tagid]);
+			tag = my_strdup(item->tag[tagid]);
 		_tagUnlock(tagc);
 	}
 	return tag;
@@ -366,7 +367,7 @@ static inline int isHashInList (const int * restrict list, const int total, cons
 	return 0;
 }
 
-static inline int _tagFlushOrfhensPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm)
+static inline int _tagFlushOrfhansPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm)
 {
 	TMETARECORD *rec = _tagGetFirst(tagc);
 	if (!rec) return 0;
@@ -395,7 +396,7 @@ static inline int _tagFlushOrfhensPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *pl
 }
 
 // remove what is about to become orfhened
-static inline int _tagFlushOrfhensPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
+static inline int _tagFlushOrfhansPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
 {
 	int totalPruned = 0;
 	
@@ -418,12 +419,12 @@ static inline int _tagFlushOrfhensPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
 	return totalPruned;
 }
 
-int tagFlushOrfhensPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
+int tagFlushOrfhansPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
 {
 	int ret = 0;
 	if (_tagLock(tagc)){
 		if (playlistLock(plc)){
-			ret = _tagFlushOrfhensPlc(tagc, plc);
+			ret = _tagFlushOrfhansPlc(tagc, plc);
 			playlistUnlock(plc);
 		}
 		_tagUnlock(tagc);
@@ -431,12 +432,12 @@ int tagFlushOrfhensPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc)
 	return ret;
 }
 
-int tagFlushOrfhensPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm)
+int tagFlushOrfhansPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm)
 {
 	int ret = 0;
 	if (_tagLock(tagc)){
 		if (playlistManagerLock(plm)){
-			ret = _tagFlushOrfhensPlm(tagc, plm);
+			ret = _tagFlushOrfhansPlm(tagc, plm);
 			playlistManagerUnlock(plm);
 		}
 		_tagUnlock(tagc);

@@ -105,9 +105,7 @@ TMYLCD *libmylcd_Init (const int width, const int height, const int bpp)
 		lSetFontCharacterSpacing(ml->hw, LFTW_RACER96, lGetFontCharacterSpacing(ml->hw,LFTW_RACER96)+16);
 		lSetFontCharacterSpacing(ml->hw, LFTW_B34, lGetFontCharacterSpacing(ml->hw,LFTW_B34)+1);
 		icoSetDefaultHeight(ml->hw, 256);
-			
-		
-			
+
 		mylog("initLibrary: libmylcd started successfully\n");
 		
 #if BENCH_RENDER
@@ -119,20 +117,26 @@ TMYLCD *libmylcd_Init (const int width, const int height, const int bpp)
 
 void libmylcd_Close (TMYLCD *ml)
 {
-	mylog("cleanup: closing libmylcd\n");
+	mylog("# libmylcd_Close: closing libmylcd\n");
 
 	for (int i = 0; i < DISPLAYMAX; i++){
 		if (ml->display[i]){
-			if (ml->display[i]->did)
+			if (ml->display[i]->did){
+				//printf("# lCloseDevice: %i\n", ml->display[i]->did);
 				lCloseDevice(ml->hw, ml->display[i]->did);
+			}
+			
+			//printf("# libmylcd_DisplayFree: %p\n", ml->display[i]);
 			libmylcd_DisplayFree(ml->display[i]);
 		}
 	}
 	if (ml->front){
+		//printf("# lDeleteFrame: %p\n", ml->front);
 		lDeleteFrame(ml->front);
 		ml->front = NULL;
 	}
 	if (ml->hw){
+		//printf("# lClose: %p\n", ml->hw);
 		lClose(ml->hw);
 		ml->hw = NULL;
 	}
@@ -140,7 +144,7 @@ void libmylcd_Close (TMYLCD *ml)
 
 	//CoUninitialize();
 
-	mylog("cleanup: libmylcd shutdown\n");
+	mylog("# libmylcd_Close: libmylcd shutdown\n");
 }
 
 void libmylcd_DisplayFree (TDISPLAY *disp)

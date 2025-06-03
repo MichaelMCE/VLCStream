@@ -126,6 +126,8 @@ void decomposePathFree (TDECOMPOSEPATH *decomp)
 static inline int decomposeDirectoryAdd (TDECOMPOSEPATH *decomp, const char *srcPath)
 {
 	char *path = my_strdup(srcPath);
+	if (!path) return 0;
+	
 	const int len = strlen(path);
 	if (path[len-1] == '\\') path[len-1] = 0;
 	else if (path[len-1] == '/') path[len-1] = 0;
@@ -147,6 +149,7 @@ static inline int decomposeDirectoryAdd (TDECOMPOSEPATH *decomp, const char *src
 	__mingw_snprintf(dir, MAX_PATH_UTF8, "%s\\", path);
 	decomp->dirs[decomp->total].dirComplete = my_strdup(dir);
 
+	my_free(path);
 	return ++decomp->total;
 }
 

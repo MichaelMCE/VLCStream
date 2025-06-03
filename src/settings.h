@@ -585,7 +585,9 @@ wchar_t *settingsGetStrW (TVLCPLAYER *vp, const char *key);
 
 str_list *cfg_configStrListNew (const int total);
 void cfg_configStrListFree (str_list *strList);
+void cfg_configStrListFreeStrings (str_list *strList);
 char *cfg_configStrListItem (str_list *strList, const int index);
+
 
 int cfg_commentSet (TCFGENTRY **config, char *key, char *comment);
 char *cfg_commentGet (TCFGENTRY **config, char *key);

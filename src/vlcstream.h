@@ -26,7 +26,7 @@
 #include "vlcheaders.h"
 
 
-#if 0
+#if 1
 #ifndef _snprintf
 #define _snprintf snprintf
 #endif
@@ -289,12 +289,12 @@ typedef struct{
 		int localEnabled;		// local hotkeys enabled (cursor/kbd hook)
 				
 		ATOM kid[KIDHOTKEYS_TOTAL];		// keyboard media keys
-		char cursor;		// global hotkey to enable mouse hook, default is ctrl+shift+'A'
-		char console;		// internal console prompt, default is ctrl+shift+'L'
+		uint8_t cursor;			// global hotkey to enable mouse hook, default is ctrl+shift+'A'
+		uint8_t console;		// internal console prompt, default is ctrl+shift+'L'
 	}hotkeys;
 	
 	struct {
-		unsigned long token;
+		ULONG_PTR token;
 	}gdip;
 }TGUI;
 
