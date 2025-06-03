@@ -158,7 +158,7 @@ int playlistSetArtId (PLAYLISTCACHE *plc, const int pos, const int artId, const 
 // debugging only
 int playlistRunList (PLAYLISTCACHE *plc);
 
-// global search in all meta data
+// perform a global search for meta data
 int playlistSearch (PLAYLISTCACHE *plc, TMETATAGCACHE *tagc, const char *str, const int fromIdx);
 
 // search in specific tags only

@@ -117,8 +117,8 @@ TMETAITEM *g_tagCreateNew (TMETATAGCACHE *tagc, const unsigned int hash);
 typedef struct TPLAYLISTMANAGER TPLAYLISTMANAGER;
 typedef struct PLAYLISTCACHE PLAYLISTCACHE;
 
-int tagFlushOrfhensPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm);
-int tagFlushOrfhensPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc);
+int tagFlushOrfhansPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *plm);
+int tagFlushOrfhansPlc (TMETATAGCACHE *tagc, PLAYLISTCACHE *plc);
 
 
 int tagLookup (const char *str);

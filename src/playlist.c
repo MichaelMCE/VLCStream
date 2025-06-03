@@ -66,9 +66,9 @@ static inline unsigned int __stdcall writePlaylistsCB (void *dwUser)
 	dbwprintf(vp, L"Writting playlist...");
 	int totalWritten = writePlaylists(vp, vp->plm, buffer, sizeof(buffer)-1);
 	if (totalWritten)
-		dbwprintf(vp, L"%i records written to %s", totalWritten, buffer);
+		dbwprintf(vp, L"%i records written to %ls", totalWritten, buffer);
 	else
-		dbwprintf(vp, L"Playlist write failed [%s]", buffer);
+		dbwprintf(vp, L"Playlist write failed [%ls]", buffer);
 	
 	_endthreadex(1);
 	return 1;
@@ -139,7 +139,7 @@ void vlcEventGetArt (job_controller *jc, TARTMANAGER *am, const char *path, cons
 
 int playlistMetaGetTrackMetaByHash (TVLCPLAYER *vp, const unsigned int hash, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb)
 {
-	
+
 	int ret = 0;
 	int isTitleReady = 0;
 	//int isArtReady = 0;
@@ -171,18 +171,19 @@ int playlistMetaGetTrackMetaByHash (TVLCPLAYER *vp, const unsigned int hash, PLA
 		vlcEventGetArt(vp->jc, vp->am, path, mccb, uid, position);
 	}
 #endif
+
 	return ret;
 }
 
 int playlistMetaGetTrackMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb)
 {
+	//printf("playlistMetaGetTrackMeta #%s#\n", path);
 	if (!*path) return -1;
 	return playlistMetaGetTrackMetaByHash(vp, getHash(path), plc, path, position, mccb);
 }
 
 int playlistMetaGetMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, TMETACOMPLETIONCB *mccb)
 {
-	
 	int ret = 0;
 	char fname[MAX_PATH_UTF8+1];
 	char ext[MAX_PATH_UTF8+1];
@@ -242,6 +243,7 @@ int setPlaylistPlayingItem (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int trk, const u
 
 int importPlaylistW (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *tagc, TARTMANAGER *am, const wchar_t *inpath, TFILEPANE *filepane)
 {
+	
 	wchar_t drive[MAX_PATH+1];
 	wchar_t dir[MAX_PATH+1];
 	wchar_t path[MAX_PATH+1];
@@ -278,9 +280,9 @@ int importPlaylistW (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *t
 	TM3U *m3u = m3uNew();
 	if (m3u){
 		if (m3uOpen(m3u, path, M3U_OPENREAD)){
-			//wprintf(L"reading #%s#\n", path);
+			//wprintf(L"reading #%ls#\n", path);
 			total = m3uReadPlaylist(m3u, plm, plc, tagc, am, filepane);
-			//wprintf(L"importPlaylist: '%s', %i tracks read\n", path, total);
+			//wprintf(L"importPlaylist: '%ls', %i tracks read\n", path, total);
 			m3uClose(m3u);
 		}
 		m3uFree(m3u);
@@ -317,23 +319,22 @@ int importPlaylistUIDW (TPLAYLISTMANAGER *plm, TMETATAGCACHE *tagc, TARTMANAGER 
 
 void playlistChangeEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx)
 {
-
 	if (plc->pr->selectedItem >= playlistGetTotal(plc))
 		plc->pr->selectedItem = -1;
 
 	playlistMetaGetMeta(vp, plc, trackIdx, trackIdx+4, NULL);
+
 	if (hasPageBeenAccessed(vp, PAGE_PLY_SHELF))
 		invalidateShelfAlbum(vp, pageGetPtr(vp, PAGE_PLY_SHELF), trackIdx);
 	timerSet(vp, TIMER_CTRL_PLAYLISTLBREFRESH, 250);
 
 	TPLYPANEL *plypan = pageGetPtr(vp, PAGE_PLY_PANEL);
 	PLAYLISTCACHE *panelPlc = playlistManagerGetPlaylistByUID(vp->plm, plypan->currentPlcUID);
-	
+
 	if (panelPlc){
 		plypan->currentPlcUID = getPrimaryPlaylist(vp)->uid;
 		plypan->panel->itemOffset = &panelPlc->pr->itemOffset;
 		timerSet(vp, TIMER_PLYPAN_REBUILD, 0);
-		
 	}else if (panelPlc == plc){
 		if (!playlistGetTotal(plc)){
 			if (plc->parent)
@@ -342,6 +343,14 @@ void playlistChangeEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx
 		}else{
 			timerSet(vp, TIMER_PLYPAN_REBUILD, 0);
 		}
+	}
+
+//	printf("playlistChangeEvent %i\n", hasPageBeenAccessed(vp, PAGE_PLY_QUEUE));
+	
+	if (hasPageBeenAccessed(vp, PAGE_PLY_QUEUE)){
+		TPLYQUEUE *plyqueue = pageGetPtr(vp, PAGE_PLY_QUEUE);
+		if (plyqueue)
+			plyqueue->signalQueueRebuild = 1;
 	}
 }
 
@@ -391,6 +400,10 @@ void trackLoadEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx)
 	timerSet(vp, TIMER_CTRL_PLAYLISTLBREFRESH, 250);
 	playlistMetaGetMeta(vp, plc, plc->pr->playingItem-CACHEREADAHEAD, plc->pr->playingItem+CACHEREADAHEAD, NULL);
 	ctrlNewTrackEvent(pageGetPtr(vp,PAGE_OVERLAY), plc->uid, trackIdx);
+	
+	TPLYQUEUE *plyqueue = pageGetPtr(vp, PAGE_PLY_QUEUE);
+	if (plyqueue)
+		plyQueueNewTrackEvent(plyqueue, plc->uid, trackIdx);
 
 	taskbarPostMessage(vp, WM_TRACKPLAYNOTIFY, plc->uid, trackIdx);
 
@@ -460,7 +473,7 @@ wchar_t *getPlayingPathW (TVLCPLAYER *vp)
 {
 	PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 	if (plc){
-		char *path = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+		char *path = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (path){
 			playlistGetPath(plc, plc->pr->playingItem, path, MAX_PATH_UTF8);
 			if (*path){
@@ -479,7 +492,7 @@ char *getPlayingPath (TVLCPLAYER *vp)
 {
 	PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 	if (plc){
-		char *path = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+		char *path = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (path){
 			playlistGetPath(plc, plc->pr->playingItem, path, MAX_PATH_UTF8);
 			if (*path)
@@ -722,7 +735,7 @@ char *getPlayingProgramme (TVLCPLAYER *vp)
 {
 	PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 	if (plc){
-		char *title = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+		char *title = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (title){
 			//playlistGetTitle(plc, plc->pr->playingItem, title, MAX_PATH_UTF8);
 			char *path = getPlayingPath(vp);
@@ -744,7 +757,7 @@ wchar_t *getPlayingProgrammeW (TVLCPLAYER *vp)
 {
 	PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 	if (plc){
-		char *title = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+		char *title = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (title){
 			//playlistGetTitle(plc, plc->pr->playingItem, title, MAX_PATH_UTF8);
 			char *path = getPlayingPath(vp);
@@ -769,7 +782,7 @@ char *getSelectedPath (TVLCPLAYER *vp)
 {
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	if (plc){
-		char *path = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+		char *path = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (path){
 			playlistGetPath(plc, plc->pr->selectedItem, path, MAX_PATH_UTF8);
 			if (*path)

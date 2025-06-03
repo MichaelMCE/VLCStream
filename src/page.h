@@ -83,6 +83,7 @@ enum _page2Ctrl {
 
 #define PAGE_IN_TOUCH				1
 #define PAGE_IN_MOUSE				2
+#define PAGE_IN_ROTARY				3
 
 // PAGE_CTL_INPUT messages
 #define PAGE_IN_TOUCH_DOWN			1
@@ -92,6 +93,7 @@ enum _page2Ctrl {
 #define PAGE_IN_WHEEL_BACK			5
 #define PAGE_IN_WHEEL_LEFT			6
 #define PAGE_IN_WHEEL_RIGHT			7
+#define PAGE_IN_ROTARY_CHANGE		8
 
 
 #define PAGE_OBJ_HOVER_HELD			1

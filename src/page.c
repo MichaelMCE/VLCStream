@@ -551,16 +551,10 @@ TPAGE2 *pageRenderGetTopMostPage (TPAGES2 *pages)
 
 int page2Input (TPAGES2 *pages, const int inType, void *ptr, const unsigned int flags)
 {
-	//printf("page2Input flags:%X\n", flags);
 	TPAGE2 *page = pageInputGetTopMostPage(pages);
-	if (!page){
-		//printf("page2Input, no top most page\n");
-		return 0;
-	}
-	
-	
+	if (!page) return 0;
+
 	if (inType == PAGE_IN_TOUCH){
-		//TTOUCHCOORD *pos = (TTOUCHCOORD*)ptr;
 		return page2InputTouchCall(page, ptr, flags);
 
 	}else if (inType == PAGE_IN_MOUSE){
@@ -570,6 +564,11 @@ int page2Input (TPAGES2 *pages, const int inType, void *ptr, const unsigned int 
 				return 1;
 			}
 		}
+	}else if (inType == PAGE_IN_ROTARY){
+		if (page2SendMessage(page, PAGE_CTL_INPUT, flags, 0, ptr)){
+			renderSignalUpdate(pages->vp);
+			return 1;
+		}		
 	}
 
 	return 0;

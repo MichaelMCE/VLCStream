@@ -53,6 +53,7 @@ int playlistMetaGetMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, T
 int playlistMetaGetTrackMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb);
 int playlistMetaGetTrackMetaByHash (TVLCPLAYER *vp, const unsigned int hash, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb);
 
+typedef struct TFILEPANE TFILEPANE;
 int importPlaylistUIDW (TPLAYLISTMANAGER *plm, TMETATAGCACHE *tagc, TARTMANAGER *am, const wchar_t *path, const int uid, TFILEPANE *filepane);
 int importPlaylistW (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *tagc, TARTMANAGER *am, const wchar_t *path, TFILEPANE *filepane);
 int importPlaylist (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *tagc, TARTMANAGER *am, const char *path, TFILEPANE *filepane);

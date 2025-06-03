@@ -188,6 +188,9 @@ void sbuiDKStateChange ()
 
 static inline unsigned int __stdcall sbuiDKImageThread (void *ptr)
 {
+	
+#if 0
+	
 	TVLCPLAYER *vp = (TVLCPLAYER*)ptr;
 	//printf("sbuiDKImageThread started\n");
 
@@ -259,6 +262,7 @@ static inline unsigned int __stdcall sbuiDKImageThread (void *ptr)
 	}
 	
 	//printf("sbuiDKImageThread exited\n");
+#endif
 	_endthreadex(1);
 	return 1;
 }

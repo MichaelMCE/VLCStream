@@ -10,6 +10,8 @@
 
 
 
+
+
 typedef struct {
 	char *str;
 	int op;
@@ -17,7 +19,7 @@ typedef struct {
 }tcmd;
 
 static const tcmd cmds[] = {
-		{"start",			CMD_START,					IPC_NONE},				// launch/run vlcstream
+		{"start",			CMD_START,					IPC_NONE},			// launch/run vlcstream
 		{"help,list",		CMD_HELP,					IPC_NONE},
 		{"quit",			CMD_SHUTDOWN,				IPC_POSTMSG},
 		{"play",			CMD_MEDIA_PLAY,				IPC_CDS},			// var = "playlist uid:track". eg; 41D3:2 (first track is 1, 2'nd is 2, etc..)
@@ -153,8 +155,47 @@ static inline void initCmd (const int ipcType, const int op, const char *var)
 	}
 }
 
+
+HWND taskbarGetHWND (const char *toolbarName)
+{
+
+	char classname[260+2];
+	HWND hwndBar = FindWindowA("Shell_TrayWnd", NULL);
+	if (!hwndBar) return NULL;
+
+	HWND hwndChild = GetWindow(hwndBar, GW_CHILD);
+	while(hwndChild) {
+		GetClassNameA(hwndChild, classname, 260);
+
+		if (!stricmp(classname, "ReBarWindow32")){
+			HWND hwndChild2 = GetWindow(hwndChild, GW_CHILD);
+
+			while(hwndChild2){
+				GetWindowTextA(hwndChild2, classname, 260);
+				if (!strcmp(classname, toolbarName))
+					return hwndChild2;
+				hwndChild2 = GetWindow(hwndChild2, GW_HWNDNEXT);
+			}
+			return NULL;
+		}
+		hwndChild = GetWindow(hwndChild, GW_HWNDNEXT);
+	}
+	return NULL;
+}
+
 int main (const int argc, const char *argv[])
 {
+#if 0
+	HDESK desk = OpenDesktopA("Sysinternals Desktop 1", 0, TRUE, DESKTOP_WRITEOBJECTS);
+	//HDESK desk = OpenDesktopA("default", 0, TRUE, DESKTOP_WRITEOBJECTS);
+	if (desk){
+		//printf("SetThreadDesktop %p, %i\n", desk, SetThreadDesktop(desk));
+		SetThreadDesktop(desk);
+		Sleep(1);
+	}
+#else
+	HDESK desk = NULL;
+#endif
 
 	if (argc < 2){
 		HANDLE hWnd = getWindowHandle();
@@ -170,7 +211,10 @@ int main (const int argc, const char *argv[])
         	
 			for (int i = 0; i < tCmds && !found; i++){
 				char *str = strdup(cmds[i].str);
-				if (!str) return 0;
+				if (!str){
+					if (desk) CloseHandle(desk);
+					return 0;
+				}
 				
 				char *rcmd = strtok(str, " ,");
 				while(rcmd && !found){
@@ -203,5 +247,7 @@ int main (const int argc, const char *argv[])
 		}
 	}
 
+	if (desk)
+		CloseHandle(desk);
 	return 0;		
 }

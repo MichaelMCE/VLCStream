@@ -14,6 +14,7 @@
 
 
 
+// H:/Compilers/MinGW/include/unknwnbase.h
 
 static HWND ghWnd;
 static int ComCount = 0;

@@ -72,10 +72,10 @@
 #define CLK_PREDATOR_TIME_FONT		LFTW_RACER96
 #define CLK_BOXDIGITAL_TIME_FONT	LFTW_198FIVE162
 #define CLK_SBDK_DATE_FONT			LFTW_RACER96
-#define PANE_FONT					LFTW_B28
-#define PANE_LOCBAR_FONT			LFTW_B28
-#define PANE_TITLE_FONT				LFTW_B26
-#define PANE_TIMESTAMP_FONT			LFTW_B24
+#define PANE_FONT					LFTW_B32
+#define PANE_LOCBAR_FONT			LFTW_B30
+#define PANE_TITLE_FONT				LFTW_B28
+#define PANE_TIMESTAMP_FONT			LFTW_B28
 #define PANE_FILTER_FONT			LFTW_B34
 #define PANE_SORT_FONT				PANE_FILTER_FONT
 #define	PANE_FODLERSTATS_FONT		LFTW_B26
@@ -89,14 +89,13 @@
 #define DMSG_FONT					LFTW_B24
 #define HOME_CLK_FONT				LFTW_76LONDON38
 #define PLAYLIST_PANEL_FONT			LFTW_B24
-#define PLAYLIST_TV_FONT			LFTW_B28
-#define PLAYLIST_TV_NP_FONT			LFONT
+#define PLAYLIST_TV_FONT			LFTW_B32
 #define PANEL_FONT					LFTW_B28
 #define KEYPAD_INPUT_FONT			LFONT
 #define BROWSER_FONT				LFONT
 #define BROWSER_PATH_FONT			LFTW_B24
 #define BROWSER_PANEL_SEP_FONT		LFTW_B24
-#define CTRLOVR_LISTBOX_FONT		LFTW_B28
+#define CTRLOVR_LISTBOX_FONT		LFTW_B34
 #define CTRLOVR_TIMESTAMP_FONT		LFTW_76LONDON38
 #define CTRLOVR_SLIDER_FONT			LFTW_B24
 #define CTRLOVR_META_FONT			LFTW_B34
@@ -135,16 +134,16 @@
 #define HIGHLIGHTPERIOD			200					/*   */
 #define MCTRLOVERLAYPERIOD		6000
 #define UPDATERATE_IDLE			(0.1)				/* maintain this fps when idle (0.1 = 1 update every 10 seconds) */
-#define UPDATERATE_ALIVE		(50.0)				/* update rate at which the update ticker fires, from which renders are calculated off */
-#define UPDATERATE_BASE_VISUALS	(25.0)
+#define UPDATERATE_ALIVE		(200.0)				/* update rate at which the update ticker fires, from which renders are calculated off */
+#define UPDATERATE_BASE_VISUALS	(60.0)
 #define UPDATERATE_BASE_DEFAULT	(1.0)
-#define UPDATERATE_MAXUI		(35.0)				/* maximum allowed UI rate with mouse (hooking) enabled */
+#define UPDATERATE_MAXUI		(60.0)				/* maximum allowed UI rate with mouse (hooking) enabled */
 #define UPDATERATE_LENGTH		(1000)
 #define IDLETIME				(100 * 1000)		/* ms, time to go idle after this length of inactivity */
-#define CACHEREADAHEAD			(12)					/* preload the meta data from this number of tracks in advance */
+#define CACHEREADAHEAD			(12)				/* preload the meta data from this number of tracks in advance */
 #define ARTWORKFLUSH_PERIOD		(120 * 60 * 1000)
 #define ARTWORKTHREADS			(3)					/* default number of threads dedicated to the retrieval, loading and conversion of artwork */
-#define MAX_PATH_UTF8			((8*MAX_PATH)+1) 	/* should be large enough to cover every combination and eventuality */
+#define MAX_PATH_UTF8			((wchar_t)(8*MAX_PATH)+1) 	/* should be large enough to cover every combination and eventuality */
 #define MOFFSETX				(4)					/* cursor offset point x within bitmap */
 #define MOFFSETY				(3)					/* as above but for y */
 #define MAX_CHAPTERS			(200)
@@ -331,15 +330,18 @@ enum _PAGE
 	PAGE_ALARM,
 	PAGE_TETRIS,
 	PAGE_TASKMAN,
+
+#if (ENABLE_GARMINTCX)
 	PAGE_TCX,
+#endif
 
 #if (ENABLE_ANTPLUS)
 	PAGE_ANTPLUS,
 #endif
+	PAGE_PLY_QUEUE,
 
 	PAGE_VKEYBOARD,
 	PAGE_IMGPANE,
-	
 	PAGE_TOTAL = (PAGE_IMGPANE - PAGE_BASEID)+1,
 	PAGE_DEFAULT = PAGE_HOME
 };

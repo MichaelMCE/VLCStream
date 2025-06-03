@@ -250,6 +250,15 @@ unsigned int vlc_cursorClicked (libvlc_media_player_t *p_mi, const int x, const 
 void vlc_inputEventCbSet (TVLCCONFIG *vlc, TVLCPLAYER *vp);
 void vlc_inputEventCbDel (TVLCCONFIG *vlc, TVLCPLAYER *vp);
 
+typedef struct{
+	char *name;
+	char *value;
+}vlc_meta_str_t;
+
+typedef struct{
+	vlc_meta_str_t **meta;
+	int total;
+}vlc_meta_extra_t;
 
 int vlc_metaExtraGetCount (TVLCCONFIG *vlc);
 vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc);

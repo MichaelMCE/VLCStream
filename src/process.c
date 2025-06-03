@@ -634,12 +634,24 @@ static inline process_list_extended *getProcListExtended (int *procTotal)
 				wprintf(L"-- '%s'\n", buffer);*/
 
 
+// win64
+#if WIN64
+				uintptr_t group = 0; 
+				uintptr_t mask = 0; 
+				GetProcessAffinityMask(hprocess, (PDWORD_PTR)&mask, &group);
+				proc->info.affinity.mask = (mask&0xFFFFFFFF);
+
+				for (int i = 0; i < 32; i++)
+					proc->info.affinity.total += ((mask>>i)&0x01);
+
+#else
 				DWORD group = 0;
 				GetProcessAffinityMask(hprocess, (DWORD*)&proc->info.affinity.mask, &group);
 				processClose(hprocess);
 
 				for (int i = 0; i < 32; i++)
 					proc->info.affinity.total += ((proc->info.affinity.mask>>i)&0x01);
+#endif
 
 				//printf("## %i: %X %i\n", proc->info.processId, proc->info.affinity.mask, proc->info.affinity.total);
 			}else{

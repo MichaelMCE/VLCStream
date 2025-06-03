@@ -277,6 +277,8 @@ static inline void freeHandles (const int freeMode)
 
 void vlcEventFreeHandles (TVLCPLAYER *vp, const int mode)
 {
+	//printf("vlcEventFreeHandles %i, list size %i\n", mode, listCount(eventlist.root));
+	
 	if (vlcEventsLock(vp->vlc)){
 		freeHandles(mode);
 		if (mode){
@@ -468,7 +470,7 @@ void vlcEventGetMeta (libvlc_instance_t *hLib, TVLCPLAYER *vp, TMETATAGCACHE *ta
 		vlcEventsAttach(vlc, vlcEventsM_Meta, sizeof(vlcEventsM_Meta)/sizeof(*vlcEventsM_Meta));
 		libvlc_media_parse_async(vlc->m);
 		
-		char *tag = libvlc_media_get_meta(vlc->m, MTAG_ArtworkPath);
+		char *tag = libvlc_media_get_meta(vlc->m, (libvlc_meta_t)MTAG_ArtworkPath);
 		//if (tag) printf("vlcEventGetMeta: #%s#\n", tag);
 		if (tag) libvlc_free(tag);
 	}
