@@ -46,6 +46,7 @@
 #include "page_exit.h"
 #include "page_cfg.h"
 #include "page_sub.h"
+#include "page_plm.h"
 
 #include "page_eq.h"
 #include "page_alarm.h"
