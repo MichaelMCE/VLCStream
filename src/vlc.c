@@ -280,6 +280,7 @@ static inline unsigned int vlc_getSize (libvlc_media_player_t *p_mi, int *width,
     return n;
 }
 
+#if 1
 static inline TTITLE *dupTitles (input_title_t **i_titles, const int i_tTitles, int *tTitles)
 {
 	TTITLE *titles = NULL;
@@ -352,21 +353,22 @@ static inline TTITLE *dupTitles (input_title_t **i_titles, const int i_tTitles, 
 	}
 	return titles;
 }
+#endif
 
+#if 1
 extern HANDLE hDkStateEvent;
 extern volatile int SHUTDOWN;
 
 int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t oldval, vlc_value_t newval, void *p_userdata)
 {
-	//return 1;
 	if (SHUTDOWN) return 0;
 
 	const int event = newval.i_int;
 	if (event == INPUT_EVENT_POSITION || event == INPUT_EVENT_STATISTICS || event == INPUT_EVENT_SIGNAL){
-		//printf(":: %p %s %I64d %I64d %p\n", p_this, psz_cmd, oldval.i_int, newval.i_int, p_userdata);
+		//printf(":: %p %s %lld %lld %p\n", p_this, psz_cmd, oldval.i_int, newval.i_int, p_userdata);
 		return 1;
 	}else{
-		//printf(":: %p %s %I64d %p\n", p_this, psz_cmd, newval.i_int, p_userdata);
+		//printf(":: %p %s %lld %p\n", p_this, psz_cmd, newval.i_int, p_userdata);
 	}
 
 	TVLCPLAYER *vp = (TVLCPLAYER*)p_userdata;
@@ -555,6 +557,7 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 
 	return 1;
 }
+#endif 
 
 void vlc_inputEventCbDel (TVLCCONFIG *vlc, TVLCPLAYER *vp)
 {
@@ -644,6 +647,7 @@ int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
 	return ct;
 }
 
+#if 1
 // chapter lock must be held
 TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 {
@@ -726,6 +730,7 @@ TCATEGORY *getCategories (TVLCCONFIG *vlc, int *tCat)
 		*tCat = i_categories;
 	return cat;
 }
+#endif
 
 TAVTRACKS *getVideoTracks (TVLCCONFIG *vlc, int *currentVideoTrack)
 {
@@ -833,7 +838,7 @@ TAVTRACKS *getAudioTracks (TVLCCONFIG *vlc, int *currentAudioTrack)
 	return avts;
 }
 
-
+#if 0
 void epg_freeEPGEvent (TVLCEPGEVENT *epgevent)
 {
 	if (epgevent){
@@ -1019,6 +1024,31 @@ void epg_freeEpg (TVLCEPG **epg, int total)
 	}
 }
 
+#else
+
+TVLCEPG **epg_dupEpg (TVLCCONFIG *vlc, int *tepg)
+{
+	return NULL;
+}
+void epg_freeEpg (TVLCEPG **epg, int total)
+{
+	return;
+}
+TVLCEPGEVENT *epg_getGetProgramme (TVLCEPG **vepg, const int total, const int chanIdx, const int progIdx)
+{
+	return NULL;
+}
+char *epg_getChannelName (TVLCEPG **vepg, const int total, const int chanIdx)
+{
+	return NULL;
+}
+void epg_freeEPGEvent (TVLCEPGEVENT *epgevent)
+{
+	return;
+}
+
+#endif
+
 const unsigned char *vlc_getVersion ()
 {
 	return (const unsigned char*)libvlc_get_version();
@@ -1155,7 +1185,7 @@ libvlc_media_t *vlc_new_mrl (TVLCCONFIG *vlc, const char *mediaPath)
 libvlc_media_t *vlc_new_path (TVLCCONFIG *vlc, const char *mediaPath)
 {
 	//printf("vlc_new_path '%s'\n", mediaPath);
-	if (vlc->hLib && *mediaPath)
+	if (vlc->hLib && mediaPath && *mediaPath)
 		return libvlc_media_new_path(vlc->hLib, mediaPath);
 	else
 		return NULL;
@@ -1190,8 +1220,9 @@ void vlc_mp_release (TVLCCONFIG *vlc)
 {
 	if (vlc->mp){
 		vlc->isMediaLoaded = 0;
-		libvlc_media_player_release(vlc->mp);
-		vlc->mp = NULL;
+		//libvlc_media_player_release(vlc->mp);
+		//vlc->mp = NULL;
+		//Sleep(10);
 	}
 	vlc_mediaRelease(vlc);
 }
@@ -1313,8 +1344,11 @@ int vlc_metaExtraGetCount (TVLCCONFIG *vlc)
 }
 */
 
+
 vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 {
+	return NULL; 
+	
 	vlc_meta_extra_t *extra = NULL;
 	
 	//printf("vlc_metaExtraGet\n");
@@ -1359,6 +1393,7 @@ vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 	}
 	return extra;
 }
+
 
 void vlc_metaExtraFree (vlc_meta_extra_t *extra)
 {

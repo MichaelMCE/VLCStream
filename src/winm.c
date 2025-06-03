@@ -295,6 +295,7 @@ static inline void taskbarClear (HWND hwnd)
 
 static inline HANDLE taskbarCreateFont (TVLCSTASKBAR *tb)
 {
+
 	LOGFONTW lf;
 	memset(&lf, 0, sizeof(lf));
 
@@ -333,6 +334,12 @@ static inline HANDLE taskbarCreateFont (TVLCSTASKBAR *tb)
 
 static inline int taskbarDrawText (TVLCSTASKBAR *tb, const wchar_t *text)
 {
+	
+	//HDESK desk = OpenDesktopA("Default", 0, TRUE, DESKTOP_WRITEOBJECTS);
+	//if (desk){
+	//	SetThreadDesktop(desk);
+	//}
+	
 	HDC dc = GetDC(tb->hwnd);
 
 	SetTextColor(dc, tb->colour.fore);
@@ -497,6 +504,14 @@ static inline void taskbarToolbarInit (TVLCPLAYER *vp, TVLCSTASKBAR *tb)
 	settingsGet(vp, "taskbar.font.point", &tb->font.point);
 	settingsGet(vp, "taskbar.font.weight", &tb->font.weight);
 	settingsGet(vp, "taskbar.font.quality", &tb->font.quality);
+
+
+
+//	HDESK desk = OpenDesktopA("Default", 0, TRUE, DESKTOP_WRITEOBJECTS);
+//	if (desk){
+//		SetThreadDesktop(desk);
+//	}
+
 
 	tb->hwnd = taskbarGetHWND(tb->toolbarName);
 	if (tb->hwnd)
@@ -856,7 +871,7 @@ void mouseRawInputInit (HANDLE hwnd)
 	PRAWINPUTDEVICELIST pRawInputDeviceList = (RAWINPUTDEVICELIST*)my_malloc(sizeof(RAWINPUTDEVICELIST) * nDevices);
 	GetRawInputDeviceList(pRawInputDeviceList, &nDevices, sizeof(RAWINPUTDEVICELIST));
 	// do the job...
-	//printf("Number of raw input devices: %i\n\n", nDevices);
+	printf("Number of raw input devices: %i\n\n", nDevices);
 
 
 	char *types[] = {"Mouse", "Keyboard", "HID", "unknown"};
@@ -891,12 +906,13 @@ void mouseRawInputInit (HANDLE hwnd)
 			unsigned int dsize = sizeof(devinfo);
 			GetRawInputDeviceInfoA(hdevice, RIDI_DEVICEINFO, &devinfo, &dsize);
 
-    		printf("\t vid:%X pid:%X ver:%i usagePage:%i usage:%i\n",
+    		printf("\t vid:%X pid:%X ver:%i usagePage:%i usage:%i type:%i\n",
     			(int)devinfo.hid.dwVendorId,
     			(int)devinfo.hid.dwProductId,
     			(int)devinfo.hid.dwVersionNumber,
     			(int)devinfo.hid.usUsagePage,
-    			(int)devinfo.hid.usUsage);
+    			(int)devinfo.hid.usUsage,
+    			(int)devinfo.dwType);
 		}
 		printf("\n");
 	}
@@ -909,11 +925,12 @@ void mouseRawInputInit (HANDLE hwnd)
 	RAWINPUTDEVICE Rid;
 	Rid.usUsagePage = 1;
 	Rid.usUsage = 2; 
-	Rid.dwFlags = RIDEV_INPUTSINK|RIDEV_EXINPUTSINK/*| RIDEV_NOLEGACY*//* | RIDEV_CAPTUREMOUSE*/; ///*RIDEV_REMOVE |*/ RIDEV_NOHOTKEYS /*| RIDEV_EXINPUTSINK */| RIDEV_CAPTUREMOUSE;
+	Rid.dwFlags =/* RIDEV_APPKEYS|*/RIDEV_INPUTSINK|RIDEV_EXINPUTSINK;
+	//*| RIDEV_NOLEGACY*//* | RIDEV_CAPTUREMOUSE*/; ///*RIDEV_REMOVE |*/ RIDEV_NOHOTKEYS /*| RIDEV_EXINPUTSINK */| RIDEV_CAPTUREMOUSE;
 	Rid.hwndTarget = hwnd;
 	
 	if (RegisterRawInputDevices(&Rid, 1/*nDevices*/, sizeof(RAWINPUTDEVICE)) == FALSE){
-		//printf("RawInput init failed:\n");
+	//	printf("RawInput init failed:\n");
 	}
 	return;
 }
@@ -941,7 +958,7 @@ static inline void mouseRawInputProcess (TVLCPLAYER *vp, HRAWINPUT ri)
 			}
 		}
 #if 0
-		wprintf(L"\nrawMouse:usFlags=%04x\nulExtraInformation:%i\nulButtons=%04x \nusButtonFlags=%04x \nusButtonData=%04x \nulRawButtons=%04x \nlLastX=%ld \nlLastY=%ld\n",
+		printf("\nrawMouse:usFlags=%04x\nulExtraInformation:%i\nulButtons=%04x \nusButtonFlags=%04x \nusButtonData=%04x \nulRawButtons=%04x \nlLastX=%ld \nlLastY=%ld\n",
 			raw->data.mouse.usFlags, (int)raw->data.mouse.ulExtraInformation, 
 			raw->data.mouse.ulButtons, raw->data.mouse.usButtonFlags, 
 			raw->data.mouse.usButtonData, raw->data.mouse.ulRawButtons,
@@ -2471,8 +2488,8 @@ static inline LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM 
 		//break;
 	  }	
 	  case WM_INPUT:
-	  	mouseRawInputProcess(vp, (HRAWINPUT)lParam);
 	  	//printf("## mouse WM_INPUT: %p, %i %i %i\n", hwnd, message, (int)wParam, (int)lParam);
+	  	mouseRawInputProcess(vp, (HRAWINPUT)lParam);
 	  	break;
 	  
 	  
@@ -2953,6 +2970,8 @@ int gdiPlusInit (TGUI *gui)
 {
 	GdiplusStartupInput gsi = {0};
 	gsi.GdiplusVersion = 1;
+	
+
 	return GdiplusStartup(&gui->gdip.token, &gsi, NULL) == 0;
 }
 
@@ -2965,6 +2984,7 @@ static inline HANDLE initGUI (TVLCPLAYER *vp)
 {
 	InitCommonControls();
 	gdiPlusInit(&vp->gui);
+
 
 	const char *szClassName = NAME_WINMSG;
     WNDCLASSEX wincl;
@@ -3090,7 +3110,7 @@ unsigned int RegisterShellNotify (HWND hWnd/*, SHChangeNotifyEntry *shcne*/, uns
 
 static inline unsigned int __stdcall winMessageThread (void *ptr)
 {
-	//printf("winMessageThread %i\n", (int)GetCurrentThreadId());
+	//printf("winMessageThread in %i\n", (int)GetCurrentThreadId());
 
 	TVLCPLAYER *vp = (TVLCPLAYER*)ptr;
 	ATOM *kid = vp->gui.hotkeys.kid;
@@ -3110,11 +3130,11 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 
 		if (isVirtual(vp))
 			mouseRawInputInit(vp->gui.hMsgWin);
-		
+
 		if (vp->gui.hotkeys.localEnabled){
 			kid[0] = GlobalAddAtom("vlcshk_cursor");
 			kid[1] = GlobalAddAtom("vlcshk_console");
-			
+
 			// set mouse hook control hotkeys
 			if (!RegisterHotKey(vp->gui.hMsgWin, kid[0], MOD_CONTROL|MOD_SHIFT, vp->gui.hotkeys.cursor))
 				RegisterHotKey(vp->gui.hMsgWin, kid[0], MOD_CONTROL|MOD_SHIFT, 'Q');
@@ -3141,7 +3161,6 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 			kid[13] = GlobalAddAtom("vlcshk_seekbk");
 			//kid[14] = GlobalAddAtom("vlcshk_fullscreen");
 			
-
 			RegisterHotKey(vp->gui.hMsgWin, kid[2], 0, VK_MEDIA_PREV_TRACK);
 			RegisterHotKey(vp->gui.hMsgWin, kid[3], 0, VK_MEDIA_NEXT_TRACK);
 			RegisterHotKey(vp->gui.hMsgWin, kid[4], 0, VK_MEDIA_PLAY_PAUSE);
@@ -3158,7 +3177,7 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 			RegisterHotKey(vp->gui.hMsgWin, kid[13], MOD_CONTROL|MOD_SHIFT, VK_SEEK_FORWARD);	// 'F'
 			//RegisterHotKey(vp->gui.hMsgWin, kid[14], MOD_CONTROL, VK_FULLSCREEN);				// '3'
 		}
-		
+
 		// register usb device removable/insertion for the browser page and AntPlus dongle detection
 		HDEVNOTIFY hDeviceNotify[4] = {0};
 		RegisterDeviceInterfaceToHwnd(GUID_DEVINTERFACE_USB_HUB, vp->gui.hMsgWin, &hDeviceNotify[0]);
@@ -3172,7 +3191,7 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 		if (vp->ml->enableVirtualDisplay)
 			lSetDisplayOption(vp->ml->hw, vp->ml->virtualDisplayId, lOPT_DDRAW_HWNDTARGET, (intptr_t*)vp->gui.hMsgWin);
 
-		
+
 		while (vp->applState)
 			processWindowMessages(vp);
 
@@ -3210,8 +3229,8 @@ static inline unsigned int __stdcall winMessageThread (void *ptr)
 		gdiPlusClose(&vp->gui);
 
 	}
-	//printf("winMessageThread out\n");
 	
+	//printf("winMessageThread out\n");
 	_endthreadex(1);
 	return 1;
 }
@@ -3274,7 +3293,7 @@ int playlistImportPath (TVLCPLAYER *vp, PLAYLISTCACHE *plc, char *pathIn)
 		if (*name){
 			PLAYLISTCACHE *child = playlistManagerCreatePlaylist(vp->plm, name, 0);
 			if (child){
-				tagFlushOrfhensPlc(vp->tagc, child);
+				tagFlushOrfhansPlc(vp->tagc, child);
 				itemsImported = importPlaylist(vp->plm, child, vp->tagc, vp->am, pathIn, pageGetPtr(vp, PAGE_FILE_PANE));
 				resetCurrentDirectory();
 				dbprintf(vp, "%i items imported from '%s%s'", itemsImported, name, ext);

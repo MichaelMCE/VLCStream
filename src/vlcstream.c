@@ -45,7 +45,7 @@ typedef struct{
 
 
 
-//TVLCPLAYER *g_vp = NULL;
+TVLCPLAYER *g_vp = NULL;
 
 volatile int SHUTDOWN = 0;
 volatile double UPDATERATE_BASE = UPDATERATE_BASE_DEFAULT;
@@ -296,7 +296,7 @@ void timer_setIdleB (TVLCPLAYER *vp)
 	timerSet(vp, TIMER_SETIDLEC, 120*60*1000);
 	renderSignalUpdate(vp);
 
-	//tagFlushOrfhensPlm(vp->tagc, vp->plm);
+	//tagFlushOrfhansPlm(vp->tagc, vp->plm);
 }
 
 // TIMER_SETIDLEC
@@ -342,7 +342,7 @@ void timer_setIdleC (TVLCPLAYER *vp)
 
 #endif
 
-	tagFlushOrfhensPlm(vp->tagc, vp->plm);
+	tagFlushOrfhansPlm(vp->tagc, vp->plm);
 	vlcEventListInvalidate(vp->vlc);
 
   	//timerSet(vp, TIMER_PATHREGWRITE, 500);
@@ -383,6 +383,7 @@ void stateHelper (TVLCPLAYER *vp)
 			
 			if (vp->gui.hotkeys.alwaysAccessible)
 				vp->gui.hotkeys.isVlcRunning = ghkIsVlcRunning();
+
 			//if (ghk->isVlcRunning)
 				ghkGetRunningVLCWindowTitle(FindWindowExW(0, 0, L"QWidget", NULL), ghk->vlcTitle, MAX_PATH_UTF8);
 		}
@@ -659,7 +660,7 @@ int startVlcTrackPlayback (TVLCPLAYER *vp)
 		int len = __mingw_snwprintf(NULL, 0, cl, pathw, position*(double)vp->vlc->length, vars);
 		if (len > 1){
 			//int len = 2047;
-			wchar_t cmdline[len+1];
+			wchar_t cmdline[4*len+1];
 			 __mingw_snwprintf(cmdline, len, cl, pathw, position*(double)vp->vlc->length, vars);
 
 			success = processCreateW(cmdline);
@@ -1419,6 +1420,8 @@ void updateTickerStart (TVLCPLAYER *vp, double fps)
 /*###########################################################################*/
 
 
+	
+	
 static inline void _imageBestFit (const int bg_w, const int bg_h, int fg_w, int fg_h, int *w, int *h)
 {
 	const int fg_sar_num = 1; const int fg_sar_den = 1;
@@ -1692,7 +1695,7 @@ void getNewTrackVariables (TVLCPLAYER *vp)
 		}
 		loadUnlock(vp);
 	}
-	//timerSet(vp, TIMER_CHAPTER_UPDATE, 1000);
+	timerSet(vp, TIMER_CHAPTER_UPDATE, 1000);
 }
 
 void startNextTrackPlayback (TVLCPLAYER *vp)
@@ -1721,14 +1724,14 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 {
 	// a few sanity checks
 	if (event == NULL || udata == NULL) return;
-	TVLCPLAYER *vp = (TVLCPLAYER*)udata;
+	TVLCPLAYER *vp = g_vp;//(TVLCPLAYER*)udata;
 	if (!getApplState(vp)) return;
 	TVLCCONFIG *vlc = getConfig(vp);
 	if (!vlc) return;
 
 
 #if 0	/* print useful debug info but don't spam */
-	if (event->type != libvlc_MediaPlayerPositionChanged && event->type != libvlc_MediaPlayerTimeChanged)
+	if (event->type != libvlc_MediaPlayerPositionChanged && event->type != libvlc_MediaPlayerTimeChanged && event->type != libvlc_MediaDurationChanged && event->type != libvlc_MediaPlayerBuffering)
     	printf("vlc_eventsCallback %i: '%s' (state:%i)\n", event->type, vlc_EventTypeToName(event->type), vlc->playState);
 #endif
 
@@ -1821,7 +1824,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 			//char length[32];
 			//tagRetrieve(vp->tagc, path, MTAG_LENGTH, length, sizeof(length));
 			if (/**length &&*/ vlc->length){
-				char buffer[64];
+				char buffer[128];
 				timeToString(vlc->length, buffer, sizeof(buffer)-1);
 				if (*buffer)
 					tagAdd(vp->tagc, path, MTAG_LENGTH, buffer, 1);
@@ -1830,7 +1833,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 		}
 
 		if (getApplState(vp))
-			timerSet(vp, TIMER_NEWTRACKVARS1, 100);
+			timerSet(vp, TIMER_NEWTRACKVARS1, 1);
 
       	break;
 	  }
@@ -1849,7 +1852,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 		}
 		
 		sbuiDKStateChange();
-		timerSet(vp, TIMER_CTRL_UPDATETIMESTAMP, 50);
+		timerSet(vp, TIMER_CTRL_UPDATETIMESTAMP, 1);
 				
 		if (vp->gui.drawVisuals){
 			if (vlc->vlcPlayState == libvlc_Playing || vlc->vlcPlayState == libvlc_Paused){
@@ -1887,7 +1890,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 		//	setVolume(vp, vp->vlc->volume, VOLUME_APP);
       	// use this to retrieve video size as calling via VLC's callback seems to generate a deadlock
       	if (getApplState(vp))
-			timerSet(vp, TIMER_NEWTRACKVARS1, 150);
+			timerSet(vp, TIMER_NEWTRACKVARS1, 1); // 150
 
       	break;
 	  }
@@ -1903,8 +1906,10 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	  }
       case libvlc_MediaPlayerStopped:{
       	timerReset(vp, TIMER_GETTRACKVARDELAYED);
+      	
 		TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
 		ctrlPanCalcPositions(&plyctrl->ctrlpan, BTNPANEL_SET_STOP);
+		
 		if (hasPageBeenAccessed(vp, PAGE_PLY_SHELF)){
 			TSPL *spl = pageGetPtr(vp, PAGE_PLY_SHELF);
 			albPanCalcPositions(&spl->albpan, BTNPANEL_SET_STOP);
@@ -1959,14 +1964,14 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 
 	  case libvlc_MediaPlayerTitleChanged:
 		if (getApplState(vp))
-			timerSet(vp, TIMER_NEWTRACKVARS2, 750);
+			timerSet(vp, TIMER_NEWTRACKVARS2, 175);
 		break;
 
 #if (LIBVLC_VERSION_MAJOR >= 2 /*&& LIBVLC_VERSION_MINOR >= 1*/)
 	  case libvlc_MediaPlayerBuffering:
 	  	//printf("buffering %%%.1f\n", event->u.media_player_buffering.new_cache);
 	  	vp->vlc->bufferPos = event->u.media_player_buffering.new_cache/100.0;
-	  	timerSet(vp, TIMER_NEWTRACKVARS3, 500);
+	  	timerSet(vp, TIMER_NEWTRACKVARS3, 180);
 	  	renderSignalUpdate(vp);
 	  	break;
 #endif
@@ -1997,8 +2002,8 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	 		PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 			if (plc){
 	 			playlistSetPath(plc, plc->pr->playingItem, path);
-				timerSet(vp, TIMER_STOP, 10);
-		 		timerSet(vp, TIMER_PLAY, 110);
+				timerSet(vp, TIMER_STOP, 1);
+		 		timerSet(vp, TIMER_PLAY, 50);
 		 		//m_tmp = event->u.media_subitem_added.new_child;
 	 		}
 #endif
@@ -2009,7 +2014,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	  }
 	  case libvlc_MediaParsedChanged:{
 	  	if (getApplState(vp))
-	  		timerSet(vp, TIMER_NEWTRACKVARS2, 50);
+	  		timerSet(vp, TIMER_NEWTRACKVARS2, 1);
 
 		char *title = getPlayingTitle(vp);
 		if (!title)
@@ -2043,12 +2048,11 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 void vlc_eventsCallbackLocked (const libvlc_event_t *event, void *udata)
 {
 	if (SHUTDOWN) return;
-	TVLCPLAYER *vp = (TVLCPLAYER*)udata;
+	//TVLCPLAYER *vp = (TVLCPLAYER*)udata;
 
-
-	if (lockWait(vp->ctx.hVideoCBLock, INFINITE)){
+	if (lockWait(g_vp->ctx.hVideoCBLock, INFINITE)){
 		vlc_eventsCallback(event, udata);
-		lockRelease(vp->ctx.hVideoCBLock);
+		lockRelease(g_vp->ctx.hVideoCBLock);
 	}
 }
 
@@ -2149,6 +2153,8 @@ int loadMediaPlayer (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *inlineOpts, char *op
 
 void unloadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
+	//printf("unloadMedia %p %p\n", vp->vlc->m, vp->vlc->mp);
+	
 	vlc_inputEventCbDel(vp->vlc, vp);
 	vlc_detachEvents(vlc, vlc_eventsCallbackLocked, vp);
 	vlc_mp_release(vlc);
@@ -2159,7 +2165,9 @@ void unloadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 
 int loadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *mediaPath, char *opts)
 {
-	//printf("@@@ loadMedia open '%s' \n", mediaPath);
+	//if (vlc->m)
+		//printf("@@@ loadMedia open '%s' \n", mediaPath);
+	//printf("loadMedia %p %p\n", vp->vlc->m, vp->vlc->mp);
 	
 	int ret = 0;
 	char *inlineOpts = vlc_configureGetOptions(mediaPath);
@@ -2274,8 +2282,8 @@ void vlc_configure (TVLCPLAYER *vp, TVLCCONFIG *vlc, const int width, const int 
 //	vlc_addOption(vlc, "quiet");
 //	vlc_addOption(vlc, "quiet-synchro");
 	vlc_addOption(vlc, "http-album-art");
-	vlc_addOption(vlc, "album-art=1");
-	//vlc_addOption(vlc, "album-art-filename=cover.jpg");
+	vlc_addOption(vlc, "album-art=2");
+	vlc_addOption(vlc, "album-art-filename=cover.jpg");
 
 	vlc_addOption(vlc, "spu");
 	vlc_addOption(vlc, "sub-fps=25");
@@ -2598,7 +2606,7 @@ static inline int _browserLoadMediaFile (TVLCPLAYER *vp, char *path, char *opts)
 
 		vlc->isMediaLoaded = vlc_willPlay(vlc);
 		if (vlc->isMediaLoaded){
-			timerSet(vp, TIMER_NEWTRACKVARS1, 200);
+			timerSet(vp, TIMER_NEWTRACKVARS1, 1);
 			//if (LIBVLC_VERSION_MAJOR == 1 && LIBVLC_VERSION_MINOR <= 1)
 				setVolume(vp, vlc->volume, VOLUME_APP);
 //#if (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 1)
@@ -2927,7 +2935,7 @@ static inline void OnDriveNotification (TPAGEVIDEO *video, const int event, cons
     	TVLCPLAYER *vp = video->com->vp;
     	wakeup(vp);
 		picQueueAdd(vp->gui.picQueue, imgBtm, imgTop, getTickCount()+10000);
-		timerSet(vp, TIMER_EXPPAN_REBUILD, 50);
+		timerSet(vp, TIMER_EXPPAN_REBUILD, 1);
 		renderSignalUpdate(vp);
 	}
 }
@@ -3089,7 +3097,7 @@ static inline int drawUnderlayMeta (TVLCPLAYER *vp, TFRAME *frame)
 static inline void saveSnapshot (TVLCPLAYER *vp, TFRAME *frame, wchar_t *filename, const int annouce)
 {
 	if (lSaveImage(frame, filename, IMG_PNG, 0, 0) && annouce)
-		dbwprintf(vp, L"Snapshot written to %s", filename);
+		dbwprintf(vp, L"Snapshot written to %ls", filename);
 }
 
 static inline void composeFrame (TVLCPLAYER *vp, TFRAME *frame)
@@ -3214,6 +3222,7 @@ int setDisplayBrightness (TVLCPLAYER *vp, int level)
 // attempt to play whatever has been passed through the command line
 int processCommandline (TVLCPLAYER *vp)
 {
+
 	int ret = 0;
 	int argc = 0;
 	wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -3329,11 +3338,13 @@ int processCommandline (TVLCPLAYER *vp)
 
 	int ilen = wcslen(pathNoOpt);
 	if (isDir){
-		if (pathNoOpt[ilen-1] == L'\\' || pathNoOpt[ilen-1] == L'/')
+		if (pathNoOpt[ilen-1] == L'\\' || pathNoOpt[ilen-1] == L'/'){
 			len = __mingw_snwprintf(buffer, MAX_PATH, L"%ls", pathNoOpt);
-		else
+		}else{
 			len = __mingw_snwprintf(buffer, MAX_PATH, L"%ls\\", pathNoOpt);
-			_wsplitpath(buffer, drive, dir, fname, ext);
+		}
+		_wsplitpath(buffer, drive, dir, fname, ext);
+		
 	}else{
 		_wsplitpath(pathNoOpt, drive, dir, fname, ext);
 		len = __mingw_snwprintf(buffer, MAX_PATH, L"%ls%ls", drive, dir);
@@ -3687,12 +3698,18 @@ TVLCPLAYER * playerNew ()
 
 void playerDelete (TVLCPLAYER *vp)
 {
-	//printf("playerDelete %p %p\n", vp->instanceEvent, vp->ml);
+	//printf("playerDelete in %p %p\n", vp->instanceEvent, vp->ml);
 	CloseHandle(vp->instanceEvent);
 
+	
 	TMYLCD *ml = vp->ml;
 	my_free(vp);
 	if (ml) libmylcd_Close(ml);
+
+	//printf("sleeping ..\n");
+	//Sleep(5000);
+	//printf("sleeping done\n");
+
 }
 
 #if 0
@@ -3709,8 +3726,8 @@ void setDeviceExitScreen (TMYLCD *ml)
 		lPrintf(frame, x, y, DMSG_FONT, LPRT_CPY, " %s-%s", PLAYER_VERSION, libmylcdVERSION);
 		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, "%s", " web: mylcd.sourceforge.net");
 		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, "%s", " email: okio@users.sourceforge.net");
-		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, "%s", " libvlc v%s", libvlc_get_version());
-		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, "%s", " compiler: %s", libvlc_get_compiler());
+		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " libvlc v%s", libvlc_get_version());
+		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " compiler: %s", libvlc_get_compiler());
 		//lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " compiler: gcc version %i.%i (GCC)", __GNUC__, __GNUC_MINOR__);
 		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " &#169; %s", mySELF);
 
@@ -3759,8 +3776,9 @@ static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
 	settingsGetW(vp, "skin.bgimage.", &strList);
 	if (strList){
 		if (!(vp->gui.skin.bgPathTotal=strList->total)){
+			cfg_configStrListFreeStrings(strList);
 			cfg_configStrListFree(strList);
-			my_free(strList);
+			//my_free(strList);
 			return NULL;
 		}
 
@@ -3783,8 +3801,9 @@ static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
 			//	imageManagerImageDelete(vp->im, oldId);
 		}
 
+		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		my_free(strList);
+		//my_free(strList);
 	}
 
 	int width = 0, height = 0;
@@ -3829,10 +3848,11 @@ int configStartDisplay (TVLCPLAYER *vp, const int enabledVD)
 	int height = DEVICE_DEFAULT_HEIGHT;
 	
 	char *name = settingsGetStr(vp, "display.device");
-	if (!name) return 0;
-	if (strcmp(name, DEVICE_DEFAULT_NAME)){
+	if (name){
 		settingsGet(vp, "display.width", &width);
 		settingsGet(vp, "display.height", &height);
+	}else{
+		name = my_strdup(DEVICE_DEFAULT_NAME);
 	}
 
 	TMYLCD *ml = libmylcd_Init(width, height, SKINFILEBPP);
@@ -3948,6 +3968,7 @@ int playerSetup (TVLCPLAYER *vp)
 	lCacheCharacterRange(vp->ml->hw, 0, 126, LFONT);
 	lCacheCharacterRange(vp->ml->hw, 0, 126, CTRLOVR_LISTBOX_FONT);
 
+
 	vp->pages = pages2New(vp, PAGE_VIDEO);
 	page2Register(vp->pages, "Video", PAGE_VIDEO, 0, page_videoCallback, sizeof(TPAGEVIDEO));
 	page2Register(vp->pages, "Playback ctrl", PAGE_OVERLAY, 0, page_plyctrlCallback, sizeof(TVIDEOOVERLAY));
@@ -3978,11 +3999,15 @@ int playerSetup (TVLCPLAYER *vp)
 	page2Register(vp->pages, "Virtual Keyboard", PAGE_VKEYBOARD, 0, page_vkbCallback, sizeof(TKEYBOARD));
 	page2Register(vp->pages, "Tetris", PAGE_TETRIS, 0, page_tetrisCallback, sizeof(TTETRIS));
 	page2Register(vp->pages, "Task manager", PAGE_TASKMAN, 0, page_taskmanCallback, sizeof(TTASKMAN));
+#if ENABLE_GARMINTCX
 	page2Register(vp->pages, "Garmin .tcx parser", PAGE_TCX, 0, page_tcxCallback, sizeof(TTCX));
+#endif
 	page2Register(vp->pages, "Alarm", PAGE_ALARM, 0, page_alarmCb, sizeof(TALARM));
+	page2Register(vp->pages, "Media Player", PAGE_PLY_QUEUE, 0, page_queueCb, sizeof(TPLYQUEUE));
 #if ENABLE_ANTPLUS
 	page2Register(vp->pages, "Ant+ HRM", PAGE_ANTPLUS, 0, page_antCallback, sizeof(TANTPLUS));
 #endif
+
 
 	timerInit(vp, TIMER_NEWTRACKVARS1, getNewTrackVariables, NULL);
 	timerInit(vp, TIMER_NEWTRACKVARS2, getNewTrackVariables, NULL);
@@ -4051,15 +4076,14 @@ int playerSetup (TVLCPLAYER *vp)
 
 	if (isSBUIEnabled(vp))
 		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS);
-	else
-		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS|CREATE_SUSPENDED);
+//	else
+//		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS|CREATE_SUSPENDED);
 
 
 	setApplState(vp, 1);
 	configApply(vp);
 	pageDispatchMessage(vp->pages, PAGE_MSG_CFG_READ, 0, 0, NULL);
 	page2Enable(vp->pages, PAGE_META);
-	
 
 #if ((ENABLE_BASS || !RELEASEBUILD) && !WIN64)
 	bass_start(&vp->bass, vp->gui.drawVisuals, getFrontBuffer(vp)->width/1.25f, getFrontBuffer(vp)->height/2, vp);
@@ -4069,12 +4093,13 @@ int playerSetup (TVLCPLAYER *vp)
 
 	// try to play whatever has been passed via the command line
 	// if unsuccessful then try to load the default playlist (created at last exit)
+
 	int cret = processCommandline(vp);
 	if (!cret)
 		cret = playerLoadDefaultPlaylist(vp, VLCSPLAYLIST);
-
 	wakeup(vp);
 	
+
 	if (cret < 1){
 		page2Set(vp->pages, PAGE_HOME, 1);
 	}else{
@@ -4084,6 +4109,10 @@ int playerSetup (TVLCPLAYER *vp)
 			timerSet(vp, TIMER_CTRL_OVERLAYRESET, 1000);
 		}
 	}
+
+
+	page2Set(vp->pages, PAGE_HOME, 1);
+
 
 	vp->gui.runCount++;
 	return 1;
@@ -4177,7 +4206,7 @@ int IsCurrentUserLocalAdministrator()
 
 
 
-static inline int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
+int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 {
 	//printf("main tid:%i %i\n", (int)GetCurrentThreadId, (int)GetCurrentProcessorNumber());
 	//printf("main isadmin:%i\n", (int)IsCurrentUserLocalAdministrator());
@@ -4359,7 +4388,6 @@ static inline int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	regSetDword(L"process_id", processGetId());
 	regSetQword(L"process_hwnd", (QWORD)(intptr_t)vp->gui.hMsgWin);
 
-	
 	playerRun(vp);
 
 	SHUTDOWN = 1;
@@ -4392,13 +4420,14 @@ static inline int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 
 	updateTickerStop(vp);
 	timeEndPeriod(1);
+	
 	if (kHookGetState())
 		kHookUninstall();
 	if (getPlayState(vp)){
 		trackStop(vp);
 		unloadMedia(vp, vp->vlc);
 	}
-	 
+
 	if (!vp->playlist.noPlaylist)
 		playerWriteDefaultPlaylist(vp, VLCSPLAYLIST);
 
@@ -4431,11 +4460,13 @@ int main (const int argc, const char *argv[])
 {
 	TVLCPLAYER *vp = playerNew();
 	if (vp){
-		//g_vp = vp;
+		g_vp = vp;
 		//unsigned int tid;
 		//_beginthreadex(NULL, 0, keeper, NULL, 0, &tid);
 		
+		//printf("@ my_main in\n");
 		my_main(vp, argc, argv);
+		//printf("@ my_main out\n");
 		playerDelete(vp);
 		
 		printf("\n:: Exited\n");

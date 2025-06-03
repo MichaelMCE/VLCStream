@@ -382,8 +382,9 @@ void configApply (TVLCPLAYER *vp)
 			char *name = cfg_configStrListItem(strList, i);
 			if (name) eqBandSet(eq, i+1, atof(name));
 		}
+		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		my_free(strList);
+		//my_free(strList);
 	}
 
 	settingsGet(vp, "meta.drawTrackbar", &vp->gui.drawMetaTrackbar);
@@ -438,107 +439,24 @@ void configApply (TVLCPLAYER *vp)
 		setBaseUpdateRate(UPDATERATE_BASE_DEFAULT);
 
 
-	/*TGLOBALHOTKEYS *ghk = pageGetPtr(vp, PAGE_HOTKEYS);
-	settingsGet(vp, "hotkeys.alwaysAccessible", &ghk->alwaysAccessible);
-	settingsGet(vp, "hotkeys.showNames", &ghk->showNames);
-	settingsGet(vp, "hotkeys.local.cursor", &vp->gui.hk_cursor);
-	settingsGet(vp, "hotkeys.local.console", &vp->gui.hk_console);
-	settingsGet(vp, "hotkeys.local.snapshot", &vp->gui.hk_snapshot);
-
 	
-	strList = NULL;
-	settingsGet(vp, "hotkeys.global.", &strList);
-	if (strList){
-		ghkFreeKeyList(ghk->keys, ghk->totalKeys);
-		ghk->keys = ghkAllocKeyList(strList->total);
-		ghk->totalKeys = strList->total;
-		int validKeys = 0;
+	TGUI *ui = &vp->gui;
+	settingsGet(vp, "home.hotkeys.alwaysAccessible", &ui->hotkeys.alwaysAccessible);
+	settingsGet(vp, "hotkeys.local.cursor", &ui->hotkeys.cursor);
+	settingsGet(vp, "hotkeys.local.console", &ui->hotkeys.console);
+	settingsGet(vp, "hotkeys.local.enabled", &ui->hotkeys.localEnabled);
+	settingsGet(vp, "hotkeys.global.enabled", &ui->hotkeys.globalEnabled);
 
-		THOTKEY hk;
-		char modifierStrA[64];
-		char modifierStrB[64];
-		char hkname[256];
-		char imagePath[MAX_PATH_UTF8+1];		
+	TGLOBALHOTKEYS *ghk = pageGetPtr(vp, PAGE_HOTKEYS);
+	settingsGet(vp, "hotkeys.global.showLabels", &ghk->showNames);
 
-		for (int i = 0; i < strList->total; i++){
-			char *name = cfg_configStrListItem(strList, i);
-			if (name){
-				memset(&hk, 0, sizeof(hk));
 
-				//     modifierA,modifierB,key,image_path
-				// eg; CTRL,ALT,A,hotkeys/image1.png
-
-				int slen = strlen(name);
-				int c  = strcspn(name, ",");
-				*modifierStrA = 0;
-				strncpy(modifierStrA, name, c);
-				if (*modifierStrA){
-					modifierStrA[c] = 0;
-					hk.modifierA = hkModiferToKey(modifierStrA);
-				}
-				int i = c + 1;
-				
-				if (i >= slen-1) continue;
-				c = strcspn(name+i, ",");
-				*modifierStrB = 0;
-				strncpy(modifierStrB, name+i, c);
-				if (*modifierStrB){
-					modifierStrB[c] = 0;
-					hk.modifierB = hkModiferToKey(modifierStrB);
-				}
-				i += c + 1;
-				
-				if (i >= slen-1) continue;
-				c = strcspn(name+i, ",");
-				hk.key = *(name+i);
-				i += c + 1;
-				
-				
-				if (i >= slen-1) continue;
-				c = strcspn(name+i, ",");
-				strncpy(hkname, name+i, c);
-				if (*hkname){
-					hkname[c] = 0;
-					hk.name = my_strdup(hkname);
-				}
-				i += c + 1;
-				
-				if (i >= slen-1) continue;
-				*imagePath = 0;
-				strncpy(imagePath, name+i, slen-i);
-				if (*imagePath){
-					imagePath[slen-i] = 0;
-					hk.imagePath = my_strdup(imagePath);
-				}else{
-					continue;
-				}
-				
-				ghk->keys[validKeys] = ghkAllocKey();
-				my_memcpy(ghk->keys[validKeys], &hk, sizeof(THOTKEY));
-
-				//printf("name:'%s'\nmodA:%s/%i\nmodB:%s/%i\nkey:%c\nimage:%s\n\n", hk.name,
-				//		  modifierStrA, hk.modifierA, modifierStrB, hk.modifierB, hk.key, hk.imagePath);
-
-				validKeys++;
-			}
-			ghk->totalKeys = validKeys;
-		}
-		cfg_configStrListFree(strList);
-		my_free(strList);
-	}*/
-	
-	
 	values = NULL;
 	settingsGet(vp, "clock.type", &values);
 	if (values){
 		setClockType(vp, clockStringToType(values));
 		my_free(values);
 	}
-	/*TCLK *clk = pageGetPtr(vp, PAGE_CLOCK);
-	settingsGet(vp, "clock.face.dial.x", &clk->bfFace.cx);
-	settingsGet(vp, "clock.face.dial.y", &clk->bfFace.cy);*/
-	
-	
 	
 	//eqApply(eq, vp->vlc, 1);
 	//expanTimerPanelRebuild(vp);

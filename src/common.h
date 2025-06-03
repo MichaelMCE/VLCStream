@@ -33,18 +33,18 @@
 #include <time.h>
 #include <math.h>
 #include <mylcd.h>
-//#include <shfolder.h>
 #include <shlobj.h>
-#include <vlc/libvlc_version.h>
+
+
 
 
 #define RELEASEBUILD			0				// disables console input when set
 #define MOUSEHOOKCAP			1				// enable mouse hooking capability. keys: shift+control+A or Q, L or P (creates a new thread and hidden window)
 #define ASYNCHRONOUSREFRESH 	1
 #define USEEXTMEMFUNC			0				// define to 1 to use libmylcd's memory alloc and trace routines
-#define USE_MMX_MEMCPY			1
-#define USEINTERNALMEMMANGER	0				//
-#define ALLOWDEBUGGER			0
+#define USEINTERNALMEMMANGER	0				// enable either internal or external, but not both
+#define USE_MMX_MEMCPY			0
+#define ALLOWDEBUGGER			1
 
 #define DRAWBUTTONRECTS			0
 #define DRAWTOUCHRECTS			0				// draw rectangles around buttons and touch contact areas
@@ -54,6 +54,7 @@
 #define DRAWGLYPHBOUNDS			0
 #define DRAWSTRINGBOUNDS		0
 #define DRAWCURSORCROSS			0
+
 #define DRAWBUTTONRECTCOL		(0xFF0000FF)	// blue
 #define DRAWTOUCHRECTCOL		(0xFFFFFF00)	// yellow
 #define DRAWCCOBJCOL			(0x00FFFF00)
@@ -64,15 +65,15 @@
 #define ENABLE_SINGLEINSTANCE	0				// single instance only, pass args to first instance. required when using RzHome.exe
 #define ENABLE_FILEEXT_CONFIG	1
 
-#define ENABLE_ANTPLUS			1				// garmin ant+ heart rate display. requires libusb installed Ant+ dongle
-#define ENABLE_GARMINTCX		1
+#define ENABLE_ANTPLUS			0				// garmin ant+ heart rate display. requires libusb installed Ant+ dongle
+#define ENABLE_GARMINTCX		0
 #define ENABLE_BRIGHTNESS		0				// hardware brightness support where supported
 #define ENABLE_CMDFUNSTUFF		0
 
 #define SINGLEINSTANCE_USE_CDS	1
 #define ENABLE_BASS				(1/* || !RELEASEBUILD*/)
 
-#define DEVICE_DEFAULT_NAME		"switchbladefio"
+#define DEVICE_DEFAULT_NAME		"HidDisplay"
 #define DEVICE_DEFAULT_WIDTH	SBUI_PAD_WIDTH
 #define DEVICE_DEFAULT_HEIGHT	SBUI_PAD_HEIGHT
 
@@ -80,8 +81,8 @@
 #define NSEX_RIGHT				(0x02)
 #define DS_MIDDLEJUSTIFY		(0x04)
 
-//#define ALLOW_FALLTHROUGH	
-#define ALLOW_FALLTHROUGH		__attribute__ ((fallthrough))		// C and C++03
+#define ALLOW_FALLTHROUGH	
+//#define ALLOW_FALLTHROUGH		__attribute__ ((fallthrough))		// C and C++03
 //#define ALLOW_FALLTHROUGH		[[gnu::fallthrough]]				// C++11 and C++14
 //#define ALLOW_FALLTHROUGH		[[fallthrough]]						// C++17 and above
 
@@ -99,6 +100,12 @@
 #ifndef DEGTORAD
 #define DEGTORAD 0.0174532925195
 #endif
+
+
+#ifndef M_PI
+#define M_PI 3.1415926535897
+#endif
+
 
 #include "memory.h"
 #include "lock.h"
@@ -123,8 +130,6 @@
 #include "cmdparser.h"
 #include "fileext.h"
 #include "filebrowser.h"
-#include "filepane.h"
-#include "exppanel.h"
 #include "playlist.h"
 #include "playlistc.h"
 #include "playlistManager.h"
@@ -146,62 +151,33 @@
 #include "drawvolume.h"
 #include "shelf.h"
 #include "plm.h"
-#include "album.h"
 #include "m3u.h"
-//#include "winm.h"
-#include "keyboard.h"
-#include "search.h"
 #include "videofilter.h"
 #include "transform.h"
-#include "videotransform.h"
-#include "ctrloverlay.h"
 #include "fileio.h"
-#include "meta.h"
 #include "vlc.h"
 #include "vlceventcb.h"
-#include "mediastats.h"
-#include "textoverlay.h"
-#include "chapter.h"
-#include "es.h"
-#include "imgovr.h"
-#include "exit.h"
-#include "cfg.h"
-#include "sub.h"
 #include "libvlceq.h"
-#include "eq.h"
-#include "alarm.h"
-#include "epg.h"
-#include "plytv.h"
-#include "plypanel.h"
-#include "plypane.h"
-#include "imgpane.h"
-#include "clock.h"
-#include "tetris.h"
-#include "taskman.h"
-#include "home.h"
 #include "hotkeys.h"
 #include "config.h"
 #include "hook/hook.h"
 #include "sbui.h"
+#include "hdtouch.h"
 #include "vaudio.h"
-#if ENABLE_GARMINTCX
-#include "garmin.h"
-#endif
-#if ENABLE_ANTPLUS
-#include "antplus.h"
-#endif
+#include "pages/views.h"
 //#include "../../src/sbui153/sbuicb.h"
 #include <sbuicb.h>
+#include <hiddtouch.h>
 #include "ext.h"
 
 
 
 
 
-#if 0
+#if 1
 
-//#define HAVE_SNPRINTF
-//#define HAVE_VSNPRINTF
+#define HAVE_SNPRINTF
+#define HAVE_VSNPRINTF
 
 #undef _snprintf
 #define _snprintf __mingw_snprintf
@@ -259,7 +235,7 @@ void workstationShutdownAbort();
 TFRAME *newImage (TVLCPLAYER *vp, const wchar_t *filename, const int bpp);
 int loadImage (TFRAME *frame, const wchar_t *filename);
 
-MYLCD_EXPORT uint64_t rdtsc ();
+//MYLCD_EXPORT uint64_t rdtsc ();
 
 wchar_t *buildSkinD (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *path);
 wchar_t *buildSkinDEx (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *dir, wchar_t *file);
