@@ -64,6 +64,8 @@
 //#include <ddk/ntddk.h>
 //#include <ntifs.h>
 
+#include "../common.h"
+#if (ENABLE_GARMINTCX)
 
 #include "mxml-private.h"
 #include "config.h"
@@ -3041,3 +3043,4 @@ mxml_write_ws(mxml_node_t     *node,	/* I - Current node */
 /*
  * End of "$Id: mxml-file.c 391 2009-05-17 05:20:52Z mike $".
  */
+#endif

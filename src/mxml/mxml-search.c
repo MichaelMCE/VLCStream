@@ -27,7 +27,8 @@
  * Include necessary headers...
  */
 
-
+#include "../common.h"
+#if (ENABLE_GARMINTCX)
 
 #include "config.h"
 #include "mxml.h"
@@ -201,3 +202,5 @@ mxmlWalkPrev(mxml_node_t *node,		/* I - Current node */
 /*
  * End of "$Id: mxml-search.c 297 2007-09-09 07:16:52Z mike $".
  */
+#endif
+

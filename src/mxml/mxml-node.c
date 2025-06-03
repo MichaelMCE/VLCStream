@@ -40,6 +40,9 @@
 
 //#include <phbase.h>
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -785,3 +788,6 @@ mxml_new(mxml_node_t *parent,		/* I - Parent node */
 /*
  * End of "$Id: mxml-node.c 363 2008-10-26 18:28:05Z mike $".
  */
+
+#endif
+

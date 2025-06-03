@@ -30,6 +30,8 @@
 
 //#include <phbase.h>
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -109,3 +111,6 @@ _mxml_vstrdupf(const char *format,	/* I - Printf-style format string */
 /*
  * End of "$Id: mxml-string.c 387 2009-04-18 17:05:52Z mike $".
  */
+
+#endif
+

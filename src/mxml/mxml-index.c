@@ -34,6 +34,9 @@
 
 //#include <phbase.h>
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -652,3 +655,6 @@ index_sort(mxml_index_t *ind,		/* I - Index to sort */
 /*
  * End of "$Id: mxml-index.c 184 2005-01-29 07:21:44Z mike $".
  */
+
+#endif
+

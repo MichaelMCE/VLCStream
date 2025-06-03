@@ -34,6 +34,8 @@
 //#include <phbase.h>
 
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -300,3 +302,6 @@ mxmlSetTextf(mxml_node_t *node,		/* I - Node to set */
 /*
  * End of "$Id: mxml-set.c 270 2007-04-23 21:48:03Z mike $".
  */
+
+#endif
+

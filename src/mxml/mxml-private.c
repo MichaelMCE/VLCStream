@@ -30,6 +30,8 @@
 
 //#include <phbase.h>
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -173,3 +175,5 @@ _mxml_global_t *_mxml_global (void)
 /*
  * End of "$Id: mxml-private.c 315 2007-11-22 18:01:52Z mike $".
  */
+
+#endif

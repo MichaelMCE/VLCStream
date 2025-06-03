@@ -34,6 +34,9 @@
 
 //#include <phbase.h>
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -468,3 +471,6 @@ _mxml_entity_cb(const char *name)	/* I - Entity name */
 /*
  * End of "$Id: mxml-entity.c 385 2009-03-19 05:38:52Z mike $".
  */
+
+#endif
+
