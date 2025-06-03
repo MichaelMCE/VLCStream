@@ -119,6 +119,8 @@
 #define __BUILD_USB13700EXP__			0		// USB13700 expansion port configured for SPI. port0:control:0x378+2, port1:SPI:0x378 (requires __BUILD_USB13700LIBUSB__ or __BUILD_USB13700DLL__)
 #define __BUILD_USB13700LIBUSB__		0		// S1D13700/USB13700 accessed through libusb (display_lib_USB13700.dll not required)
 
+#define __BUILD_RAWHIDDISPLAY__			1
+
 #ifdef __WIN32__
 #define __BUILD_USB13700DLL__			0		// S1D13700/USB13700 accessed through display_lib_USB13700.dll (is dynamically loaded)
 #define __BUILD_USBD480DLL__			0		// USBD480 through USBD480_lib.dll. HI-Speed USB display controller (www.lcdinfo.com) for the Sharp LQ043 LCD (480x272)

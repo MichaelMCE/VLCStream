@@ -1,6 +1,11 @@
 
-//  Copyright (c) Michael McElligott
-// 
+// libmylcd - http://mylcd.sourceforge.net/
+// An LCD framebuffer and text rendering API
+// Michael McElligott
+// okio@users.sourceforge.net
+
+//  Copyright (c) 2005-2011  Michael McElligott
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
 //  as published by the Free Software Foundation; either version 2
@@ -9,10 +14,11 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU LIBRARY GENERAL PUBLIC LICENSE for details.
-
-
-
+//  GNU LIBRARY GENERAL PUBLIC LICENSE for more details.
+//
+//	You should have received a copy of the GNU Library General Public
+//	License along with this library; if not, write to the Free
+//	Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #ifndef _MYLCD_H_
 #define _MYLCD_H_
@@ -20,9 +26,9 @@
 #include "mylcdconfig.h"
 
 
-#define libmylcdVERSIONmj	0.80
-#define libmylcdVERSIONmi	7
-#define libmylcdVERSION		"0.80.7"
+#define libmylcdVERSIONmj	1.0
+#define libmylcdVERSIONmi	0
+#define libmylcdVERSION		"1.0.0"
 #define mySELF				"Michael McElligott"
 
 // draw pixel styles
@@ -266,6 +272,10 @@ enum _TRFILTER
 #define lOPT_SBUI_RSTATS			7
 #define lOPT_SBUI_RSTATSRESET		8
 
+#define lOPT_HIDD_STRUCT			0
+#define lOPT_HIDD_TOUCHCB			1
+#define lOPT_HIDD_UDATAPTR			2
+
 #define lOPT_SED1565_HFLIP			0	// 0:1
 
 #define lOPT_LEDCARD_MODE			0	// FIXED:SCROLL 0:1
@@ -391,6 +401,7 @@ enum _HWCAPS
 	CAP_DEBUG,				// Compiled in debug mode - is not runtime switchable
 	CAP_DEBUG_FILEIO,		// ^^ display file open, close read and write requests
 	CAP_DEBUG_MEM,			// General memory debugging and leak finding. refer to memory.h and mylcdmemory.h
+	CAP_HIDDISPLAY,
 	CAPS_TOTAL
 };
 
@@ -583,6 +594,10 @@ enum _FONTDEFSW
 	LFTW_76LONDON150,
 	LFTW_NOTOSANS36,
 	LFTW_NAMCO91,
+	
+	LFTW_B30,
+	LFTW_B32,
+		
 	LFTW_END
 };
 
@@ -1339,7 +1354,7 @@ MYLCD_EXPORT int
 lSetCharacterEncoding (THWD *hw, int cmt_id);
 // get current language encoding
 MYLCD_EXPORT int
-lGetCharacterEncoding ();
+lGetCharacterEncoding (THWD *hw);
 
 // cycle through supported encodings, returning encoding alias, id (CMT_nnn) and filepath (if applicable)
 // refer to examples/enumlang.c for more details
@@ -1469,15 +1484,15 @@ lSetFontZeroWidthSpacing (THWD *hw, int fontid, int pixels);
 
 // enable/disable HTML character and entity references, ie; &#36215;, &amp;, etc..
 MYLCD_EXPORT void
-lHTMLCharRefEnable();
+lHTMLCharRefEnable (THWD *hw);
 MYLCD_EXPORT void
-lHTMLCharRefDisable();
+lHTMLCharRefDisable (THWD *hw);
 
 // enable/disable character combining
 MYLCD_EXPORT void
-lCombinedCharDisable ();
+lCombinedCharDisable (THWD *hw);
 MYLCD_EXPORT void
-lCombinedCharEnable ();
+lCombinedCharEnable (THWD *hw);
 
 // block for n milliseconds
 MYLCD_EXPORT void
