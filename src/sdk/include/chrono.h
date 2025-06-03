@@ -65,7 +65,7 @@ static inline mtime_t vout_chrono_GetLow(vout_chrono_t *chrono)
 
 static inline void vout_chrono_Stop(vout_chrono_t *chrono)
 {
-    //assert(chrono->start != VLC_TS_INVALID);
+//    assert(chrono->start != VLC_TS_INVALID);
 
     /* */
     const mtime_t duration = mdate() - chrono->start;

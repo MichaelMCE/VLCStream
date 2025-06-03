@@ -1,24 +1,24 @@
 /*****************************************************************************
  * input_internal.h: Internal input structures
  *****************************************************************************
- * Copyright (C) 1998-2006 the VideoLAN team
- * $Id: 1ade60c1a82f0931def1f83d7389e64f9592e365 $
+ * Copyright (C) 1998-2006 VLC authors and VideoLAN
+ * $Id: 2236313b9c1fa6859842715d6f35c03fd5840e8b $
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
 #ifndef LIBVLC_INPUT_INTERNAL_H
@@ -27,7 +27,8 @@
 #include <vlc_access.h>
 #include <vlc_demux.h>
 #include <vlc_input.h>
-
+//#include <libvlc.h>
+//#include "input_interface.h"
 
 /*****************************************************************************
  *  Private input fields
@@ -38,10 +39,7 @@
 /* input_source_t: gathers all information per input source */
 typedef struct
 {
-    /* Access/Stream/Demux plugins */
-    access_t *p_access;
-    stream_t *p_stream;
-    demux_t  *p_demux;
+    demux_t  *p_demux; /**< Demux plugin instance */
 
     /* Title infos for that input */
     bool         b_title_demux; /* Titles/Seekpoints provided by demux */
@@ -118,6 +116,7 @@ struct input_thread_private_t
     /* Input attachment */
     int i_attachment;
     input_attachment_t **attachment;
+    demux_t **attachment_demux;
 
     /* Main input properties */
 
@@ -194,6 +193,12 @@ enum input_control_e
 
     INPUT_CONTROL_SET_BOOKMARK,
 
+    INPUT_CONTROL_NAV_ACTIVATE, // NOTE: INPUT_CONTROL_NAV_* values must be
+    INPUT_CONTROL_NAV_UP,       // contiguous and in the same order as
+    INPUT_CONTROL_NAV_DOWN,     // INPUT_NAV_* and DEMUX_NAV_*.
+    INPUT_CONTROL_NAV_LEFT,
+    INPUT_CONTROL_NAV_RIGHT,
+
     INPUT_CONTROL_SET_ES,
     INPUT_CONTROL_RESTART_ES,
 
@@ -245,5 +250,9 @@ int subtitles_Filter( const char *);
 /* input.c */
 void input_SplitMRL( const char **, const char **, const char **,
                      const char **, char * );
+
+/* meta.c */
+void vlc_audio_replay_gain_MergeFromMeta( audio_replay_gain_t *p_dst,
+                                          const vlc_meta_t *p_meta );
 
 #endif
