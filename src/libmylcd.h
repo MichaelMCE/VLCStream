@@ -54,6 +54,7 @@ typedef struct{
 	unsigned int fill:28;
 }TMYLCD;
 
+
 int libmylcd_DisplayStart (THWD *hw, TDISPLAY *disp);
 TDISPLAY *libmylcd_DisplayCfg (const char *name, const int width, const int height, const int bpp);
 void libmylcd_DisplayFree (TDISPLAY *disp);
