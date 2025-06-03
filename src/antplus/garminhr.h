@@ -23,7 +23,7 @@
 #ifndef _GARMINHR_H_
 #define _GARMINHR_H_
 
-#if ENABLE_ANTPLUS
+#if (ENABLE_ANTPLUS)
 
 #include "../common.h"
 #include "libantplus.h"

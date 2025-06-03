@@ -22,10 +22,7 @@
 
 
 #include "../common.h"
-
-#if ENABLE_ANTPLUS
-
-
+#if (ENABLE_ANTPLUS)
 
 #include "garminhr.h"
 
