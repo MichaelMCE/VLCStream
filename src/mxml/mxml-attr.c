@@ -32,6 +32,8 @@
 
 
 #include "../common.h"
+#if (ENABLE_GARMINTCX)
+
 #define allocateSafe(x)			my_calloc(1,(x))
 #define duplicateBytesZSafe(x)	my_strdup((x))
 #define reAllocateSafe(x,y)		my_realloc((x),(y))
@@ -328,3 +330,4 @@ mxml_set_attr(mxml_node_t *node,	/* I - Element node */
 /*
  * End of "$Id: mxml-attr.c 308 2007-09-15 20:04:56Z mike $".
  */
+#endif

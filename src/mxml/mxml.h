@@ -25,11 +25,16 @@
  */
 
 #ifndef _mxml_h_
-#  define _mxml_h_
+#define _mxml_h_
 
 /*
  * Include necessary headers...
  */
+
+
+
+#include "../common.h"
+#if (ENABLE_GARMINTCX)
 
 #  include <stdio.h>
 #  include <stdlib.h>
@@ -282,6 +287,8 @@ MXMLAPI_EXPORT mxml_type_t	mxml_opaque_cb(mxml_node_t *node);
 MXMLAPI_EXPORT mxml_type_t	mxml_real_cb(mxml_node_t *node);
 
 
+
+
 /*
  * C++ support...
  */
@@ -289,6 +296,9 @@ MXMLAPI_EXPORT mxml_type_t	mxml_real_cb(mxml_node_t *node);
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
+
+#endif
+
 #endif /* !_mxml_h_ */
 
 

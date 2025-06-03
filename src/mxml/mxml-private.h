@@ -20,6 +20,9 @@
  * Include necessary headers...
  */
 
+#include "../common.h"
+#if (ENABLE_GARMINTCX)
+
 #include "config.h"
 #include "mxml.h"
 
@@ -50,3 +53,4 @@ extern int		_mxml_entity_cb(const char *name);
 /*
  * End of "$Id: mxml-private.h 309 2007-09-21 04:46:02Z mike $".
  */
+#endif
