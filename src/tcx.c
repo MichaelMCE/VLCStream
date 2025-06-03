@@ -22,6 +22,9 @@
 
 
 #include "common.h"
+
+#if (ENABLE_GARMINTCX)
+
 #include "mxml/mxml.h"
 #include "tcx.h"
 
@@ -1251,3 +1254,6 @@ void tcx_closeRenderContext (tcx_renderContext *rc)
 {
 	tcx_freeRenderContext(rc);
 }
+
+#endif
+
