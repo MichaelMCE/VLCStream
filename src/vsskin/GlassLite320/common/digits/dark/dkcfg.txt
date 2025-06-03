@@ -1,0 +1,11 @@
+modify in config.cfg:
+
+
+clock.date.digital.font: 2093
+clock.date.digital.foreColour: 0
+clock.date.digital.foreAlpha: 220
+clock.date.digital.backColour: FFFFFF
+clock.date.digital.backRadius: 15
+clock.date.digital.backAlpha: 255
+clock.date.digital.clearUnused: 1
+
