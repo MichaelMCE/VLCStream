@@ -353,7 +353,7 @@ static inline int editBoxCmdExecute (TEDITBOX *input, wchar_t *cmdName, int clen
 {
 	TEDITBOXCMD *cmd = editBoxGetCmd(input, cmdName);
 	if (cmd){
-		//wprintf(L"found cmd '%s'\n", cmd->name);
+		//wprintf(L"found cmd '%ls'\n", cmd->name);
 		cmd->pfunc(var, vlen, cmd->uptr, cmd->data1, 0/*do something with this*/);
 		return 1;
 	}
@@ -413,7 +413,7 @@ static inline int editboxParseCommands (TEDITBOX *input, TVLCPLAYER *vp, wchar_t
 				var = removeLeadingSpacesW(var);
 				vlen = wcslen(var);
 			}
-			//wprintf(L"#%s# #%s#\n",cmd, var);
+			//wprintf(L"#%ls# #%ls#\n",cmd, var);
 			editBoxCmdExecute(input, cmd, clen, var, vlen);
 		}
 	}
@@ -431,7 +431,7 @@ int editboxProcessString (TEDITBOX *input, wchar_t *txt, int ilen, void *ptr)
 		txt = removeLeadingSpacesW(txt);
 		txt = removeTrailingSpacesW(txt);
 	}
-	//wprintf(L"%i '%s'\n", ilen, txt);
+	//wprintf(L"%i '%ls'\n", ilen, txt);
 
 	if (*txt == CMDPARSER_CMDIDENT && ilen > 0){
 		editboxParseCommands(input, vp, ++txt, --ilen);
@@ -463,33 +463,6 @@ int editboxProcessString (TEDITBOX *input, wchar_t *txt, int ilen, void *ptr)
 		editBoxDoSearch(vp, -1, txt, -2);
 		return 1;
 	}
-}
-
-static inline int cmd_help (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
-{
-	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
-	TEDITBOX *input = (TEDITBOX*)&vp->input;
-	
-	if (!vlen) return 0;
-	wchar_t *cmd = strGetString(var, L" \0");
-	if (!cmd) return 0;
-	
-	TEDITBOXCMD *ebcmd = editBoxGetCmd(input, cmd);
-	if (!ebcmd){
-		dbwprintf(vp, L"Usage: %s", editBoxGetCmdDesc(input, L"help"));
-		return 0;
-	}
-	
-	wchar_t *info = editBoxGetCmdDesc(input, cmd);
-	if (!info || (info && !wcslen(info))){
-		dbwprintf(vp, L"No help for '%s'", cmd);
-		return 0;
-	}
-	
-	//wprintf(L"cmd_help: '%s' '%s'\n", ebcmd->name, info);
-	
-	dbwprintfEx(vp, MARQUEE_WRAP, L"%s: '%s'", ebcmd->name, info);
-	return 1;
 }
 
 static inline int editBoxRegisterCmdFunc (TEDITBOX *input, wchar_t *_cmdName, void *pfunc, void *uptr, int data1, const wchar_t *info)
@@ -539,7 +512,7 @@ static inline void cmd_sort (wchar_t *var, int vlen, void *uptr, int direction, 
 	vlen = wcslen(var);
 	if (vlen < 4) return;
 
-	//wprintf(L"editboxCmdSort: #%s# %i %i\n", var, vlen, direction);
+	//wprintf(L"editboxCmdSort: #%ls# %i %i\n", var, vlen, direction);
 	playlistSort(plcD, vp->tagc, tagLookupW(var), direction);
 	playlistsForceRefresh(vp, 0);
 }
@@ -803,7 +776,7 @@ static inline int savePlaylist (TVLCPLAYER *vp, PLAYLISTCACHE *plc, wchar_t *nam
 
 	_wsplitpath(name, drive, dir, filename, NULL);
 	__mingw_snwprintf(wbuffer, MAX_PATH, L"%ls%ls%ls%ls", drive, dir, filename, VLCSPLAYLISTEXTW);
-	dbwprintf(vp, L"Generating playlist '%s'", wbuffer);
+	dbwprintf(vp, L"Generating playlist '%ls'", wbuffer);
 
 	TM3U *m3u = m3uNew();
 	if (m3u){
@@ -811,7 +784,7 @@ static inline int savePlaylist (TVLCPLAYER *vp, PLAYLISTCACHE *plc, wchar_t *nam
 			
 			int cret = m3uWritePlaylist(m3u, plc, vp->tagc, vp->am, plc != getPrimaryPlaylist(vp));
 			m3uClose(m3u);
-			dbwprintf(vp, L"%i tracks written to '%s'", cret, wbuffer);
+			dbwprintf(vp, L"%i tracks written to '%ls'", cret, wbuffer);
 		}
 		m3uFree(m3u);
 		return 1;
@@ -1014,11 +987,11 @@ static inline void cmd_search (wchar_t *var, int vlen, void *uptr, int unused1, 
 			if (query && *query){
 				int qlen = wcslen(query);
 				if (qlen){
-					dbwprintf(vp, L"searching for %s: %s", getTagW(mtag), query);
+					dbwprintf(vp, L"searching for %ls: %ls", getTagW(mtag), query);
 					int trk = editBoxDoSearch(vp, mtag, query, SEARCH_CURRENT);
 					if (trk >= 0){
-						//dbwprintf(vp, L"found '%s:%s' at track %i", getTagW(mtag), query, trk);
-						dbwprintf(vp, L"found %s: %s", getTagW(mtag), query);
+						//dbwprintf(vp, L"found '%s:%ls' at track %i", getTagW(mtag), query, trk);
+						dbwprintf(vp, L"found %ls: %ls", getTagW(mtag), query);
 					}
 				}
 			}
@@ -1081,7 +1054,7 @@ static inline void cmd_systemCmds (wchar_t *var, int vlen, void *uptr, int cmd, 
 {
 	//TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
 	
-	//wprintf(L"cmd_systemCmds #%s# %i\n", var, cmd);
+	//wprintf(L"cmd_systemCmds #%ls# %i\n", var, cmd);
 	
 	if (cmd == SYSTEMCMDS_Lock)
 		workstationLock();
@@ -1266,7 +1239,7 @@ static inline void cmd_load (wchar_t *mrl, int mlen, void *uptr, int play, int u
 
 		if (isPlaylistW(mrl)){
 			int total = importPlaylistW(vp->plm, plcD, vp->tagc, vp->am, mrl, pageGetPtr(vp, PAGE_FILE_PANE));
-			dbwprintf(vp, L" %i tracks loaded from '%s'", total, mrl);
+			dbwprintf(vp, L" %i tracks loaded from '%ls'", total, mrl);
 			resetCurrentDirectory();
 			playlistsForceRefresh(vp, 0);
 			
@@ -1904,7 +1877,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 				
 				if (item >= 0){
 					if (playlistSetTitle(plcD, item, title, 1)){
-						char *path = my_calloc(sizeof(char), MAX_PATH_UTF8+1);
+						char *path = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 						if (path){
 							playlistGetPath(plcD, item, path, MAX_PATH_UTF8);
 							if (*path){
@@ -1998,7 +1971,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 			if (vlc->isMediaLoaded)
 				unloadMedia(vp, vlc);
 		}
-		tagFlushOrfhensPlc(vp->tagc, plcD);
+		tagFlushOrfhansPlc(vp->tagc, plcD);
 		playlistDeleteRecords(plcD);
 		
 	}else if (!wcscmp(state, L"del") || !wcscmp(state, L"delete") || !wcscmp(state, L"rm")){
@@ -2033,7 +2006,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 			playlistsForceRefresh(vp, 0);
 		}
 		
-		tagFlushOrfhensPlm(vp->tagc, vp->plm);
+		tagFlushOrfhansPlm(vp->tagc, vp->plm);
 
 		if (plcD->pr->selectedItem >= 0)
 			playlistChangeEvent(vp, plcD, plcD->pr->selectedItem);
@@ -2164,7 +2137,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 							else
 								playlistChangeEvent(vp, plc, plc->pr->playingItem);
 						}
-						dbwprintf(vp, L" %i tracks loaded from '%s'", newTotal, path);
+						dbwprintf(vp, L" %i tracks loaded from '%ls'", newTotal, path);
 						resetCurrentDirectory();
 					}
 				}
@@ -2172,7 +2145,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 				wchar_t *path = strGetStringNext(L"\0");
 				if (path && *path){
 					int total = importPlaylistW(vp->plm, getPrimaryPlaylist(vp), vp->tagc, vp->am, path, pageGetPtr(vp, PAGE_FILE_PANE));
-					dbwprintf(vp, L" %i tracks loaded from '%s'", total, path);
+					dbwprintf(vp, L" %i tracks loaded from '%ls'", total, path);
 					resetCurrentDirectory();
 				}
 			}
@@ -2194,7 +2167,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 		}
 	}else if (!wcscmp(state, L"dump")){
 		int written = playerWriteDefaultPlaylist(vp, VLCSPLAYLIST);
-		dbwprintf(vp, L"%i records written to %s\n", written, VLCSPLAYLIST);
+		dbwprintf(vp, L"%i records written to %ls\n", written, VLCSPLAYLIST);
 
 	}else if (!wcscmp(state, L"remove")){
 		wchar_t *filter = strGetStringNext(L" ");
@@ -2279,7 +2252,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 			//wprintf(L"filter split #%s# (%i)\n", filter, mtag);
 			int total = playlistBuildSplitPlaylists(vp, plcD, mtag);
 			if (total){
-				dbwprintf(vp, L"%i playlists created from '%s'", total, filter);
+				dbwprintf(vp, L"%i playlists created from '%ls'", total, filter);
 				playlistsForceRefresh(vp, 0);
 			}
 		}
@@ -2370,6 +2343,39 @@ static inline void cmd_list (wchar_t *var, int vlen, void *uptr, int unused1, in
 		editboxAppendString(input, L" ");
 	}
 }
+
+
+static inline int cmd_help (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
+{
+
+	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
+	TEDITBOX *input = (TEDITBOX*)&vp->input;
+	
+	if (!vlen){
+		cmd_list(var, vlen, uptr, unused1, unused2);
+		return 0;
+	}
+	wchar_t *cmd = strGetString(var, L" \0");
+	if (!cmd) return 0;
+
+	TEDITBOXCMD *ebcmd = editBoxGetCmd(input, cmd);
+	if (!ebcmd){
+		dbwprintf(vp, L"Usage: %ls", editBoxGetCmdDesc(input, L"help"));
+		return 0;
+	}
+
+	wchar_t *info = editBoxGetCmdDesc(input, cmd);
+	if (!info || (info && !wcslen(info))){
+		dbwprintf(vp, L"No help for '%ls'", cmd);
+		return 0;
+	}
+
+	//wprintf(L"cmd_help: '%s' '%ls'\n", ebcmd->name, info);
+	
+	dbwprintfEx(vp, MARQUEE_WRAP, L"%ls: '%ls'", ebcmd->name, info);
+	return 1;
+}
+
 
 static inline void printImageStats (TVLCPLAYER *vp)
 {
@@ -2669,7 +2675,7 @@ static inline void cmd_plm (wchar_t *var, int vlen, void *uptr, int unused1, int
 						else if (isPlaylistW(path) && doesFileExistW(path))
 							total = importPlaylistUIDW(plm, vp->tagc, vp->am, path, uid, pageGetPtr(vp, PAGE_FILE_PANE));
 						else
-							dbwprintf(vp, L"'%s' is not a valid path or playlist", path);
+							dbwprintf(vp, L"'%ls' is not a valid path or playlist", path);
 
 						if (total > 0){
 							dbprintf(vp, "%i items imported in to %X", total, uid);
@@ -2879,6 +2885,7 @@ static inline void cmd_getlengths (wchar_t *var, int vlen, void *uptr, int unuse
 						vlcEventGetLength(vp->vlc->hLibTmp, vp, vp->tagc, path, hash, NULL);
 						dbprintf(vp, "track %i:%i", i, trk+1);
 						scanCt++;
+						Sleep(1);
 					}
 				}
 			}
@@ -3070,8 +3077,6 @@ void editboxDoCmdRegistration (TEDITBOX *input, void *vp)
 	editBoxRegisterCmdFunc(input, L"pt",			cmd_nt, vp, 1, L"Jump to previous title");	// previous title
 	editBoxRegisterCmdFunc(input, L"nt",			cmd_nt, vp, 2, L"Go to next title");	// next title
 	
-
-
 	
 	editBoxRegisterCmdFunc(input, L"lock",			cmd_systemCmds, vp, SYSTEMCMDS_Lock, L"Lock the computer. Identical to WindowsKey+L");
 	editBoxRegisterCmdFunc(input, L"reboot",		cmd_systemCmds, vp, SYSTEMCMDS_Reboot, L"Reboots workstation");

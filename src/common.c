@@ -356,7 +356,7 @@ void cropSource (TLPOINTEX *src, TLPOINTEX *dst, TLPOINTEX *target)
 /*
 int loadImage (TFRAME *frame, const wchar_t *filename)
 {
-	wprintf(L"loadImage '%s'\n");
+	wprintf(L"loadImage '%ls'\n");
 	return lLoadImageEx(frame, filename, LOAD_RESIZE|LOAD_PIXEL_CPY|LOAD_SIZE_RESTRICT, 720, 442);
 }*/
 
@@ -2968,6 +2968,7 @@ void dbwprintf (TVLCPLAYER *vp, const wchar_t *fmt, ...)
 	int ret = 0;
 	VA_OPEN(ap, fmt);
 	ret = _vswprintf(buffer, fmt, ap);
+	//ret = _vswprintf(buffer, sizeof(buffer), fmt, ap);
 	VA_CLOSE(ap);
 	
 	//wprintf(L"dbwprintf '%s'\n", buffer);
