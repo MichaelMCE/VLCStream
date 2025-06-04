@@ -97,9 +97,9 @@ typedef struct {
 		TPOINT offset;		// image placement offset from when using direction PANE_IMAGE_ (except PANE_IMAGE_POS)
 	}image;
 	
-	struct {
-		void *object;
-	}cc;
+	/*struct {
+		void *ctrl;
+	}cc;*/
 }TPANEOBJ;
 
 typedef struct {
@@ -189,11 +189,12 @@ struct TPANE {
 	TPOINT previous;
 	int direction;			// PANE_DIRECTION_
 	TPANEINPUT input;
-
+	
 	int layoutMode;			// 1:left to right scrollable. 2:top down scrollable
 	int isInvalidated;		// set when item list is modified, indicates item list objects require repositioning
 	int idSrc;
 	
+	int unused1;
 	
 	struct {
 		struct {

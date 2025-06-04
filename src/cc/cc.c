@@ -338,6 +338,8 @@ int ccHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 
 
+	//printf("ccHandleInput %i: %i %i, %i\n", obj->id, obj->enabled, obj->processInput, isOverlap(pos, obj));
+
 	if (obj->enabled && obj->processInput && isOverlap(pos, obj)){
 		//printf("ccHandleInput %i %i, %i %i, %i %i %i %i\n", pos->id, obj->touchInputId, pos->pen, flags, obj->id, obj->type, obj->canDrag, obj->isChild);
 		
@@ -353,6 +355,8 @@ int ccHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 		//if (ccSendMessage(object, CC_MSG_INPUT, (pos->x<<16)|(pos->y&0xFFFF), flags, pos))
 			ret = ccSendInput(object, pos, flags);
+			
+		//printf("send response %i\n", ret);
 	}
 	return ret;
 }
@@ -439,18 +443,13 @@ static inline void deleteObj (TCCOBJECT *obj, const int genEvent)
 		ccSendMessage(obj, CC_MSG_DELETE, obj->id, 0, NULL);
 	}
 	
-//printf("a\n");
 	ccLock(obj);
-//printf("b\n");
 	ccListRemoveObject(obj->objRoot, obj->id);
-//printf("c\n");
 	obj->cb.free(obj);
-//printf("d\n");
 	ccFreeCommon(obj);
-//printf("e\n");
 	my_free(obj);
 	
-//printf("deleteObj out\n");
+	//printf("deleteObj out\n");
 	//if (id == 166) abort();
 }
 
@@ -496,6 +495,9 @@ void ccCleanupMemory(TCC *cc)
 
 int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 {
+	
+	//printf("### ccHandleInputAll %i %i ###\n", page, flags);
+	
 	const TCCOBJ *list = cc->objs; 
 	if (!list) return 0;
 	

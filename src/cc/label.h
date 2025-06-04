@@ -36,9 +36,9 @@
 #define LABEL_RENDER_IMAGE			0x020
 #define LABEL_RENDER_CCOBJ			0x040
 #define LABEL_RENDER_HOVER			0x080
-#define LABEL_RENDER_HOVER_OBJ		0x100	/* hover when over label item only */
+#define LABEL_RENDER_HOVER_OBJ		0x100	/* hover only when above a label item */
 
-#define LABEL_RENDER_ALL			(0xFF &~LABEL_RENDER_HOVER)		/* all except hover*/
+#define LABEL_RENDER_ALL			(0xFF &~LABEL_RENDER_HOVER)		/* all except hover */
 #define LABEL_RENDER_ALL_NOBASE		(LABEL_RENDER_ALL &~LABEL_RENDER_BLUR &~LABEL_RENDER_BORDER_PRE &~LABEL_RENDER_BASE)
 
 

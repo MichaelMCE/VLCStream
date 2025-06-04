@@ -58,7 +58,7 @@ enum _ccids_lookup
 	CCID_LABEL_SPLTITLE,
 	CCID_LABEL_ANT_CTRLPAN,
 	CCID_LABEL_PANELOCBAR,		// pane playlist
-		
+			
 	CCID_SCROLLBAR_BROWSER,
 
 	CCID_PANEL_HOTKEYS,
@@ -69,6 +69,7 @@ enum _ccids_lookup
 
 	CCID_PANE_PLAYLIST,
 	CCID_PANE_ANTCTRL,
+
 
 	
 	CCID_TOTAL
@@ -189,11 +190,11 @@ typedef struct TLABEL TLABEL;
 typedef struct TCCBUTTON TCCBUTTON;
 typedef struct TCCBUTTON2 TCCBUTTON2;
 typedef struct TCCBUTTONS TCCBUTTONS;
-typedef struct TCCBUTTONS2 TCCBUTTONS2;
+//typedef struct TCCBUTTONS2 TCCBUTTONS2;
 typedef struct TKEYPAD TKEYPAD;
 typedef struct TPANE TPANE;
 typedef struct TGRAPH TGRAPH;
-typedef struct TLISTBOX TLISTBOX;
+//typedef struct TLISTBOX TLISTBOX;
 
 
 typedef int64_t (*TCommonCrtlCbMsg_t) (const void *object, const int msg, const int64_t dataInt1, const int64_t dataInt2, void *dataPtr);

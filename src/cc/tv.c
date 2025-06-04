@@ -1648,7 +1648,7 @@ int tvHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 									TKEYBOARD *vkey = pageGetPtr(vp, PAGE_VKEYBOARD);
 	  								TKEYPAD *kp = vkey->kp;
 
-									ccEnable(kp);	// ensure pad is built by enabling it before use
+									ccEnable(kp);	// ensure pad is built
 	  								keypadListenerAdd(kp, tv->id, KP_INPUT_OPENED|KP_INPUT_CLOSED|KP_INPUT_COMPLETE8, item->id);
 	  								keypadEditboxSetBuffer8(&kp->editbox, item->name);
 	  								keypadEditboxSetUndoBuffer8(&kp->editbox, item->name);

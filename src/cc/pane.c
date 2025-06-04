@@ -554,10 +554,14 @@ static inline int paneValidateVert (TPANE *pane)
 		}
 	}
 
-
-	while(item){
+	while (item){
 		TPANEOBJ *obj = listGetStorage(item);
-		if (!obj) break;//goto next;
+		//if (!obj) break;//goto next;
+		if (!obj){
+			item = listGetNext(item);
+			continue;
+		}
+		
 
 		if (obj->type == PANE_OBJ_STRING){
 			if (y1 >= pane->metrics.height){
@@ -603,6 +607,7 @@ static inline int paneValidateVert (TPANE *pane)
 			if ((obj->text.metrics.y > -obj->text.metrics.height) || (obj->text.hasIcon && obj->text.metrics.y > -obj->image.metrics.height)){
 				if (baseRenderFlags&LABEL_RENDER_TEXT){
 					labelItemPositionSet(pane->base, obj->text.itemId, obj->text.metrics.x, obj->text.metrics.y);
+					//printf("%i %i %i\n", obj->text.itemId, y1, obj->text.metrics.y);
 					labelItemEnable(pane->base, obj->text.itemId);
 				}
 				if (obj->text.hasIcon){
@@ -666,6 +671,7 @@ static inline int paneValidateVert (TPANE *pane)
 	pane->tItemHeight = tItemHeight;
 	pane->pos.y = (y1 + yOffset) - lineHeight;
 	paneSetValidated(pane);
+
 	return ct;
 }
 
@@ -1444,6 +1450,21 @@ static inline int paneFocusSetHoriMiddle (TPANE *pane, const int itemId)
 	return 0;
 }
 
+static inline int paneFocusSetVert (TPANE *pane, const int itemId)
+{
+	int y = 0;
+	if (labelItemPositionGet(pane->base, itemId, NULL, &y)){
+		//printf("paneFocusSetVert: offset %i %i\n", pane->offset.y, y);
+		
+		y += abs(pane->offset.y);
+		//x -= (pane->metrics.width - labelImgcGetWidth(pane->base, itemId))/2;	// will center item
+
+		pane->offset.y = -y;
+		return 1;
+	}
+	return 0;
+}
+
 // TODO: add other focus views
 int paneFocusSet (TPANE *pane, const int itemId)
 {
@@ -1453,6 +1474,9 @@ int paneFocusSet (TPANE *pane, const int itemId)
 		if (paneValidateLayout(pane)){
 			if (pane->layoutMode == PANE_LAYOUT_HORICENTER || pane->layoutMode == PANE_LAYOUT_HORI)
 				paneFocusSetHoriMiddle(pane, itemId);
+			else if (pane->layoutMode == PANE_LAYOUT_VERT)
+				paneFocusSetVert(pane, itemId);
+
 
 			/*if (pane->layoutMode == PANE_LAYOUT_HORI){
 				TPANEOBJ *obj = paneItemIdxToObject(pane, itemId);
@@ -1565,8 +1589,8 @@ static inline void paneObjDelete (TPANEOBJ *obj)
 {
 	//if (obj->text.string)
 	//	my_free(obj->text.string);
-	if (obj->cc.object)
-		ccDelete(obj->cc.object);
+//	if (obj->cc.ctrl)
+//		ccDelete(obj->cc.ctrl);
 
 	my_free(obj);
 }

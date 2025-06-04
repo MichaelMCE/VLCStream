@@ -45,12 +45,14 @@ TLABELSTR *labelStrCreate (void *pageStruct, const char *text, const int font, c
 	ccSetUserData(lblstr->label, data);
 	lblstr->label->canDrag = 0;
 	lblstr->strId = labelTextCreate(lblstr->label, text, 0, font, 0, 0);
+	
 	labelStringRenderFlagsSet(lblstr->label, lblstr->strId, PF_CLIPDRAW);
 	labelRenderFlagsSet(lblstr->label, LABEL_RENDER_TEXT/*|LABEL_RENDER_BORDER_POST*/);
 	labelRenderBlurRadiusSet(lblstr->label, lblstr->strId, 3);
 	labelRenderFilterSet(lblstr->label, lblstr->strId, 2);
 	labelRenderColourSet(lblstr->label, lblstr->strId, 255<<24|COL_WHITE, COL_PURPLE_GLOW, 120<<24|COL_RED);
 	ccSetMetrics(lblstr->label, x, y, -1, -1);
+	
 	if (justify == NSEX_RIGHT)
 		labelStringRenderFlagsSet(lblstr->label, lblstr->strId, PF_RIGHTJUSTIFY);
 	ccInputDisable(lblstr->label);
@@ -349,10 +351,10 @@ static inline void labelCCObjFree (TLABELCCOBJ *ccObj)
 
 static inline char *labelTextGetString (TLABELTEXT *text)
 {
-	if (text->string)
+	//if (text->string)
 		return my_strdup(text->string);
-	else
-		return NULL;
+	//else
+	//	return NULL;
 }
 
 static inline void labelTextSetColour (TLABELTEXT *text, const unsigned int fore, const unsigned int back, const int outline)
@@ -1338,7 +1340,7 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 		
 		//metrics.y = text->offset.y;
 		//printf("%i %i '%s'\n", y, text->offset.y, labelStr);
-		if (!text->filterType){
+		if (text->filterType == 0){
 			const int strCharOffset = text->charRenderOffset;
 			if (strCharOffset > 0){	// used only with the keypad editbox control
 				/*double t0 = getTime(g_vp);
@@ -1368,21 +1370,39 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 				double t1 = getTime(g_vp);
 				printf("time %.4f\n", (t1-t0)/(double)1000);*/
 			}
+
 			if (strCharOffset < 1 || !str)
 				str = newStringEx2(frame->hw, &metrics, LFRM_BPP_32A, renderFlags, text->font, labelStr, text->offset.x, text->offset.y, text->maxW, text->maxH, justified);
-			
-			
+
 			//printf("@@ %i %i #%s#\n", text->maxH, str->height, labelStr);
 			//lSaveImage(str, L"str.png", IMG_PNG, 0, 0);
 			
 			if (text->offset.y < 0) text->pos.y = 0;
 			if (text->offset.x < 0) text->pos.x = 0;
-		}else{
+			
+		}else if (text->filterType == 1){
 			str = newStringEx(frame->hw, &metrics, LFRM_BPP_32A, renderFlags, text->font, labelStr, text->maxW, justified);
+			
+			// prevent text from bleeding above its render space
+			if (text->pos.y < -1){
+				if (text->pos.y < 0){
+					TFRAME *tmp = lNewFrame(str->hw, str->width, str->height, LFRM_BPP_32A);
+					if (tmp){
+					
+						void *from = lGetPixelAddress(str, 0, abs(text->pos.y));
+						void *to = lGetPixelAddress(tmp, 0, abs(text->pos.y));
+						memcpy(to, from, str->width*(str->height - abs(text->pos.y))*4);
+						//lCopyArea(str, tmp, 0, abs(text->pos.y), 0, abs(text->pos.y), str->width-1, str->height-1);
+					
+						lDeleteFrame(str);
+						str = tmp;
+					}
+				}
+			}
 		}
 
 		if (str){
-			//printf("%i #%s# %i\n", text->maxW, labelStr, str->width);
+			//printf("%i %i :%s\n", text->maxH, str->height, labelStr);
 
 			blur = drawShadowedImageCreateBlurMask(str, text->colBack&0xFFFFFF, text->blurRadius);
 			int w = blur->width;
@@ -1393,8 +1413,9 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 			text->offset.y = text->pos.y + ((text->maxH - str->height)/2);
 
 #if DRAWTOUCHRECTS
-			lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFFFFFFFF);
+			lDrawRectangleDottedFilled(str, 0, 0, str->width-1, str->height-1, 0xFFFFFFFF);
 #endif
+
 		}
 		outlineTextDisable(frame->hw);
 	}
@@ -1447,11 +1468,11 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 
 			text->offset.y = text->pos.y;
 			int row = y + text->offset.y;
-			if (row < 0) row = 0;
+			//if (row < 0) row = 0;			// could be a problem
 
 			if (!isHovered){
 				if (!isScaled){
-					//printf("%i %i %i @@%s@@\n", col, y, text->pos.y-1, labelStr);
+					//printf("%i %i %i %i:%s\n", col, y, text->pos.y-1, str->height, labelStr);
 					drawShadowedImageComputed(str, frame, blur, col, row, 1, 0);
 
 				}else{
@@ -1558,6 +1579,7 @@ static inline int labelTextRender2 (TLABELTEXT *text, TFRAME *frame, int x, int 
 	lSetFilterAttribute(hw, blurOp, LTRA_BLUR_ALPHA, 1000);
 	rect.sx = x; rect.sy = y;
 	lPrintEx(frame, &rect, text->font, flags, LPRT_OR, label);
+	
 	rect.sx = x; rect.sy = y;
 	lSetFilterAttribute(hw, blurOp, LTRA_BLUR_ALPHA, 600);
 	lPrintEx(frame, &rect, text->font, flags, LPRT_OR, label);
@@ -2808,8 +2830,11 @@ static inline int labelHandleInput (void *object, TTOUCHCOORD *pos, const int fl
 					ret = ccSendMessage(label, LABEL_MSG_BASE_SELECTED_SLIDE, ((x&0xFFFF)<<16)|(y&0xFFFF), flags, &dpos);
 				else if (flags == 3)									// up/release
 					ret = ccSendMessage(label, LABEL_MSG_BASE_SELECTED_RELEASE, ((x&0xFFFF)<<16)|(y&0xFFFF), flags, &dpos);
-				//printf("ret %i\n", ret);
+					
+				//printf("labelHandleInput ret %i, %i\n", ret, flags);
 			//}
+
+			if (ret == 2) return 0;
 
 			if (ret != -1){
 				my_memcpy(&dpos, pos, sizeof(TTOUCHCOORD));
