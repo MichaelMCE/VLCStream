@@ -36,6 +36,10 @@ cd mxml
 call clean.bat
 cd..
 
+cd pages
+call clean.bat
+cd..
+
 
 
 
