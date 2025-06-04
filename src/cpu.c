@@ -130,7 +130,12 @@ typedef struct _SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION {
 #define SystemProcessorTimes  8
 #endif
 
+#ifdef WIN64
+typedef long long int (WINAPI *PROCNTQSI) (UINT, PVOID, ULONG, PULONG);
+#else
 typedef LONG (WINAPI *PROCNTQSI) (UINT, PVOID, ULONG, PULONG);
+#endif
+
 static PROCNTQSI ntQuerySystemInformation;
 static int initNTQSIOnce = 0;
 
