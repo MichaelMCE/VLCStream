@@ -25,6 +25,10 @@
 #ifndef _TCX_H_
 #define _TCX_H_
 
+
+#include "common.h"
+#if (ENABLE_GARMINTCX)
+
 #include "mxml/mxml.h"
 
 
@@ -273,4 +277,6 @@ int tcx_timeStrToTime (const char *str, tcx_time *t);
 
 #endif
 
+
+#endif
 

@@ -150,7 +150,7 @@
 #include "cpu.h"
 #include "drawvolume.h"
 #include "shelf.h"
-#include "plm.h"
+#include "pages/page_plm.h"
 #include "m3u.h"
 #include "videofilter.h"
 #include "transform.h"
