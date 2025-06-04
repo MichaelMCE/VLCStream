@@ -989,7 +989,7 @@ int artManagerSurfaceCount (TARTMANAGER *am)
 			while(item){
 				TART_ITEM *ai = listGetStorage(item);
 				ct += (ai->surface != NULL);
-				if (ai->scaled){
+				if (1/*ai->scaled*/){
 					for (int i = 0; i < ARTC_SCALED_MAX; i++){
 						if (ai->scaled[i])
 							ct += (ai->scaled[i]->surface != NULL);
@@ -1026,7 +1026,7 @@ size_t artManagerMemUsage (TARTMANAGER *am)
 			if (ai->surface)
 				mem += (ai->surface->frameSize + sizeof(TFRAME) + sizeof(TPIXELPRIMITVES));
 			
-			if (ai->scaled){
+			if (1 /*ai->scaled*/){
 				for (int i = 0; i < ARTC_SCALED_MAX; i++){
 					if (ai->scaled[i] && ai->scaled[i]->surface)
 						mem += (ai->scaled[i]->surface->frameSize + sizeof(TFRAME) + sizeof(TPIXELPRIMITVES) + sizeof(TART_SCALED));
