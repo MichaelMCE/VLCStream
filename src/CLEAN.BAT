@@ -35,10 +35,10 @@ cd..
 
 m:
 call m:\cleanobjs.bat
-k:
+f:
 
 
-call "f:\MinGW\Copy MinGW To Ramdisk.bat"
+rem call "f:\MinGW\Copy MinGW To Ramdisk.bat"
 
 
 
