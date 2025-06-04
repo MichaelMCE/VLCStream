@@ -119,9 +119,9 @@ test:
 	@echo $(BASEOBJS2)
 
 xcpy:
-	@xcopy *.c $(TEMPDIR) /y /d /q /I > NUL
-	@xcopy *.cpp $(TEMPDIR) /y /d /q /I > NUL
-	@xcopy *.h $(TEMPDIR) /y /d /q /I > NUL
+	@xcopy *.c $(TEMPDIR)\ /y /d /q /I > NUL
+	@xcopy *.cpp $(TEMPDIR)\ /y /d /q /I > NUL
+	@xcopy *.h $(TEMPDIR)\ /y /d /q /I > NUL
 	@xcopy sdk "$(TEMPDIR)\sdk" /y /d /q /I /S > NUL
 	@xcopy bass "$(TEMPDIR)\bass" /y /d /q /I > NUL
 	@xcopy hook "$(TEMPDIR)\hook" /y /d /q /I > NUL
@@ -130,7 +130,7 @@ xcpy:
 	@xcopy antplus "$(TEMPDIR)\antplus" /y /d /q /I > NUL
 	@xcopy mxml "$(TEMPDIR)\mxml" /y /d /q /I > NUL
 	@xcopy pages "$(TEMPDIR)\pages" /y /d /q /I > NUL
-	@xcopy cleanobjs.bat $(TEMPDIR) /y /d /q /I > NUL
+	@xcopy cleanobjs.bat $(TEMPDIR)\ /y /d /q /I > NUL
 
 # -mwindows -mconsole
 
