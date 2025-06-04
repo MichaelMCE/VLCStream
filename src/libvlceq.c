@@ -346,6 +346,9 @@ static inline int apply_equalizer (input_thread_t *p_input, libvlc_media_player_
 
 int libvlc_media_player_set_equalizer (libvlc_media_player_t *p_mi, libvlc_equalizer_t *p_equalizer)
 {
+	
+	//printf("libvlc_media_player_set_equalizer\n");
+	
     if (!p_equalizer){
 #if (LIBVLC_VERSION_MAJOR == 2 && LIBVLC_VERSION_MINOR == 0)
         aout_EnableFilter((vlc_object_t*)p_mi, "equalizer", false);
