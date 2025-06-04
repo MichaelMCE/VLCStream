@@ -62,7 +62,7 @@ TASCIILINE *readFileW (const wchar_t *filename)
 	}
 
 	uint64_t flen = lof(fp);
-	al->data = (ubyte *)my_calloc(sizeof(ubyte *),4+flen);
+	al->data = (ubyte *)my_calloc(4+flen, sizeof(ubyte *));
 	if (!al->data){
 		fclose(fp);
 		my_free(al);
@@ -81,7 +81,7 @@ TASCIILINE *readFileW (const wchar_t *filename)
 	}
 
 	al->tlines = 512;
-	al->line = (ubyte **)my_calloc(1+al->tlines, sizeof(ubyte*));
+	al->line = (ubyte**)my_calloc(1+al->tlines, sizeof(ubyte*));
 	if (!al->line){
 		my_free(al->data);
 		my_free(al);

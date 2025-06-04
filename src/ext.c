@@ -644,8 +644,12 @@ void extReceiveCdsCmd (TVLCPLAYER *vp, const int op, const char *var1)
 				int len = (varSpace-var2);
 				strncpy(pbuffer, var2, len);
 				pbuffer += len;
-				strncpy(pbuffer++, " ", 1);
+
+				//strncpy(pbuffer++, " ", 1);
+				*pbuffer = ' ';
+				pbuffer++;
 				*pbuffer = 0;
+				
 				var2 = varSpace + 3;
 			};
 			var2 = buffer;
