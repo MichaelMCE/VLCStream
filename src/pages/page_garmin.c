@@ -24,7 +24,7 @@
 #include "../common.h"
 
 
-#if ENABLE_GARMINTCX
+#if (ENABLE_GARMINTCX)
 
 
 
@@ -1995,9 +1995,8 @@ static inline int page_tcxStartup (TTCX *tcx, TVLCPLAYER *vp, const int width, c
 		for (int i = 0; i < clrList->total && i < 32; i++)
 			tcx->route.render.colours.list[i] = hexToInt(cfg_configStrListItem(clrList,i));
 				
-		cfg_configStrListFreeStrings(strList);
+		cfg_configStrListFreeStrings(clrList);
 		cfg_configStrListFree(clrList);
-		//my_free(clrList);
 	}
 
 	tcx->graph = ccCreateEx(vp->cc, PAGE_TCX, CC_GRAPH, cc_graph_cb, NULL, width, 300, tcx);
