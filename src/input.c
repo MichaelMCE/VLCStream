@@ -85,11 +85,8 @@ static inline int touchDispatch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 	}
 
 	const int pageId = pageInputGetTop(vp->pages);
-
-	//printf("touchDispatch in: page:%i, canDrag:%i, wantDrag:%i\n", pageId, ccCanDrag(vp->cc, pos, pageId), page2InputDragGetState(vp->pages, pageId));
-
 	if (!page2InputDragGetState(vp->pages, pageId) && !ccCanDrag(vp->cc, pos, pageId)){
-		if (flags == 1 || pos->dt < vp->gui.inputCallLength+80.0){
+		if (flags == 1 || pos->dt < vp->gui.inputCallLength+50.0){
 			vp->gui.inputCallLength = 0.0;
 			return -2;
 		}else{
@@ -98,14 +95,11 @@ static inline int touchDispatch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 	}
 
 	const double t0 = getTime(vp);
-	//printf("ccHandleInputAll %i\n", pageId);
 	int ret = ccHandleInputAll(vp->cc, pos, flags, pageId);
 	if (!ret){
-		//printf("page2Input %X\n", flags);
 		ret = page2Input(vp->pages, PAGE_IN_TOUCH, pos, flags);
 	}
 
-	//printf("touchDispatch: page2Input() ret %i\n", ret);
 	vp->gui.inputCallLength = getTime(vp) - t0;
 	return ret;
 }
@@ -143,8 +137,6 @@ int touchDispatchFilter (TTOUCHCOORD *pos, const int flags, TVLCPLAYER *vp)
 #endif
 	}
 
-	//printf("%i: %i , %i %i,%i - %i %i %i %i - %i,%i - %i\n", touchState, gui->cursor.x, gui->cursor.y, gui->cursor.dx, gui->cursor.dy, touchState, gui->cursor.LBState, gui->cursor.MBState, gui->cursor.RBState, (int)cursor->dragRectDelta.x, (int)cursor->dragRectDelta.y, flags);
-
 	//void distort_mouse (int state, int x, int y);
 	return touchDispatch(pos, flags, vp);
 }
@@ -157,18 +149,37 @@ void touchDispatcherStart (TVLCPLAYER *vp, const void *fn, const void *ptr)
 	
 	if (sbuiGetLibmylcdDID(vp->ml->hw)){
 		if (!sbuiGestureCBEnable(vp)){
-		//	printf("sbui gesture cb initialization failed\n");
+
 		}else if (!sbuiDKCBEnable(vp)){
-		//	printf("sbui dk cb initialization failed\n");
+
 		}
-	}else{
+	}else if (hiddGetLibmylcdDID(vp->ml->hw)){
+		if (!hiddTouchCBEnable(vp)){
+
+		}
+
+	}else {
 		const char *device[] = {"USBD480:LIBUSBHID", "USBD480:LIBUSB"};
+		lDISPLAY did = 0;
+		
 		for (int i = 0; i < 2; i++){
-			lDISPLAY did = lDriverNameToID(vp->ml->hw, device[i], LDRV_DISPLAY);
+			did = lDriverNameToID(vp->ml->hw, device[i], LDRV_DISPLAY);
 			if (did){
 				lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCB, (intptr_t*)fn);
 				lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCBUSERPTR, (intptr_t*)ptr);
 				break;
+			}
+		}
+
+		if (!did){
+			did = lDriverNameToID(vp->ml->hw, "HidDisplay", LDRV_DISPLAY);
+			if (did){
+				//printf("hidDisplay found\n");
+				
+				//lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCB, (intptr_t*)fn);
+				//lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCBUSERPTR, (intptr_t*)ptr);
+			}else{
+				//printf("hidDisplay not found\n");
 			}
 		}
 	}
@@ -265,10 +276,9 @@ unsigned int __stdcall inputDispatchThread (void *ptr)
 	  									vp->gui.cursor.dx = mbFirst->pos.x;
 										vp->gui.cursor.dy = mbFirst->pos.y;
 									}
-	  								
-	  								//printf("touchDispatchFilter in\n");
+
 									touchDispatchFilter(&mbFirst->pos, mbFirst->flags, mbFirst->vp);
-									//printf("touchDispatchFilter out\n");
+
 									const double t0 = getTime(vp);
  									if (t0 - vp->lastRenderTime > ((1.0/(double)(UPDATERATE_MAXUI+15.0))*1000.0))
   										renderSignalUpdate(vp);
@@ -287,9 +297,12 @@ unsigned int __stdcall inputDispatchThread (void *ptr)
 	return 1;
 }
 
+// simulates a mouse input movement
 void touchSimulate (const TTOUCHCOORD *pos, const int flags, TVLCPLAYER *vp)
 {
 	if (dispatchLock(vp)){
+		//printf("touchSimulate lock\n");
+		
 		if (vp->applState){
 			TMBCLICK *mb = mDispatch.mbclick;
 
@@ -303,16 +316,18 @@ void touchSimulate (const TTOUCHCOORD *pos, const int flags, TVLCPLAYER *vp)
 					my_memcpy(&mb->pos, pos, sizeof(TTOUCHCOORD));
 					
 					if (i > mDispatch.listUpper) mDispatch.listUpper = i+1;
+					
+					//printf("touchSimulate unlock a\n");
 					dispatchUnlock(vp);
 					SetEvent(vp->gui.hDispatchEvent);
 					return;
 				}
 			}
 		}
+		//printf("touchSimulate unlock b\n");
 		dispatchUnlock(vp);
 	}
 }
-
 
 void inputGetCursorPosition (TVLCPLAYER *vp, int *x, int *y)
 {

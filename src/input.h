@@ -83,7 +83,11 @@ typedef struct{
 }TTOUCHSWIPE;
 
 
-
+typedef struct _rotary {
+	int32_t positionDelta;
+	int32_t buttonPressed;
+	int32_t encoderId;
+}rotary_t;
 
 
 void touchIn (TTOUCHCOORD *pos, int flags, void *ptr);
