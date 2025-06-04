@@ -42,10 +42,10 @@ int __cdecl clock_gettime (clockid_t clock_id, struct timespec *tp);
 
 
 static const char *monthName_upper[12]  = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-//static const char *monthName_lower[12]  = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+static const char *monthName_lower[12]  = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
 static const char *monthName_CapLow[12]  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 static const char *weekdayName_upper[8] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
-//static const char *weekdayName_lower[8] = {"mon", "tue", "wed", "thu", "fri", "sat", "sun", "mon"};
+static const char *weekdayName_lower[8] = {"mon", "tue", "wed", "thu", "fri", "sat", "sun", "mon"};
 static const char *weekdayName_capLow[8] = {"Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"};
 static const int daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -587,149 +587,6 @@ static inline void clockRenderPredator (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame
     }
 }
 
-typedef struct polarband {
-	double x1;
-	double y1;
-	
-	double x2;
-	double y2;
-	
-	double xr1;
-	double yr1;
-	double xr2;
-	double yr2;
-}polar_band_t;
-
-
-#if 1
-void clockRenderPolar (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame, const double xc, const double yc, const int drawSec)
-{
-	
-	const int bandTotal = 6;
-	const double bandDepth = 20.0;		//thickness of band in pixels
-	double diamInner = 80.0;
-	
-	polar_band_t bands[bandTotal];
-	memset(bands, 0, sizeof(bands));
-
-
-	double nanos;
-	struct tm *tdate = getTimeReal(&nanos);
-	double secs = tdate->tm_sec + nanos;
-	double sec = (360.0 / 60.0) * secs;
-	
-	//for (int i = 0; i < bandTotal; i++){
-		int i = 0;
-		
-		lDrawCircle(frame, xc, yc, diamInner, 0xFFFFFFFF);
-		//lDrawCircle(frame, xc, yc, diamInner+bandDepth, 0xFFFFFFFF);
-		
-		bands[i].x1 = xc;
-		bands[i].y1 = yc - diamInner;
-		bands[i].x2 = xc;
-		bands[i].y2 = yc - (diamInner+bandDepth);
-		lDrawLine(frame, bands[i].x1, bands[i].y1, bands[i].x2, bands[i].y2, 0xFFFF00FF);
-
-		double vect = -((1.0/yc) * (double)(bands[i].y1));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr1, &bands[i].yr1);
-		vect = -((1.0/yc) * (double)(bands[i].y1+bandDepth+bandDepth));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr2, &bands[i].yr2);
-		
-		double multi = diamInner + bandDepth + bandDepth;
-		double x1 = xc + (bands[i].xr1 * multi);
-		double y1 = yc + (bands[i].yr1 * multi);
-		double x2 = xc + (bands[i].xr2 * multi);
-		double y2 = yc + (bands[i].yr2 * multi);
-		
-		//lDrawCircle(frame, x1, y1, 8.0, 0xFF00FF00);
-		//lDrawCircle(frame, x2, y2, 8.0, 0xFF00FF00);
-		drawMarker(frame, x1, y1, x2, y2, 0xFF00FF00);
-		
-		diamInner += bandDepth;
-		lDrawCircle(frame, xc, yc, diamInner, 0xFFFFFFFF);
-		//lDrawCircle(frame, xc, yc, diamInner+bandDepth, 0xFFFFFFFF);
-		
-		i = 1;
-		bands[i].x1 = xc;
-		bands[i].y1 = yc - diamInner;
-		bands[i].x2 = xc;
-		bands[i].y2 = yc - (diamInner+bandDepth);
-		lDrawLine(frame, bands[i].x1, bands[i].y1, bands[i].x2, bands[i].y2, 0xFFFF0000);
-		
-		vect = -((1.0/yc) * (double)(bands[i].y1));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr1, &bands[i].yr1);
-		vect = -((1.0/yc) * (double)(bands[i].y1+bandDepth+bandDepth));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr2, &bands[i].yr2);	
-		
-		double multiOut = multi + bandDepth + bandDepth;
-		double multiIn = diamInner + bandDepth + bandDepth + bandDepth + (bandDepth/2.0);
-		//double multiOut = diamInner + bandDepth + bandDepth + bandDepth;
-		x1 = xc + (bands[i].xr1 * multiIn);
-		y1 = yc + (bands[i].yr1 * multiIn);
-		x2 = xc + (bands[i].xr2 * multiOut);
-		y2 = yc + (bands[i].yr2 * multiOut);
-		//lDrawCircle(frame, x1, y1, 8.0, 0xFF00FF00);
-		//lDrawCircle(frame, x2, y2, 8.0, 0xFF00FF00);
-		drawMarker(frame, x1, y1, x2, y2, 0xFFFF0000);
-
-		diamInner += bandDepth;
-		lDrawCircle(frame, xc, yc, diamInner, 0xFFFFFFFF);
-		//lDrawCircle(frame, xc, yc, diamInner+bandDepth, 0xFFFFFFFF);
-		
-		
-		i = 2;
-		bands[i].x1 = xc;
-		bands[i].y1 = yc - diamInner;
-		bands[i].x2 = xc;
-		bands[i].y2 = yc - (diamInner+bandDepth);
-		lDrawLine(frame, bands[i].x1, bands[i].y1, bands[i].x2, bands[i].y2, 0xFF0000FF);
-		
-		vect = -((1.0/yc) * (double)(bands[i].y1));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr1, &bands[i].yr1);
-		vect = -((1.0/yc) * (double)(bands[i].y1+bandDepth+bandDepth));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr2, &bands[i].yr2);	
-		
-		multiOut = multiIn + bandDepth + bandDepth;
-		multiIn = diamInner + bandDepth + bandDepth + bandDepth + bandDepth + bandDepth + bandDepth;
-		x1 = xc + (bands[i].xr1 * multiIn);
-		y1 = yc + (bands[i].yr1 * multiIn);
-		x2 = xc + (bands[i].xr2 * multiOut);
-		y2 = yc + (bands[i].yr2 * multiOut);
-		//lDrawCircle(frame, x1, y1, 8.0, 0xFF00FF00);
-		lDrawCircle(frame, x2, y2, 8.0, 0xFF00FF00);
-		drawMarker(frame, x1, y1, x2, y2, 0xFF0000FF);
-	
-		diamInner += bandDepth;
-		lDrawCircle(frame, xc, yc, diamInner, 0xFFFFFFFF);
-		//lDrawCircle(frame, xc, yc, diamInner+bandDepth, 0xFFFFFFFF);	
-		
-		i = 3;
-		bands[i].x1 = bands[i-1].x2; //xc;
-		bands[i].y1 = bands[i-1].y2; // yc - diamInner;
-		bands[i].x2 = xc;
-		bands[i].y2 = yc - (diamInner+bandDepth);
-		lDrawLine(frame, bands[i].x1, bands[i].y1, bands[i].x2, bands[i].y2, 0xFF00FFFF);
-		
-		vect = -((1.0/yc) * (double)(bands[i].y1));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr1, &bands[i].yr1);
-		vect = -((1.0/yc) * (double)(bands[i].y1+bandDepth+bandDepth));
-		rotateZ(sec * DEGTORAD, 0.0, vect, &bands[i].xr2, &bands[i].yr2);	
-		
-		multiOut = multiIn + bandDepth + bandDepth;
-		multiIn = diamInner + (bandDepth*9.0) + (bandDepth/2.0);
-		x1 = xc + (bands[i].xr1 * multiIn);
-		y1 = yc + (bands[i].yr1 * multiIn);
-		x2 = xc + (bands[i].xr2 * multiOut);
-		y2 = yc + (bands[i].yr2 * multiOut);
-		lDrawCircle(frame, x1, y1, 8.0, 0xFF00FF00);
-		//lDrawCircle(frame, x2, y2, 8.0, 0xFF00FF00);
-		//drawMarker(frame, x1, y1, x2, y2, 0xFF00FFFF);
-	//}
-		lDrawCircle(frame, xc, yc, diamInner+bandDepth, 0xFFFFFFFF);	
-}
-
-
-#else
 void clockRenderPolar (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame, const double xc, const double yc, const int drawSec)
 {
 	const int isIdle = getIdle(vp);
@@ -751,125 +608,107 @@ void clockRenderPolar (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame, const double xc
 	double daymon = (360.0 / (double)clkDaysInMonth(tdate->tm_year, tdate->tm_mon)) * (double)(tdate->tm_mday+1);
 	double mon = (360.0 / 12.0) * (double)(tdate->tm_mon + (double)((tdate->tm_mday+1)/(double)clkDaysInMonth(tdate->tm_year, tdate->tm_mon)));
 
-#if 0
-	min = sec;
-	hr = sec;
-	daywk = sec;
-	daymon = sec;
-	mon = sec;
-#endif
 
-	const double diamIn = 80.0;		// (inner)
-	double diamOut = 230.0;
-		
-	const double h = yc - diamIn;
-	const double pitch = 25.0;
-	double radius = 240.0 - 32.0 - 3.0 + pitch;
-	int baseColour = clk->polar.baseColour;
+	const double diam = 80.0;		// (inner)
+	const double totalBands = 6.0;
+	const double bandThickness = 25.0;
+
+	double radius = diam + (totalBands * bandThickness);
+	const int baseColour = clk->polar.baseColour;
 	
 	if (!isIdle)
 		lDrawCircleFilled(frame, xc, yc, radius, 80<<24|(baseColour&0xFFFFFF));
-
+	
 	if (drawSec)
 		lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
-	radius -= pitch;
+	radius -= bandThickness;
 	lDrawCircle(frame, xc, yc, radius, baseColour);
 
-	baseColour = 0xFFFFFFFF;
-	baseColour = clk->polar.baseColour;
 
-	double pos = (480.0/2.0) + 8.0  ; //253.5;
-	const double len = 31.5; // 40.0; //pitch + 5.5;
-	const double halfPitch = len / 2.0;
-	const double vect = -((1.0/yc) * (double)(h + 37.5/*pitch*/));
+	double pos = 253.5;
+	const double len = bandThickness + 5.5;
+	const double vect = -0.810;
+			
 	double xr = 0.0, yr = 0.0;
+	double cx = 0.0, cy = 0.0;
 	
-	double cx = 0.0;
-	double cy = 0.0;
 
-	
-	// vertical starting point at 0 degrees (12 o'clock)
-	lDrawLine(frame, xc, yc - diamIn, xc, yc - diamOut, baseColour);	// begin marker for the fill
+	int y1 = yc - diam - (bandThickness * totalBands);
+	int y2 = yc - diam - (bandThickness * 0.0);
+	lDrawLine(frame, xc, y1, xc, y2, baseColour);	// begin marker for the fill
 
-
-	// second
-	if (0 && drawSec){
-		cx = xc;
-		cy = yc - (h + halfPitch);
-		rotateZ(sec * DEGTORAD, 0.0, vect, &xr, &yr);
+	// draw Second band
+	cx = xc + 2.0;
+	if (drawSec){
+		cy = yc - diam - (bandThickness * 6.0) + (bandThickness/2.0);
 		
+		rotateZ(sec * DEGTORAD, 0.0, vect, &xr, &yr);
 		drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-		drawBand(frame, xc+2, yc-(diamOut-14.0), clk->polar.bandColours[0], baseColour);
-		lDrawCircle(frame, xc, yc-(diamOut-14.0), 8.0, 0xFF00FF00);
+		drawBand(frame, cx, cy, clk->polar.bandColours[0], baseColour);
 	}
 	
-	
-	// minute
-	cx = xc;
-	//cy = yc - (h - halfPitch);
-	rotateZ(sec * DEGTORAD, 0.0, vect, &xr, &yr);
-	if (0)rotateZ(min * DEGTORAD, 0.0, vect, &xr, &yr);
-	
-	pos -= len-2.0;
+
+	// draw Minute band
+	cy = yc - diam - (bandThickness * 5.0) + (bandThickness/2.0);
+	rotateZ(min * DEGTORAD, 0.0, vect, &xr, &yr);
+	pos -= len+0.25;
 	drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-	if (1) drawBand(frame, xc+2, yc-(diamOut-len-6.0), clk->polar.bandColours[1], baseColour);
-	lDrawCircle(frame, xc, yc-(diamOut-len-6.0), 8.0, 0xFF00FF00);
+	drawBand(frame, cx, cy, clk->polar.bandColours[1], baseColour);
 
 
-	cx = xc+2;
-	cy = (yc - (h - (pitch*1.0) - halfPitch));
+	// draw Hour band
+	cy = yc - diam - (bandThickness * 4.0) + (bandThickness/2.0);
 	rotateZ(hr * DEGTORAD, 0.0, vect, &xr, &yr);
 	pos -= len+0.75;
 	drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-	//drawBand(frame, cx, cy, clk->polar.bandColours[0], baseColour);
-	
-	cx = xc+2;
-	cy = (yc - (h - (pitch*2.0) - halfPitch));
+	drawBand(frame, cx, cy, clk->polar.bandColours[0], baseColour);
+
+
+	// draw Day of the Week band (Mon, tues, etc..)
+	cy = yc - diam - (bandThickness * 3.0) + (bandThickness/2.0);
 	rotateZ(daywk * DEGTORAD, 0.0, vect, &xr, &yr);
 	pos -= len+0.0;
 	drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-	//drawBand(frame, cx, cy, clk->polar.bandColours[1], baseColour);
+	drawBand(frame, cx, cy, clk->polar.bandColours[1], baseColour);
 
-	cx = xc+2;
-	cy = (yc - (h - (pitch*3.0) - halfPitch));
+	// draw Day in the month band (eg; 14'th)
+	cy = yc - diam - (bandThickness * 2.0) + (bandThickness/2.0);
 	rotateZ(daymon * DEGTORAD, 0.0, vect, &xr, &yr);
 	pos -= len+0.5;
 	drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-	//drawBand(frame, cx, cy, clk->polar.bandColours[0], baseColour);
+	drawBand(frame, cx, cy, clk->polar.bandColours[0], baseColour);
 
-	cx = xc+2;
-	cy = (yc - (h - (pitch*4.0) - halfPitch));
+	// draw Month
+	cy = yc - diam - (bandThickness * 1.0) + (bandThickness/2.0);
 	rotateZ(mon * DEGTORAD, 0.0, vect, &xr, &yr);
 	pos -= len+0.75;
 	drawMarker(frame, xc+(xr*pos), yc+(yr*pos), xc+(xr*(pos+len)), yc+(yr*(pos+len)), baseColour);
-	if (0) drawBand(frame, cx, cy, clk->polar.bandColours[1], baseColour);	
-
-
+	drawBand(frame, cx, cy, clk->polar.bandColours[1], baseColour);	
 
 	int x = xc + 4;
-	int y = yc - 240 + 10;
-	
+	int y = yc - diam - (bandThickness * totalBands);
+
 	if (drawSec)
 		drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[1], "sec", NSEX_LEFT);
-	y += pitch;
+	y += bandThickness;
 	drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[0], "min", NSEX_LEFT);
-	y += pitch;
+	y += bandThickness;
 	drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[1], "hrs", NSEX_LEFT);
-	y += pitch;
+	y += bandThickness;
 	drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[0], weekdayName_lower[tdate->tm_wday], NSEX_LEFT);
-	y += pitch;
+	y += bandThickness;
 	drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[1], "day", NSEX_LEFT);
-	y += pitch;
+	y += bandThickness;
 	drawStr(frame, x, y, CLK_POLAR_LABEL_FONT, clk->polar.bandColours[0], "mth"/*monthName_lower[tdate->tm_mon]*/, NSEX_LEFT);
 
 
@@ -894,9 +733,7 @@ void clockRenderPolar (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame, const double xc
 	drawStr(frame, xc, yc+16, CLK_POLAR_INNER_FONT, clk->polar.bandColours[1], buffer, DS_MIDDLEJUSTIFY);
 	
 	lSetRenderEffect(frame->hw, LTR_DEFAULT);
-	
 }
-#endif
 
 static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
@@ -909,15 +746,12 @@ static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser
 				TCLK_SBDATE_CFG *date = &clk->digital.date;
 				
 				if (clk->displayType == CLOCK_BOXDIGITAL){
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, 0x000000, 173, 0xCFB000, 12, 1.0, 1);
 					date = &clk->boxdigital.date;
 					
 				}else if (clk->displayType == CLOCK_BUTTERFLY){
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, 0xEEEEEE, 173, 0xD99738, 12, 1.0, 1);
 					date = &clk->butterfly.date;
 					
 				}else if (clk->displayType == CLOCK_ANALOGUE){
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, COL_BLACK, 173, COL_BLUE_SEA_TINT, 8, 1.0, 1);
 					date = &clk->analogue.date;
 					
 				}else if (clk->displayType == CLOCK_PREDATOR){
@@ -925,15 +759,12 @@ static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser
 					lSleep(10);
 					sbuiSetDKImageArtId(clk->com->vp, SBUI_DK_10, clk->predator.imageIds[CLK_IMG_PRED_PREDRIGHT]);
 					lSleep(10);
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, 0x530204, 173, 0xF30204, 12, 1.0, 0);
 					date = &clk->predator.date;
 					
 				}else if (clk->displayType == CLOCK_POLAR){
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, COL_BLUE_SEA_TINT, 173, 0xFFFFFF, 12, 1.0, 1);
 					date = &clk->polar.date;
 					
 				}else{
-					//clockRenderSBDate(clk, CLK_SBDK_DATE_FONT, 0xe6ccea, 250, 0xfa51cd, 15, 1.0, 1);
 					date = &clk->digital.date;
 				}
 				clockRenderSBDate(clk, date->font, date->foreColour, date->foreAlpha, date->backColour, date->backRadius, date->backAlpha, date->clearUnused);
@@ -942,8 +773,6 @@ static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser
 		}
 	}
 	clk->sbdk.timerState = 0;
-	
-	//printf("sbSetDkTimerCB out: %i\n", (int)GetCurrentThreadId());
 }
 
 static inline int page_clkRender (TCLK *clk, TVLCPLAYER *vp, TFRAME *frame)
@@ -970,8 +799,7 @@ static inline int page_clkRender (TCLK *clk, TVLCPLAYER *vp, TFRAME *frame)
 		clockRenderBoxDigital(vp, clk, frame, 0, 0, 0);
 	
 	}else if (clk->displayType == CLOCK_POLAR){
-		//clockRenderPolar(vp, clk, frame, clk->pos.x, clk->pos.y, !getIdle(vp));
-		clockRenderPolar(vp, clk, frame, (800.0/2.0)+0.5, (480.0/2.0)+0.5, !getIdle(vp));
+		clockRenderPolar(vp, clk, frame, clk->pos.x, clk->pos.y, !getIdle(vp));
 		
 	}else if (clk->displayType == CLOCK_PREDATOR){
 		clockRenderPredator(vp, clk, frame, clk->pos.x, clk->pos.y, getIdle(vp));
@@ -1194,7 +1022,6 @@ static inline int page_clkRenderBegin (TCLK *clk, TVLCPLAYER *vp, int64_t time0,
 	}else if (clk->displayType == CLOCK_POLAR){
 		clk->pos.x = frame->width/2;
 		clk->pos.y = frame->height/2;
-		
 		lRenderEffectReset(frame->hw, CLK_POLAR_INNER_FONT, LTR_BLUR4);
 			
 	}else if (clk->displayType == CLOCK_PREDATOR){
