@@ -266,14 +266,14 @@
 #define SHADOW_GREEN			3
 
 
-
-
 //#define SKINDEFAULTA 		 "GlassLite320"
 //#define SKINDEFAULTW		L"GlassLite320"
 //#define SKINDEFAULTA 		 "GlassLite480"
 //#define SKINDEFAULTW		L"GlassLite480"
-#define SKINDEFAULTA 		 "FlatLite800"
-#define SKINDEFAULTW		L"FlatLite800"
+//#define SKINDEFAULTA 		 "FlatLite800"
+//#define SKINDEFAULTW		L"FlatLite800"
+#define SKINDEFAULTA 		 "SilverBeam960"
+#define SKINDEFAULTW		L"SilverBeam960"
 
 
 #if (LIBVLC_VERSION_MAJOR < 2)
