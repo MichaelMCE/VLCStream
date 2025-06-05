@@ -405,6 +405,8 @@ int isTsVideo8 (const char *path8);
 int isAyFile8 (const char *name);
 int isGaminFile8 (const char *name);
 
+int isCurrentUserLocalAdministrator ();
+
 #if ENABLE_CMDFUNSTUFF
 void botQuoteRandom (TVLCPLAYER *vp, TCMDREPLY *sheets, const int bot);
 #endif

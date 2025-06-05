@@ -3033,6 +3033,21 @@ void setBackgroundColourIdx (TVLCPLAYER *vp, const int pageIdx, const int colIdx
 	lSetBackgroundColour(vp->ml->hw, col[colIdx]);
 }
 
+int isCurrentUserLocalAdministrator ()
+{
+	SID_IDENTIFIER_AUTHORITY NtAuthority = {SECURITY_NT_AUTHORITY};
+	PSID AdministratorsGroup;
+  
+	int b = AllocateAndInitializeSid(&NtAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,0, 0, 0, 0, 0, 0,&AdministratorsGroup);
+	if (b){
+    	if (!CheckTokenMembership(NULL, AdministratorsGroup, &b))
+        	 b = 0;
+		FreeSid(AdministratorsGroup);
+	}
+
+	return b;
+}
+
 
 #if ENABLE_CMDFUNSTUFF
 void botQuoteRandom (TVLCPLAYER *vp, TCMDREPLY *sheets, const int bot)
