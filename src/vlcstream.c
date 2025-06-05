@@ -4395,7 +4395,7 @@ int main (const int argc, const char *argv[])
 		playerConfigLoad(vp);		// will revert to default upon failure
 		playerDisplayStart(vp);		// is allowed to fail, can retry later
 
-		if (playerSetup(vp, PAGE_CFG) < 1)
+		if (playerSetup(vp, PAGE_HOME) < 1)
 			return EXIT_SUCCESS;
 
 		if (playerStartup(vp, argc, argv)){
