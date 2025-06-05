@@ -25,7 +25,7 @@
 #define _UI_H_
 
 #define PLAYER_NAME				"VLCStream"
-#define PLAYER_DATE				"05NOV2019"	/* __DATE__ */
+#define PLAYER_DATE				"05JUNE2025"	/* __DATE__ */
 #define PLAYER_VERSION			PLAYER_NAME "-" PLAYER_DATE
 
 #define VCHROMA					"RV32"			/* Select VLC output chroma */
