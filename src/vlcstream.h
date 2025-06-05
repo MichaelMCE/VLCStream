@@ -374,6 +374,8 @@ struct TVLCPLAYER {
 		TCMDREPLY *sheets;
 	}bot;
 #endif
+	int64_t hWndOld;
+	int processIdOld;
 };
 
 

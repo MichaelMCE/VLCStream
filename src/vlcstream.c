@@ -3237,11 +3237,17 @@ int processCommandline (TVLCPLAYER *vp)
 				argv[1][len-1] = L'\\';
 		}
 
-		if (!wcscmp(argv[1], L"-noplaylist")){
+		if (!wcscmp(argv[1], L"--noplaylist")){
 			vp->playlist.noPlaylist = 1;
 			return -1;
-			
-		}else if (isPlaylistW(argv[1])){	 // import a utf8 encoded playlist
+#if 0
+		}else if (!wcscmp(argv[1], L"--config")){
+			if (argc > 2)
+				printf("config '%ls'\n", argv[2]);
+#endif
+		}
+		
+		if (isPlaylistW(argv[1])){	 // import a utf8 encoded playlist
 			TFILEPANE *filepane = pageGetPtr(vp, PAGE_FILE_PANE);
 			ret = importPlaylistW(plm, plc, vp->tagc, vp->am, argv[1], filepane);
 			resetCurrentDirectory();
@@ -3698,23 +3704,16 @@ TVLCPLAYER * playerNew ()
 
 void playerDelete (TVLCPLAYER *vp)
 {
-	//printf("playerDelete in %p %p\n", vp->instanceEvent, vp->ml);
 	CloseHandle(vp->instanceEvent);
 
-	
 	TMYLCD *ml = vp->ml;
 	my_free(vp);
 	if (ml) libmylcd_Close(ml);
-
-	//printf("sleeping ..\n");
-	//Sleep(5000);
-	//printf("sleeping done\n");
-
 }
 
-#if 0
-void setDeviceExitScreen (TMYLCD *ml)
+void playerShowDeviceExitScreen (TMYLCD *ml)
 {
+#if 0
 	TFRAME *frame = lNewFrame(ml->hw, ml->width, ml->height, ml->bpp);
 	if (frame){
 		const int x = 20;
@@ -3731,13 +3730,13 @@ void setDeviceExitScreen (TMYLCD *ml)
 		//lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " compiler: gcc version %i.%i (GCC)", __GNUC__, __GNUC_MINOR__);
 		lPrintf(frame, x, y+=lineh, DMSG_FONT, LPRT_CPY, " &#169; %s", mySELF);
 
-		lSleep(30);
+		lSleep(20);
 		lRefresh(frame);
-		lSleep(30);
+		lSleep(20);
 		lDeleteFrame(frame);
 	}
-}
 #endif
+}
 
 int playerLoadDefaultPlaylist (TVLCPLAYER *vp, const wchar_t *playlist)
 {
@@ -3907,17 +3906,24 @@ void configLoadSwatch (TVLCPLAYER *vp)
 	}
 }
 
-int playerSetup (TVLCPLAYER *vp)
+int playerConfigLoad (TVLCPLAYER *vp)
 {
+	return configLoad(vp, CFGFILE);
+}
+
+int playerDisplayStart (TVLCPLAYER *vp)
+{
+	return configStartDisplay(vp, 1);
+}
+
+int playerSetup (TVLCPLAYER *vp, const int startPage)
+{
+	timeBeginPeriod(1);
 	QueryPerformanceCounter((LARGE_INTEGER*)&vp->tStart);
 	QueryPerformanceFrequency((LARGE_INTEGER *)&vp->freq);
 	vp->resolution = 1.0 / (double)vp->freq;
 	
-	//srand((int)((double)(getTickCount()&0x1FFFFF)/getTime(vp)));
 	srand(getTickCount()&0xFFFFF);
-
-	configLoad(vp, CFGFILE);
-	configStartDisplay(vp, 1);
 
 	vp->im = imageManagerNew(vp->ml->hw);
 	vp->am = artManagerNew(vp->ml->hw);
@@ -4070,15 +4076,12 @@ int playerSetup (TVLCPLAYER *vp)
 	timerInit(vp, TIMER_SEARCH_ENDED, timer_searchEnded, NULL);
 	timerInit(vp, TIMER_SEARCH_UPDATEHEADER, timer_searchUpdateHeader, NULL);
 	timerInit(vp, TIMER_SEARCH_METACB, timer_metaCb, NULL);
-	
 	timerInit(vp, TIMER_testingonly, timertest, NULL);
-
 
 	if (isSBUIEnabled(vp))
 		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS);
 //	else
 //		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS|CREATE_SUSPENDED);
-
 
 	setApplState(vp, 1);
 	configApply(vp);
@@ -4101,7 +4104,7 @@ int playerSetup (TVLCPLAYER *vp)
 	
 
 	if (cret < 1){
-		page2Set(vp->pages, PAGE_HOME, 1);
+		page2Set(vp->pages, startPage, 1);
 	}else{
 		overlaySetOverlay(vp);
 		if (getPlayState(vp) == 1){
@@ -4110,9 +4113,7 @@ int playerSetup (TVLCPLAYER *vp)
 		}
 	}
 
-
-	page2Set(vp->pages, PAGE_HOME, 1);
-
+	page2Set(vp->pages, startPage, 1);
 
 	vp->gui.runCount++;
 	return 1;
@@ -4157,7 +4158,6 @@ void playerClose (TVLCPLAYER *vp)
 	imageManagerImageRelease(vp->im, vp->gui.image[IMGC_BGIMAGE]);
 	imageManagerDelete(vp->im);
 	artManagerDelete(vp->am);
-
 }
 
 #if (ENFORCE_VLCVERSION)
@@ -4188,29 +4188,8 @@ static inline int setHeapOptions ()
 	return HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 }
 
-/*
-int IsCurrentUserLocalAdministrator()
+int playerInit ()
 {
-	SID_IDENTIFIER_AUTHORITY NtAuthority = {SECURITY_NT_AUTHORITY};
-	PSID AdministratorsGroup;
-  
-	int b = AllocateAndInitializeSid(&NtAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,0, 0, 0, 0, 0, 0,&AdministratorsGroup);
-	if (b){
-    	if (!CheckTokenMembership(NULL, AdministratorsGroup, &b))
-        	 b = 0;
-		FreeSid(AdministratorsGroup);
-	}
-
-	return b;
-}*/
-
-
-
-int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
-{
-	//printf("main tid:%i %i\n", (int)GetCurrentThreadId, (int)GetCurrentProcessorNumber());
-	//printf("main isadmin:%i\n", (int)IsCurrentUserLocalAdministrator());
-
 #if (!ALLOWDEBUGGER)
 	if (IsDebuggerPresent()) return -1;
 #endif
@@ -4255,6 +4234,17 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 #endif
 #endif
 
+  	processSetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+	setHeapOptions();
+	processSetPriority(ABOVE_NORMAL_PRIORITY_CLASS);
+	resetCurrentDirectory();
+
+	return 1;
+}
+
+int playerInstanceCheck (TVLCPLAYER *vp, const int argc, const char *argv[])
+{
+
 #if (ENABLE_SINGLEINSTANCE)
 	if (vp->instanceCheck){
 		singleInstancePassCmdLine(argc, argv);
@@ -4262,28 +4252,17 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	}
 #endif
 
+	return 1;
+}
 
-  	processSetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-	setHeapOptions();
-	processSetPriority(ABOVE_NORMAL_PRIORITY_CLASS);
-	resetCurrentDirectory();
-	timeBeginPeriod(1);
-	
-	if (!playerSetup(vp)){
-		//exit(EXIT_FAILURE);
-		//printf("we're going down!!\n");
-		return 0;
-	}
+int playerStartup (TVLCPLAYER *vp, const int argc, const char *argv[])
+{
 
 	int lastPlaylist = -1;
 	settingsGet(vp, "lasttrack.playlist", &lastPlaylist);
 	if (lastPlaylist >= 0){
-		//vp->queuedPlaylist = vp->displayPlaylist = displayPlaylist;
 		vp->playlist.queued = playlistManagerGetUIDByIndex(vp->plm, lastPlaylist);
 		vp->playlist.display = vp->playlist.queued;
-
-		//PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, vp->playlist.display);
-		//printf("idx:%i, uid:%i '%s'\n", lastPlaylist, vp->playlist.queued, plc->title);
 	}
 
 	if (playlistManagerGetTotal(vp->plm) <= 1){
@@ -4318,18 +4297,13 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 		}
 
 		if (plc){
-			//TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
-			if (1/*overlayPlaylistListboxFill(vp, plyctrl->lbPlaylist, plc)*/){
-				setDisplayPlaylist(vp, plc);
-	  			setQueuedPlaylist(vp, plc);
-				if (plc->parent)
-					plc->parent->pr->selectedItem = playlistManagerGetPlaylistIndex(vp->plm, plc);
-			}
+			setDisplayPlaylist(vp, plc);
+  			setQueuedPlaylist(vp, plc);
+			if (plc->parent)
+				plc->parent->pr->selectedItem = playlistManagerGetPlaylistIndex(vp->plm, plc);
 
 #ifndef _DEBUG_
 			playlistChangeEvent(vp, plc, 0);
-			//invalidateShelfAlbum(vp, pageGetPtr(vp, PAGE_PLY_SHELF), 0);
-			//bringAlbumToFocus(pageGetPtr(vp, PAGE_PLY_SHELF),0);
 #endif
 		}
 
@@ -4343,34 +4317,6 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	}
 
 
-	//pageSet(vp, PAGE_HOME);
-	//pageSet(vp, PAGE_TCX);
-	//pageSet(vp, PAGE_TASKMAN);
-	//pageSet(vp, PAGE_ALARM);
-	//pageSet(vp, PAGE_OVERLAY);
-	//pageSet(vp, PAGE_EXP_PANEL);
-	//pageSet(vp, PAGE_PLY_TV);
-	//pageSet(vp, PAGE_PLY_PANEL);
-	//pageSet(vp, PAGE_PLY_SHELF);
-	//pageSet(vp, PAGE_PLY_PANE);
-	//pageSet(vp, PAGE_PLY_FLAT);
-	//pageSet(vp, PAGE_CHAPTERS);
-	//pageSet(vp, PAGE_SUB);
-	//pageSet(vp, PAGE_CFG);
-	//pageSet(vp, PAGE_TRANSFORM);
-	//pageSet(vp, PAGE_CLOCK);
-	//pageSet(vp, PAGE_SEARCH);
-	//pageSet(vp, PAGE_EQ);
-	//pageSet(vp, PAGE_ANTPLUS);
-	//pageSet(vp, PAGE_HOTKEYS);
-	//pageSet(vp, PAGE_VKEYBOARD);
-	//pageSet(vp, PAGE_IMGOVR);
-	//pageSet(vp, PAGE_IMGPANE);
-	//pageSet(vp, PAGE_FILE_PANE);
-	//pageSet(vp, PAGE_TEXTOVERLAY);
-	//page2Set(vp->pages, PAGE_TEXTOVERLAY | PAGE_RENDER_CONCURRENT, 0);
-
-
 #if RELEASEBUILD
 	timerSet(vp, TIMER_PATHREGWRITE, 2000);
 #endif
@@ -4382,30 +4328,33 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	
 
 #if (!ENABLE_SINGLEINSTANCE)
-	int64_t hWndOld = (int64_t)regGetQword(L"process_hwnd");
-	int processIdOld = regGetDword(L"process_id");
+	vp->hWndOld = (int64_t)regGetQword(L"process_hwnd");
+	vp->processIdOld = regGetDword(L"process_id");
 #endif
 	regSetDword(L"process_id", processGetId());
 	regSetQword(L"process_hwnd", (QWORD)(intptr_t)vp->gui.hMsgWin);
 
-	playerRun(vp);
+	return 1;
+}
 
+int playerShutdown (TVLCPLAYER *vp)
+{
 	SHUTDOWN = 1;
-
+		
 #if (!ENABLE_SINGLEINSTANCE)
 	//check if the instance previous to this is still running, if so revert to its details, otherwise clear
-	HANDLE hProcess = processOpen(processIdOld);
+	HANDLE hProcess = processOpen(vp->processIdOld);
 	if (!hProcess && (processGetId() != regGetDword(L"process_id"))){
-		processIdOld = regGetDword(L"process_id");
-		hProcess = processOpen(processIdOld);
+		vp->processIdOld = regGetDword(L"process_id");
+		hProcess = processOpen(vp->processIdOld);
 		if (hProcess)
-			hWndOld = (intptr_t)getWindowHandle();
+			vp->hWndOld = (intptr_t)getWindowHandle();
 	}
 
 	if (hProcess){
 		processClose(hProcess);
-		regSetDword(L"process_id", processIdOld);
-		regSetQword(L"process_hwnd", hWndOld);
+		regSetDword(L"process_id", vp->processIdOld);
+		regSetQword(L"process_hwnd", vp->hWndOld);
 	}else{
 		regSetDword(L"process_id", 0);
 		regSetQword(L"process_hwnd", 0);
@@ -4414,9 +4363,6 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	regSetDword(L"process_id", 0);
 	regSetQword(L"process_hwnd", 0);
 #endif
-
-	//printf("vp->imgc %i\n", vp->imgc->total);
-	//vp->jt->threadState = ARTWORK_THREAD_EXIT;
 
 	updateTickerStop(vp);
 	timeEndPeriod(1);
@@ -4431,42 +4377,34 @@ int my_main (TVLCPLAYER *vp, const int argc, const char *argv[])
 	if (!vp->playlist.noPlaylist)
 		playerWriteDefaultPlaylist(vp, VLCSPLAYLIST);
 
-	playerClose(vp);
-	//setDeviceExitScreen(vp->ml);
-
 	return 1;
 }
-
-#if 0
-unsigned int __stdcall keeper (void *uptr)
-{
-	printf("keeper started\n");
-	
-	while (!SHUTDOWN){
-		fflush(stdout);
-		
-		int a = WaitForSingleObject(hMutex, 10000);
-		printf("keeper %X\n", a);
-		Sleep(1000000);
-		lockRelease(hMutex);
-	}
-
-	printf("keeper ended\n");
-	return 1;
-}
-#endif
 
 int main (const int argc, const char *argv[])
 {
 	TVLCPLAYER *vp = playerNew();
 	if (vp){
 		g_vp = vp;
-		//unsigned int tid;
-		//_beginthreadex(NULL, 0, keeper, NULL, 0, &tid);
 		
-		//printf("@ my_main in\n");
-		my_main(vp, argc, argv);
-		//printf("@ my_main out\n");
+		if (playerInit() < 1)
+			return EXIT_SUCCESS;
+
+		if (playerInstanceCheck(vp, argc, argv) < 1)
+			return EXIT_SUCCESS;
+
+		playerConfigLoad(vp);		// will revert to default upon failure
+		playerDisplayStart(vp);		// is allowed to fail, can retry later
+
+		if (playerSetup(vp, PAGE_CFG) < 1)
+			return EXIT_SUCCESS;
+
+		if (playerStartup(vp, argc, argv)){
+			playerRun(vp);
+			playerShutdown(vp);
+			playerClose(vp);
+		}
+		
+		playerShowDeviceExitScreen(vp->ml);
 		playerDelete(vp);
 		
 		printf("\n:: Exited\n");
