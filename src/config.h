@@ -30,7 +30,7 @@
 void configFree (TVLCPLAYER *vp);
 void configApply (TVLCPLAYER *vp);
 
-int configLoad (TVLCPLAYER *vp, const wchar_t *name);
+int configLoad (TVLCPLAYER *vp, const wchar_t *name, const int writeDefault);
 int configSave (TVLCPLAYER *vp, const wchar_t *name);
 
 

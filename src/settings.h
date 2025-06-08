@@ -565,7 +565,7 @@ TCFGENTRY **cfg_configCreate (TSETTINGS *cfg);
 void cfg_configFree (TCFGENTRY **config);
 
 int settingsSave (TSETTINGS *cfg, const wchar_t *name);
-int settingsLoad (TSETTINGS *cfg, const wchar_t *name);
+int settingsLoad (TSETTINGS *cfg, const wchar_t *name, const int writeDefault);
 
 int cfg_configRead (TCFGENTRY **config, const wchar_t *name);
 int cfg_configWrite (TCFGENTRY **config, const wchar_t *name);

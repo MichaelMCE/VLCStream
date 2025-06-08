@@ -202,10 +202,10 @@ int configSave (TVLCPLAYER *vp, const wchar_t *name)
 	return ret;
 }
 
-int configLoad (TVLCPLAYER *vp, const wchar_t *name)
+int configLoad (TVLCPLAYER *vp, const wchar_t *name, const int writeDefault)
 {
 	//const double t0 = getTime(vp);
-	int ret = settingsLoad(&vp->settings, name);
+	int ret = settingsLoad(&vp->settings, name, writeDefault);
 	//const double t1 = getTime(vp);
 	
 	//printf("configLoad: time %.3fms, entries: %i\n", t1-t0, ret);
@@ -464,14 +464,14 @@ void configApply (TVLCPLAYER *vp)
 	//configLoadSwatch(vp);
 }
 
-int settingsLoad (TSETTINGS *cfg, const wchar_t *filename)
+int settingsLoad (TSETTINGS *cfg, const wchar_t *filename, const int writeDefault)
 {
 
 	cfg->config = cfg_configCreate(cfg);
 	cfg_configApplyDefaults(cfg->config);
 	int entries = cfg_configRead(cfg->config, filename);
 
-	if (!entries){
+	if (!entries && writeDefault){
 		//printf("config read failed. generating fresh config\n");
 		
 		cfg_configWrite(cfg->config, filename);

@@ -22,6 +22,8 @@
 
 /*
 	VLCStream for VLC 2.0.x
+	VLCStream for VLC 2.2.x
+	VLCStream for VLC 3.0.19+
 
 Install:
 Copy vlcstream.exe and the vsskin directory to the root VLC directory where vlc.exe is located
@@ -3240,11 +3242,6 @@ int processCommandline (TVLCPLAYER *vp)
 		if (!wcscmp(argv[1], L"--noplaylist")){
 			vp->playlist.noPlaylist = 1;
 			return -1;
-#if 0
-		}else if (!wcscmp(argv[1], L"--config")){
-			if (argc > 2)
-				printf("config '%ls'\n", argv[2]);
-#endif
 		}
 		
 		if (isPlaylistW(argv[1])){	 // import a utf8 encoded playlist
@@ -3908,7 +3905,25 @@ void configLoadSwatch (TVLCPLAYER *vp)
 
 int playerConfigLoad (TVLCPLAYER *vp)
 {
-	return configLoad(vp, CFGFILE);
+	int ret = 0;
+	int argc = 0;
+	
+	wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	if (argv){
+		for (int i = 0; i < argc; i++){
+			if (!wcscmp(argv[i], L"--config")){
+				if (i+1 < argc){
+					printf("Reading config: %ls\n", argv[i+1]);
+					ret = configLoad(vp, argv[i+1], 0);
+				}
+			}
+		}
+		LocalFree(argv);
+	}
+
+	if (ret < 1)
+		ret = configLoad(vp, CFGFILE, 1);
+	return ret;
 }
 
 int playerDisplayStart (TVLCPLAYER *vp)
