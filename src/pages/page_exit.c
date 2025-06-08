@@ -105,7 +105,7 @@ static inline int page_exitRender (TEXIT *exit, TVLCPLAYER *vp, TFRAME *frame)
 	exit->pos.x = (frame->width - eb->width)/2;
 	exit->pos.y = (frame->height - eb->height)/2;
 	
-	const int boxOffset = 10;
+	const int boxOffset = 9;
 	//lBlurArea(frame, exit->pos.x+boxOffset+2, exit->pos.y+boxOffset+2, exit->pos.x+eb->width-(boxOffset<<1), exit->pos.y+eb->height-(boxOffset<<1)+3, 2);
 	lBlurArea(frame, exit->pos.x+boxOffset, exit->pos.y+boxOffset, exit->pos.x+eb->width-boxOffset, exit->pos.y+eb->height-boxOffset, 2);
 	drawImage(eb, frame, exit->pos.x, exit->pos.y, eb->width-1, eb->height-1);
