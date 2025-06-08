@@ -284,8 +284,6 @@ static inline unsigned int vlc_getSize (libvlc_media_player_t *p_mi, int *width,
 static inline TTITLE *dupTitles (input_title_t **i_titles, const int i_tTitles, int *tTitles)
 {
 	TTITLE *titles = NULL;
-
-	//printf("dupTitles\n");
 	
 	if (i_tTitles){
 		input_title_t *t;
@@ -398,11 +396,12 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 		break;
 	  
 	  /* a *user* abort has been requested */
+#if (LIBVLC_VERSION_MAJOR < 3)
 	  case INPUT_EVENT_ABORT:
 		//printf("INPUT_EVENT_ABORT  \n");
 		sbuiDKStateChange();
 		break;
-
+#endif
       /* "rate" has changed */
 	  //case INPUT_EVENT_RATE: 
 		//printf("INPUT_EVENT_RATE\n");
@@ -583,6 +582,9 @@ void vlc_inputEventCbSet (TVLCCONFIG *vlc, TVLCPLAYER *vp)
 
 int vlc_attachmentsSave (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
+#if (LIBVLC_VERSION_MAJOR >= 3)
+	return 0;
+#else
 	if (!vlc->mp) return 0;
 	int ct = 0;
 
@@ -622,15 +624,18 @@ int vlc_attachmentsSave (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 		vlc_object_release(p_input);
 	}
 	return ct;
+#endif
 }
 
 int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
 {
+#if (LIBVLC_VERSION_MAJOR >= 3)
+	return 0;
+#else
 	if (!vlc->mp) return 0;
 
 	int ct = 0;
 
-	//printf("vlc_attachmentsGetCount\n");
 
 	input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 	if (p_input){
@@ -645,17 +650,19 @@ int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
 		vlc_object_release(p_input);
 	}
 	return ct;
+#endif
 }
 
 #if 1
 // chapter lock must be held
 TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 {
+#if (LIBVLC_VERSION_MAJOR >= 3)
+	return 0;
+#else
 	*tTitles = 0;
 	TTITLE *titles = NULL;
-	
-	//printf("getTitles\n");
-	
+
 	if (vlc->mp){
 		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 		if (p_input){
@@ -675,6 +682,7 @@ TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 		}
 	}	
 	return titles;
+#endif
 }
 
 TCATEGORY *getCategories (TVLCCONFIG *vlc, int *tCat)
@@ -682,9 +690,7 @@ TCATEGORY *getCategories (TVLCCONFIG *vlc, int *tCat)
 	*tCat = 0;
 	TCATEGORY *cat = NULL;
 	int i_categories = 0;
-	
-	//printf("getCategories\n");
-	
+
 	if (vlc->mp){
 		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 		if (p_input){
