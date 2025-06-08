@@ -68,7 +68,7 @@ OPFLAGS =
 
 
 #CFLAGS = -static -static-libstdc++ -static-libgcc $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(GLOP) $(CFLAGSARCH) -minline-all-stringops -fno-strict-aliasing -fno-exceptions -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -D_M_IX86 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0801 -D__WIN32__=1 -funroll-loops -finline-functions -ftree-vectorizer-verbose=0 -fvariable-expansion-in-unroller -ftree-loop-distribution -fno-signed-zeros -fno-trapping-math -fno-math-errno -ffast-math -s -pipe -fgcse-las -fgcse-sm -fgcse-lm -fmodulo-sched -fmodulo-sched-allow-regmoves -O2 -Wno-error=format
-CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(GLOP) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -pipe -O2
+CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(GLOP) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -pipe -O3
 
 # -fstack-protector -mwindows -fomit-frame-pointer
 LIBDEPEND = -lmylcddll -lhook -lusb -lvlc.dll -lvlccore.dll -lbasswasapi -lbass 
@@ -136,7 +136,7 @@ xcpy:
 
 vlcstream.exe: $(BASEOBJS2)
 	windres --output-format=coff $(RESTARGET) -i vlcstream.rc -o $(TEMPDIR)/res.o
-	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet -mconsole
+	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet -mwindows
 	strip.exe $@
 
 
