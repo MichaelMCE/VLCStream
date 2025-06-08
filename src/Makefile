@@ -19,7 +19,7 @@ SYSARCH=$(X64ARCH)
 RESTARGET= 
 BUILDM32M64 =-m64 -DWIN64=1 -D__WIN64__=1 -DHAVE_STRUCT_TIMESPEC -D_CRT_NON_CONFORMING_SWPRINTFS -D__USE_MINGW_ANSI_STDIO
 CONTRIBS =../../contribs/$(SYSARCH)/
-CFLAGSARCH =-march=native -mtune=native -m64
+CFLAGSARCH =-march=x86-64 -mtune=generic -m64
 
 # Graphite loop optimizations
 GLOP = 
