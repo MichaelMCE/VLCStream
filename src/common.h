@@ -38,7 +38,7 @@
 
 
 
-#define RELEASEBUILD			0				// disables console input when set
+#define RELEASEBUILD			1				// disables console input when set
 #define MOUSEHOOKCAP			1				// enable mouse hooking capability. keys: shift+control+A or Q, L or P (creates a new thread and hidden window)
 #define ASYNCHRONOUSREFRESH 	1
 #define USEEXTMEMFUNC			0				// define to 1 to use libmylcd's memory alloc and trace routines
@@ -65,10 +65,10 @@
 #define ENABLE_SINGLEINSTANCE	0				// single instance only, pass args to first instance. required when using RzHome.exe
 #define ENABLE_FILEEXT_CONFIG	1
 
-#define ENABLE_ANTPLUS			0				// garmin ant+ heart rate display. requires libusb installed Ant+ dongle
-#define ENABLE_GARMINTCX		0
+#define ENABLE_ANTPLUS			1				// garmin ant+ heart rate display. requires libusb installed Ant+ dongle
+#define ENABLE_GARMINTCX		1
 #define ENABLE_BRIGHTNESS		0				// hardware brightness support where supported
-#define ENABLE_CMDFUNSTUFF		0
+#define ENABLE_CMDFUNSTUFF		1
 
 #define SINGLEINSTANCE_USE_CDS	1
 #define ENABLE_BASS				(1/* || !RELEASEBUILD*/)
@@ -235,8 +235,6 @@ void workstationShutdownAbort();
 TFRAME *newImage (TVLCPLAYER *vp, const wchar_t *filename, const int bpp);
 int loadImage (TFRAME *frame, const wchar_t *filename);
 
-//MYLCD_EXPORT uint64_t rdtsc ();
-
 wchar_t *buildSkinD (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *path);
 wchar_t *buildSkinDEx (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *dir, wchar_t *file);
 
@@ -276,18 +274,6 @@ void rotateFrameR90 (TFRAME *frm);
 void rotateFrame180 (TFRAME *frm);
 
 void imageBestFit (const int bg_w, const int bg_h, int fg_w, int fg_h, int *w, int *h);
-
-
-#if 0
-
-TFRAME *newFrameFromFile (TVLCPLAYER *vp, const wchar_t *filename);
-TFRAME *newFrameFromImageList (TVLCPLAYER *vp, const HIMAGELIST imgList, const int imgIdx);
-TFRAME *newFrameFromHICON (TVLCPLAYER *vp, const HICON icon);
-TFRAME *newFrameFromFileEx (TVLCPLAYER *vp, const wchar_t *filename, const int height);
-TFRAME *newFrameFromHICONEx (TVLCPLAYER *vp, const HICON icon, const int height);
-TFRAME *getFileIcon (TVLCPLAYER *vp, const wchar_t *filename);
-TFRAME *getFileIconEx (TVLCPLAYER *vp, const wchar_t *filename, const int height);
-#endif
 
 void copyArea (TFRAME *from, TFRAME *to, int dx, int dy, int x1, int y1, int x2, int y2);
 void copyAreaNoBlend (TFRAME *from, TFRAME *to, int dx, int dy, int x1, int y1, int x2, int y2);
@@ -363,10 +349,6 @@ int isDirectory (const char *path);
 int isPlaylistW (const wchar_t *path);
 int isPlaylist (const char *path);
 
-//unsigned int generateHash (const void *data, const size_t dlen);
-//int vaswprintf (wchar_t **result, const wchar_t *format, va_list args);
-//int _asprintf (char **, const char *, ...);
-//int vasprintf (char **, const char *, va_list);
 void dbwprintf (TVLCPLAYER *vp, const wchar_t *str, ...);
 void dbprintf (TVLCPLAYER *vp, const char *str, ...);
 void dbprintfEx (TVLCPLAYER *vp, const int flags, const char *fmt, ...);
@@ -386,8 +368,8 @@ int sortStrToIdx (const char *str);
 
 wchar_t *ellipsiizeStringPath (wchar_t *String, int DesiredCount);
 
-int hasPathExt (const wchar_t *in, const wchar_t **/*restrict*/ exts);
-int hasPathExtA (const char *path, const char **/*restrict*/ exts);
+int hasPathExt (const wchar_t *in, const wchar_t **exts);
+int hasPathExtA (const char *path, const char **exts);
 
 int hkModiferToKey (const char *name);
 
