@@ -324,46 +324,6 @@ void configApply (TVLCPLAYER *vp)
 	}
 #endif
 
-	/*TEXPPANEL *expan = pageGetPtr(vp, PAGE_EXP_PANEL);
-	str_list *strList = NULL;
-	settingsGet(vp, "browser.shortcut.", &strList);
-	if (strList){
-		for (int i = 0; i < strList->total; i++){
-			char *name = cfg_configStrListItem(strList, i);
-			if (name && strlen(name) > 5){
-				char *path = strstr(name, CFG_PATHSEPARATOR);
-				if (path && strlen(path) > 4){
-					*path = 0;
-					path += 3;
-					if (*path){
-						fbShortcutsAdd8(&expan->userLinks, path, name);
-					}
-				}
-			}
-		}
-		cfg_configStrListFree(strList);
-		my_free(strList);
-	}
-	
-	strList = NULL;
-	settingsGet(vp, "browser.module.", &strList);
-	if (strList){
-		for (int i = 0; i < strList->total; i++){
-			char *name = cfg_configStrListItem(strList, i);
-			if (name && strlen(name) > 4){
-				char *module = strstr(name, CFG_PATHSEPARATOR);
-				if (module && strlen(module) > 3){
-					*module = 0;
-					module += 3;
-					if (*module){
-						fbShortcutAddModule(&expan->userLinks, module, name);
-					}
-				}
-			}
-		}
-		cfg_configStrListFree(strList);
-		my_free(strList);
-	}*/
 	
 	TEQ *eq = pageGetPtr(vp, PAGE_EQ);
 	settingsGet(vp, "equalizer.preset", &eq->preset);
@@ -457,11 +417,6 @@ void configApply (TVLCPLAYER *vp)
 		setClockType(vp, clockStringToType(values));
 		my_free(values);
 	}
-	
-	//eqApply(eq, vp->vlc, 1);
-	//expanTimerPanelRebuild(vp);
-	//configLoadBackground(vp);
-	//configLoadSwatch(vp);
 }
 
 int settingsLoad (TSETTINGS *cfg, const wchar_t *filename, const int writeDefault)
