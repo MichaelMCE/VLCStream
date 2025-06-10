@@ -63,7 +63,7 @@ int libmylcd_Render (TFRAME *frame)
 //	lUpdate(frame->hw, frame->pixels, frame->frameSize);
 	lRefreshAsync(frame, 0);
 //	lRefresh(frame);
-//	lRefreshArea(frame, 0, 0, 799/*frame->width-1*/, /*frame->height-1*/479);
+//	lRefreshArea(frame, 0, 0, frame->width-1, frame->height-1);
 
 #if BENCH_RENDER
 	const double t1 = getTimeD();
@@ -125,18 +125,14 @@ void libmylcd_Close (TMYLCD *ml)
 				//printf("# lCloseDevice: %i\n", ml->display[i]->did);
 				lCloseDevice(ml->hw, ml->display[i]->did);
 			}
-			
-			//printf("# libmylcd_DisplayFree: %p\n", ml->display[i]);
 			libmylcd_DisplayFree(ml->display[i]);
 		}
 	}
 	if (ml->front){
-		//printf("# lDeleteFrame: %p\n", ml->front);
 		lDeleteFrame(ml->front);
 		ml->front = NULL;
 	}
 	if (ml->hw){
-		//printf("# lClose: %p\n", ml->hw);
 		lClose(ml->hw);
 		ml->hw = NULL;
 	}
@@ -247,10 +243,6 @@ int libmylcd_FlushFonts (THWD *hw)
 
 int libmylcd_StartDisplay (TMYLCD *ml, const char *name, const int width, const int height, const int idx)
 {
-	
-	//printf("libmylcd_StartDisplay '%s' %i\n", name, idx);
-	
-	
 	TDISPLAY *disp = libmylcd_DisplayCfg(name, width, height, SKINFILEBPP);
 	if (disp){
 		disp->did = libmylcd_DisplayStart(ml->hw, disp);
@@ -274,23 +266,4 @@ int libmylcd_StartDisplay (TMYLCD *ml, const char *name, const int width, const 
 	}
 	return 0;
 }
-/*
-int libmylcd_StartDisplay2 (THWD *hw, const char *name, const int width, const int height)
-{
-	
-	//printf("libmylcd_StartDisplay2 '%s'\n", name);
-	
-	
-	TDISPLAY *disp = libmylcd_DisplayCfg(name, width, height, SKINFILEBPP);
-	if (disp){
-		disp->did = libmylcd_DisplayStart(hw, disp);
-		if (disp->did)
-			return disp->did;
-
-		libmylcd_DisplayFree(disp);
-	}
-	return 0;
-}
-*/
-
 
