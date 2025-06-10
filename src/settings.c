@@ -23,14 +23,6 @@
 
 #include "common.h"
 
-/*
-#ifndef _strtoui64
-_CRTIMP unsigned __int64 __cdecl _strtoui64(const char *_String,char **_EndPtr,int _Radix);
-#endif
-*/
-
-
-
 
 
 static inline int calctotal (const TCFGENTRY *config_cfg)
@@ -100,16 +92,13 @@ str_list *cfg_configStrListNew (const int total)
 	str_list *strList = my_calloc(1, sizeof(str_list));
 	if (strList)
 		strList->total = total;
-		
-	//printf("# cfg_configStrListNew %p\n", strList);
+
 	return strList;
 }
 
 void cfg_configStrListFreeStrings (str_list *strList)
 {
 	if (strList){
-		//printf("# cfg_configStrListFree %p\n", strList);
-		
 		for (int j = 0; j < strList->total; j++){
 			if (strList->strings[j])
 				my_free(strList->strings[j]);
@@ -121,12 +110,7 @@ void cfg_configStrListFreeStrings (str_list *strList)
 void cfg_configStrListFree (str_list *strList)
 {
 	if (strList){
-		//printf("# cfg_configStrListFree %p\n", strList);
-		
-		/*for (int j = 0; j < strList->total; j++){
-			if (strList->strings[j])
-				my_free(strList->strings[j]);
-		}*/
+
 		my_free(strList);
 	}
 }
@@ -154,8 +138,6 @@ str_list *cfg_configStrListDupW (str_list *strList)
 TCFGENTRY *cfg_entryDup (const TCFGENTRY *item)
 {
 	TCFGENTRY *entry = my_calloc(1, sizeof(TCFGENTRY));
-	//printf("entry %p\n", entry);
-
 
 	if (item->key){
 		entry->key = my_strdup(item->key);
@@ -248,10 +230,8 @@ void cfg_configFree (TCFGENTRY **config)
 					cfg_configStrListFreeStrings(&entry->u.strList);
 
 					if (entry->ptr){
-						//printf("entry->ptr %p\n", entry->ptr);
 						cfg_configStrListFreeStrings(entry->ptr);
 		  				cfg_configStrListFree(entry->ptr);
-		  				//my_free(entry->ptr);
 				  	}
 				}
 				my_free(entry->key);
@@ -337,7 +317,6 @@ void cfg_configApplyDefaults (TCFGENTRY **config)
 		  	if (entry->ptr){
 		  		cfg_configStrListFreeStrings(entry->ptr);
 		  		cfg_configStrListFree(entry->ptr);
-		  		//my_free(entry->ptr);
 		  	}
 		  	str_list *strList = cfg_configStrListDup(&entry->u.strList);
 		  	entry->ptr = strList;
@@ -427,7 +406,6 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 		keys[i].key = strtok((char*)al->line[j], CFG_SEPARATOR);
 		if (keys[i].key){
 			keys[i].key = removeLeadingSpaces(removeTrailingSpaces(keys[i].key));
-			//keys[i].hash = generateHash(keys[i].key, strlen(keys[i].key));
 			keys[i].value = strtok(NULL, CFG_COMMENT);
 			if (keys[i].value){
 				keys[i].value = removeLeadingSpaces(removeTrailingSpaces(keys[i].value));
@@ -444,8 +422,6 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 		str_keyvalue *key = findKey(entry->key, keys, ktotal);
 		if (!key) continue;
 
-		//printf("%i '%s'\n", entry->hash, entry->key);
-
 		switch (entry->type){
 		  case CFG_INT:
 			*(int32_t*)entry->ptr = atoi(key->value);
@@ -459,7 +435,6 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 		  	//#define HEX64 "%I64X"
 		  	#define HEX64 "%llX"
 		  	sscanf(key->value, HEX64, (uint64_t*)entry->ptr);
-		  	//sscanf(key->value, "%X", (uint32_t*)entry->ptr);
 			break;
 
 		  case CFG_STRING:
@@ -481,8 +456,6 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 
 		  case CFG_STRLIST:{
 		  	int total = findKeyListTotal(entry->key, keys, ktotal);
-		  	//printf("strList total %i %X '%s'\n", total, entry->hash, entry->key);
-
 		  	if (total){
 		  		str_list *strList = my_calloc(1, sizeof(str_list));
 		  		if (strList){
@@ -496,7 +469,6 @@ int cfg_configRead (TCFGENTRY **config, const wchar_t *filename)
 		  			if (entry->ptr){
 		  				cfg_configStrListFreeStrings(entry->ptr);
 		  				cfg_configStrListFree(entry->ptr);
-		  				//my_free(entry->ptr);
 		  			}
 		  			entry->ptr = strList;
 		  		}
@@ -576,7 +548,6 @@ int settingsWriteKeys (FILE *fp, TCFGENTRY **config)
 		  case CFG_INT64:{
 		  	char buffer64[64];
 		  	_i64toa(*(int64_t*)entry->ptr, buffer64, 10);
-		  	//slen = _snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %I64i", entry->key, *(int64_t*)entry->ptr);
 		  	slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %s", entry->key, buffer64);
 		  	settingsWriteLine(fp, buffer, slen, entry->comment);
 			break;
@@ -584,12 +555,10 @@ int settingsWriteKeys (FILE *fp, TCFGENTRY **config)
 		  case CFG_HEX:{
 		  	uint64_t val = *((uint64_t*)entry->ptr);
 		  	ULARGE_INTEGER ui = (ULARGE_INTEGER)val;
-		  	//slen = _snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %I64X", entry->key, val);
 		  	if (ui.HighPart)
 		  		slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %X%X", entry->key, (unsigned int)ui.HighPart, (unsigned int)ui.LowPart);
 		  	else
 		  		slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %X", entry->key, (unsigned int)ui.LowPart);
-		  	//printf("i64 #%s# %I64X\n", buffer, val);
 		  	settingsWriteLine(fp, buffer, slen, entry->comment);
 		  }
 			break;
@@ -668,7 +637,6 @@ int cfg_keyGet (TCFGENTRY **config, const char *key, void *value)
 {
 	TCFGENTRY *entry = cfg_keyFind(config, key);
 
-	//printf("cfg_keyGet '%s' %p\n", key, entry);
 
 	if (entry){
 		switch (entry->type){
@@ -686,7 +654,6 @@ int cfg_keyGet (TCFGENTRY **config, const char *key, void *value)
 
 		  case CFG_STRING:
 		  	*(char**)value = my_strdup(entry->ptr);
-		  	//printf("CFG_STRING #%s# %p\n", key, *(char**)value);
 			break;
 
 		  case CFG_FLOAT:
@@ -770,7 +737,6 @@ int cfg_keySet (TCFGENTRY **config, const char *key, void *value)
 		  case CFG_STRING:
 		  	if (entry->ptr) my_free(entry->ptr);
 		  	entry->ptr = my_strdup(value);
-		  	//printf("string set for '%s'\n", (char*)entry->ptr);
 			break;
 
 		  case CFG_FLOAT:
@@ -779,7 +745,6 @@ int cfg_keySet (TCFGENTRY **config, const char *key, void *value)
 
 		  case CFG_DOUBLE:
 		  	*(double*)entry->ptr = *(double*)value;
-		  	//printf("setting double %p %f\n", entry->ptr, (double)*(double*)entry->ptr);
 			break;
 
 		  case CFG_CHAR:
@@ -790,9 +755,7 @@ int cfg_keySet (TCFGENTRY **config, const char *key, void *value)
 		  	if (entry->ptr){
 		  		cfg_configStrListFreeStrings(entry->ptr);
 		  		cfg_configStrListFree(entry->ptr);
-		  		//my_free(entry->ptr);
 		  	}
-		  	//entry->ptr = cfg_configStrListDup(value);
 		  	entry->ptr = value;
 			break;
 		}
