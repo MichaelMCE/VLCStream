@@ -3915,6 +3915,7 @@ int playerConfigLoad (TVLCPLAYER *vp)
 				if (i+1 < argc){
 					printf("Reading config: %ls\n", argv[i+1]);
 					ret = configLoad(vp, argv[i+1], 0);
+					break;
 				}
 			}
 		}
