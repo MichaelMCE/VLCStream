@@ -50,22 +50,12 @@ extern volatile double UPDATERATE_BASE;
 #define	CUBESIZE						48
 #define CURSORMARK_COLOUR				(255<<24|0xA1FFA1)
 
-/*
-static TLPOINTEX window;
-static tcx_map map;
-static int windowSet;*/
-
 typedef struct {
 	TTCX *tcx;
 	char *file;
 }TCXTHREADOPAQUE;
 
 
-// http://www.google.co.uk/maps/@54.481282,-6.225284,16z
-// http://maps.googleapis.com/maps/api/staticmap?center=54.615684,-5.937209&zoom=13&size=256x256&sensor=false
-// http://maps.googleapis.com/maps/api/staticmap?center=54.611053,-5.926842&zoom=15&size=512x288&scale=2
-// http://maps.googleapis.com/maps/api/staticmap?visible=54.611053,-5.926842|54.643003,-5.935705&size=512x512
-// http://maps.googleapis.com/maps/api/staticmap?center=54.618777,-5.938356&zoom=18&size=256x256
 
 static const char *mapApplication = "C:\\Program Files (x86)\\Firefox\\firefox.exe";
 //static const char *mapURL = "%s http://www.openstreetmap.org/#map=%.1f/%f/%f&layers=C";
@@ -73,8 +63,6 @@ static const char *mapApplication = "C:\\Program Files (x86)\\Firefox\\firefox.e
  static const char *mapURL = "%s http://www.openstreetmap.org/?mlat=%f&mlon=%f#map=%.1f/%f/%f";//&layers=C";
 //static const char *mapURL = "%s http://qa.poole.ch/?zoom=%.1f&lat=%f&lon=%f&layers=FFFF0B";
 //static const char *mapURL = "%s http://www.google.co.uk/maps/place/%f+%f/@%f,%f,%.1fz?force=lite";
-
-
 static const char *infoURL = "http://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=true";
 
 
@@ -91,7 +79,6 @@ static inline char *geoCodeReserveLookup (tcx_point *pt)
 	char *json = getUrl(buffer, &totalRead);
 	if (!json) return NULL;
 
-	//printf("##%s##\n", json);
 
 	char *ret = NULL;
 	if (totalRead > 64)
@@ -131,15 +118,10 @@ static inline float calcCourse (vector2_t *_1,  vector2_t *_2)
 
 static inline double calcDistM (double lat1, double lon1, double lat2, double lon2)
 {
-	
-	//printf("%f %f %f %f\n", lat1, lon1, lat2, lon2);
-	
 	const double R = 6378137.0;		// Earths radius
 	const double pi80 = M_PI / 180.0;
 
-	//double d = acos( sin(lat1*M_PI/180.0)*sin(lat2*M_PI/180.0) + cos(lat1*M_PI/180.0)*cos(lat2*M_PI/180.0)*cos(lon2*M_PI /180.0-lon1*M_PI/180.0) ) * R;
-	//printf("dist b; %.0f\n", d);
-		
+	
 	lat1 *= pi80;
 	lon1 *= pi80;
 	lat2 *= pi80;
@@ -161,9 +143,6 @@ static inline double calcDistKmTrkPt (const tcx_trackpoint *pt1, const tcx_track
 	const double lat2 = pt2->latitude;
 	const double lon2 = pt2->longitude;
 
-	//double d = acos( sin(lat1*PI/180.0)*sin(lat2*PI/180.0) + cos(lat1*PI/180.0)*cos(lat2*PI/180.0)*cos(lon2*PI /180.0-lon1*PI/180.0) ) * R;
-	//printf("dist %.0f\n", d);
-	
 	return calcDistM(lat1, lon1, lat2, lon2) / 1000.0;
 }
 
@@ -623,13 +602,6 @@ static inline void routeDrawTrkPtStats (TTCX *tcx, TFRAME *frame, const int _x, 
 	if (tpt->power > 0.0)
 		drawVal_1(tcx, frame, x, y+=vpitch, col, "Power: ", tpt->power);
 
-	//printf("Pos: %f  %f\n", tpt->latitude, tpt->longitude);
-	
-	/* double d = calcDistM(
-	 54.481420-0.00925,  -6.224985,
-	 54.462925+0.00925,  -6.083169);
-	 
-	 printf("dist %f\n", d);*/
 }
 
 static inline void routeDrawTrkPtMark (TFRAME *frame, tcx_screenPt *pt, const int r, const int innerCol, const int outerCol)
@@ -734,9 +706,7 @@ static inline void graphDrawLapBand2 (TGRAPH *graph, TFRAME *frame, tcx_renderCo
 		}
 	}
 	
-	if (lapStart >=0 && lapEnd > lapStart){
-		//printf("graphDrawLapBand: %i %i\n", lapStart, lapEnd);
-
+	if (lapStart >= 0 && lapEnd > lapStart){
 		double posStart = lapStart / (double)rc->points.total;
 		int x1 = posStart * (double)frame->width;
 		double posEnd = lapEnd / (double)rc->points.total;
@@ -1102,34 +1072,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 		ccRender(tcx->ui.import, frame);
 		return 1;
 	}
-	
-/*
-	static TFRAME *tmpImg;
-	if (!tmpImg){
-		wchar_t *path = L"P:\\temp\\incoming\\map.png";
-		tmpImg = lNewImage(frame->hw, path, LFRM_BPP_32A);
-	}else
-		drawImageScaledCenter(tmpImg, frame, tcx->route.scale.factor, tcx->route.offset.x-tcx->route.offset.deltaX, tcx->route.offset.y-tcx->route.offset.deltaY);
-*/
-	
-#if 0
-	static TFRAME *srcMap;
-	if (!srcMap){
-		wchar_t *path = L"M:\\RamDiskTemp\\belfast2.png";
-		srcMap = lNewImage(frame->hw, path, LFRM_BPP_32A);
-	}else if (0 && windowSet){
-		tcx_renderContext *rc = tcx->renderContext;
-		
-		int src_x = window.x1;
-		int src_y = window.y1;
-		int src_width = (window.x2 - window.x1)+1;
-		int src_height = ((window.y2 - window.y1)+1) * 1.0;
-		copyAreaScaled(srcMap, frame, src_x, src_y, src_width, src_height, 0, 0, frame->width, frame->height);
-		
-
-		printf("%f %f %f %f %f\n", rc->aspect, rc->aspectFactor, rc->scaleFactor, rc->scaleLatZoom, rc->scaleLongZoom);
-	}
-#endif
 
 	if (tcx->route.offset.modified.ready){
 		tcx->route.offset.modified.ready = 0;
@@ -1412,8 +1354,6 @@ static inline tcx_activities *garminTcxLoad (const char *file)
 
 static inline void garminTcxRescale (TTCX *tcx, tcx_renderContext *rc, tcx_activities *activities, const double scale, const double offsetX, const double offsetY)
 {
-	//printf("garminTcxRescale %f %f %f\n", scale, offsetX, offsetY);
-	
 	// normalize() and scale() must be called after each call to zoom();
 	tcx_zoom(rc, scale);
 
@@ -1449,7 +1389,6 @@ static inline void garminTcxRescale (TTCX *tcx, tcx_renderContext *rc, tcx_activ
 	tcx->route.ruler.distanceLat = calcDistM(rc->minLat, mlong, rc->maxLat, mlong);
 	
 	//printf("garminTcxRescale: %.2f %.2f\n", tcx->route.ruler.distanceLong, tcx->route.ruler.distanceLat);
-	
 	tcx->route.ruler.metersPerPixelH = tcx->route.ruler.distanceLong / dPixelsW;
 	tcx->route.ruler.metersPerPixelV = tcx->route.ruler.distanceLat / dPixelsH;
 
@@ -1457,8 +1396,6 @@ static inline void garminTcxRescale (TTCX *tcx, tcx_renderContext *rc, tcx_activ
 
 static inline tcx_renderContext *garminTcxGenerateRenderContext (TTCX *tcx, tcx_activities *activities, const int width, const int height)
 {
-	//printf("tcx_open time %.1f\n", t1-t0);
-	
 	tcx_renderContext *rc = tcx_createRenderContext(activities, 0, width, height);
 	if (rc){
 		// calc normalization factors
@@ -1503,8 +1440,6 @@ static inline int garminTcxBuildGraphs (tcx_activities *activities, const int ac
 				tcx_trackpoint *tp = track->trackPoints.list[p];
 
 				if (tp->altitude > 0.001 || tp->altitude < -0.001){
-					//printf("tp->altitude %f %f\n", tp->speed, tp->altitude);
-					
 					graphSheetAddData(shtAlt, tp->altitude * sheets->altitude.multiplier, 0);
 
 					if (tp->speed >= 0.0){
@@ -1768,18 +1703,6 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 				pageUpdate(tcx);
 			}else{
 				if (tcx->slideState == SLIDE_HELD && tcx->route.render.cursorMode == 3){
-					// viewport of image map
-					/*map.nw.longitude = -6.317782402038574;
-					map.nw.latitude = 54.85379508572291;
-					map.se.longitude = -5.629377365112305;
-					map.se.latitude = 54.413486043109486;
-					map.width = 4008;
-					map.height = 4434;
-					
-					calcMapWindow(tcx, &map, &window);
-					printf("box: %i,%i %i,%i\n", window.x1, window.y1, window.x2, window.y2);
-					windowSet = 1;*/
-										
 					if (tcx->route.cursor.location.longitude == tcx->route.location.longitude &&
 						tcx->route.cursor.location.latitude == tcx->route.location.latitude)
 					{
@@ -1925,9 +1848,7 @@ static inline int64_t cc_btn_cb (const void *object, const int msg, const int64_
 		}else if (tcx->ui.onlineMap->id == btn->id){
 			if (tcx->route.location.latitude != 0.0 && tcx->route.location.longitude != 0.0){
 				char buffer[MAX_PATH_UTF8];
-				//__mingw_snprintf(buffer, MAX_PATH_UTF8, mapURL, mapApplication, tcx->route.location.latitude, tcx->route.location.longitude, tcx->route.location.latitude, tcx->route.location.longitude, 15.5);
 				__mingw_snprintf(buffer, MAX_PATH_UTF8, mapURL, mapApplication, tcx->route.location.latitude, tcx->route.location.longitude, 15.5, tcx->route.location.latitude, tcx->route.location.longitude);
-				//printf("process #%s#\n", buffer);
 				processCreate(buffer);
 			}
 		}else if (tcx->ui.route->id == btn->id){
@@ -2378,14 +2299,7 @@ static inline int page_tcxRenderInit (TTCX *tcx, TVLCPLAYER *vp, int64_t time0, 
 	
 	ccEnable(tcx->graph);
 	//ccEnable(tcx->info.pane);
-/*
-	double d = calcDistKm(54.641637, -6.056273, 54.703819, -6.190091);
-	double h = calcDistKm(54.701880, -6.093192, 54.701880, -5.937209);
-	double v = calcDistKm(54.701880, -6.093192, 54.615684, -6.093192);
-	
-	
-	printf("%f: %f %f\n", d, h, v);
-	*/	
+
 	return 1;
 }
 
