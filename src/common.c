@@ -25,10 +25,6 @@
 #include "common.h"
 #include <wininet.h>
 
-/*#include "sec_api/stdio_s.h"
-#include "sec_api/tchar_s.h"
-#include "sec_api/wchar_s.h"*/
-
 
 
 #define BLUR_MAXOFFSET (16)
@@ -62,11 +58,8 @@ typedef struct {
 		int colour;
 	}u;
 }TCOLOUR4;
-//const wchar_t *skins[] = {SKINS};
 
 
-//#define m_getPixelAddr32(f,x,y)	(f->pixels+(((y)*f->pitch)+((x)<<2)))
-//#define getPixel32_NB(f,x,y)	(*(uint32_t*)m_getPixelAddr32((f),(x),(y)))
 
 
 static const char *extVideoTs8[] = {
@@ -113,15 +106,6 @@ static const wchar_t *extImage[] = {
 	L""
 };
 
-/*
-static const wchar_t *extMedia[] = {
-	EXTAUDIO,
-	EXTVIDEO,
-	L""
-};*/
-
-
-
 
 //	find and return single line copy of tag value
 //	free with my_free()
@@ -142,6 +126,7 @@ char *jsonGetTag (char *json, const char *tag)
 	return NULL;
 }
 
+// Used to obtain VLC supplied artwork images.
 char *getUrl (const char *url, size_t *totalRead)
 {
 	
@@ -168,7 +153,6 @@ char *getUrl (const char *url, size_t *totalRead)
 
 		do {
 			status = InternetReadFile(hOpenUrl, &buffer[*totalRead], allocStep, &bread);
-			//printf("status: %i %i %i %i\n", bread, *totalRead, status, allocSize);
 			if (bread > 0 && status == 1){
 				*totalRead += bread;
 				
@@ -289,17 +273,16 @@ int match (const char *str, const char *pat)
 }
 
   /* case-independent string matching, similar to strstr but matching */
-char *strcasestr (const char* haystack, const char* needle)
+char *strcasestr (const char *haystack, const char *needle)
 {
-    int i;
-    int nlength = (int) strlen (needle);
-    int hlength = (int) strlen (haystack);
+    int nlength = (int)strlen(needle);
+    int hlength = (int)strlen(haystack);
 
     if (nlength > hlength) return NULL;
     if (hlength <= 0) return NULL;
     if (nlength <= 0) return (char *)haystack;
     /* hlength and nlength > 0, nlength <= hlength */
-    for (i = 0; i <= (hlength - nlength); i++){
+    for (int i = 0; i <= (hlength - nlength); i++){
       if (strncasecmp (haystack + i, needle, nlength) == 0){
         return (char *)haystack + i;
       }
@@ -312,82 +295,44 @@ char *strcasestr (const char* haystack, const char* needle)
 // Adjust the src rectangle so that the dst is always contained in the target rectangle.
 void cropSource (TLPOINTEX *src, TLPOINTEX *dst, TLPOINTEX *target)
 {
-  if(dst->x1 < target->x1)
-  {
-    src->x1 -= (dst->x1 - target->x1)
-            * (src->x2 - src->x1)
-            / (dst->x2 - dst->x1);
-    dst->x1  = target->x1;
-  }
-  if(dst->y1 < target->y1)
-  {
-    src->y1 -= (dst->y1 - target->y1)
-            * (src->y2 - src->y1)
-            / (dst->y2 - dst->y1);
-    dst->y1  = target->y1;
-  }
-  if(dst->x2 > target->x2)
-  {
-    src->x2 -= (dst->x2 - target->x2)
-            * (src->x2 - src->x1)
-            / (dst->x2 - dst->x1);
-    dst->x2  = target->x2;
-  }
-  if(dst->y2 > target->y2)
-  {
-    src->y2 -= (dst->y2 - target->y2)
-            * (src->y2 - src->y1)
-            / (dst->y2 - dst->y1);
-    dst->y2  = target->y2;
-  }
-  // Callers expect integer coordinates->
-  src->x1 = floor(src->x1);
-  src->y1 = floor(src->y1);
-  src->x2 = ceil(src->x2);
-  src->y2 = ceil(src->y2);
-  dst->x1 = floor(dst->x1);
-  dst->y1 = floor(dst->y1);
-  dst->x2 = ceil(dst->x2);
-  dst->y2 = ceil(dst->y2);
+	if (dst->x1 < target->x1){
+	  src->x1 -= (dst->x1 - target->x1) * (src->x2 - src->x1) / (dst->x2 - dst->x1);
+	  dst->x1  = target->x1;
+	}
+	
+	if (dst->y1 < target->y1){
+	  src->y1 -= (dst->y1 - target->y1) * (src->y2 - src->y1) / (dst->y2 - dst->y1);
+	  dst->y1  = target->y1;
+	}
+	
+	if (dst->x2 > target->x2){
+	  src->x2 -= (dst->x2 - target->x2) * (src->x2 - src->x1) / (dst->x2 - dst->x1);
+	  dst->x2  = target->x2;
+	}
+	
+	if (dst->y2 > target->y2){
+	  src->y2 -= (dst->y2 - target->y2) * (src->y2 - src->y1) / (dst->y2 - dst->y1);
+	  dst->y2  = target->y2;
+	}
+	
+	// Callers expect integer coordinates->
+	src->x1 = floor(src->x1);
+	src->y1 = floor(src->y1);
+	src->x2 = ceil(src->x2);
+	src->y2 = ceil(src->y2);
+	dst->x1 = floor(dst->x1);
+	dst->y1 = floor(dst->y1);
+	dst->x2 = ceil(dst->x2);
+	dst->y2 = ceil(dst->y2);
 }
 #endif
 
 
-/*
-int loadImage (TFRAME *frame, const wchar_t *filename)
-{
-	wprintf(L"loadImage '%ls'\n");
-	return lLoadImageEx(frame, filename, LOAD_RESIZE|LOAD_PIXEL_CPY|LOAD_SIZE_RESTRICT, 720, 442);
-}*/
 
 TFRAME *newImage (TVLCPLAYER *vp, const wchar_t *filename, const int bpp)
 {
-#if 0
-	static volatile int ct = 0;
-	static volatile size_t memused = 0;
-	
-	char *path = convertto8(filename);
-	//printf("newImage '%s'\n", path);
-	//fflush(stdout);
-
-	const double t0 = getTime(vp);	
-	TFRAME *img = lNewImage(vp->ml->hw, filename, bpp);
-	if (img){
-		const double t1 = getTime(vp);
-		memused += img->frameSize + sizeof(TFRAME) + sizeof(void*) + sizeof(TPIXELPRIMITVES);
-		
-		printf("newImage %.1f (%.2f) - %i: %u %ix%i '%s'\n", t1, t1-t0, ++ct, memused/1024, img->width, img->height, path);
-	}else{
-		printf("newImage FAILED '%s'\n", path);
-	}
-	if (path)
-		my_free(path);
-	return img;
-#else
 	return lNewImage(vp->ml->hw, filename, bpp);
-#endif
 }
-
 
 int isPlaylistW (const wchar_t *path)
 {
@@ -501,8 +446,6 @@ int isMediaVideo (wchar_t *name)
 	return isVideo;
 }
 
-
-#if 1
 int hasPathExtA (const char *path, const char **restrict exts)
 {
 	const char *fileExt = strrchr(path, '.');
@@ -514,21 +457,6 @@ int hasPathExtA (const char *path, const char **restrict exts)
 	}
 	return 0;
 }
-#else
-int hasPathExtA (const char *path, const char **restrict exts)
-{
-	const int slen = strlen(path);
-	int elen;
-		
-	for (int i = 0; *exts[i] && *exts[i] == '.'; i++){
-		elen = strlen(exts[i]);
-		if (elen > slen) continue;
-		if (!stricmp(path+slen-elen, exts[i]))
-			return 1;
-	}
-	return 0;
-}
-#endif
 
 int hasPathExt (const wchar_t *in, const wchar_t **restrict exts)
 {
@@ -807,16 +735,8 @@ wchar_t *buildSkinD (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *file)
 		}
 	}
 	skin = vp->gui.skin.folder;
-	
-	//if (skin){
-		//if (skin == NULL) skin = SKINDEFAULTW;
+	__mingw_swprintf(buffer, L"%ls/%ls/%ls", SKINDROOT, skin, file);
 
-		__mingw_swprintf(buffer, L"%ls/%ls/%ls", SKINDROOT, skin, file);
-		//wprintf(L"skin #%s#\n", skin);
-		//my_free(skin);
-	//}else{
-	//	printf("buildSkinD: skin directory setting invalid or not found\n");
-	//}
 	return buffer;
 }
 
@@ -894,7 +814,6 @@ wchar_t *wcsistr (const wchar_t *String, const wchar_t *Pattern)
 	return NULL;
 }
 
-
 static inline int findLastCharIndex8 (char *str, const unsigned char Char)
 {
 	int i = -1;
@@ -936,9 +855,10 @@ static inline wchar_t *ellipsiizeString (wchar_t *String, int DesiredCount)
         wchar_t *string;
 
         string = my_calloc(DesiredCount+2, sizeof(wchar_t));
-        memcpy(string, String, (DesiredCount - 3) * 2);
-        memcpy(&string[DesiredCount - 3], L"...", 6);
-
+        if (string){
+        	memcpy(string, String, (DesiredCount - 3) * 2);
+        	memcpy(&string[DesiredCount - 3], L"...", 6);
+        }
         return string;
     }
 }
@@ -1184,7 +1104,6 @@ TFRAME *newStringList (THWD *hw, const TMETRICS *metrics, const int bpp, const i
 	TFRAME *str = lNewStringListEx(hw, metrics, bpp, flags|PF_EXTRA|PF_IGNOREFORMATTING|PF_CLIPDRAW/*|PF_MIDDLEJUSTIFY|PF_WORDWRAP|PF_CLIPWRAP*/, font, glist, gtotal);
 	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	if (!str) return NULL;
-	
 	//lSaveImage(str, L"tmp.png", IMG_PNG|IMG_KEEPALPHA, 0, 0);
 	
 	int w = MIN(str->width, maxW);
@@ -1217,7 +1136,6 @@ TFRAME *newStringList (THWD *hw, const TMETRICS *metrics, const int bpp, const i
 	}
 	
 	//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
-	
 	return str;
 }
 
@@ -1232,7 +1150,6 @@ TFRAME *newStringEx2 (THWD *hw, const TMETRICS *metrics, const int bpp, const in
 	TFRAME *str = lNewStringEx(hw, metrics, bpp, flags|PF_EXTRA|PF_IGNOREFORMATTING|PF_CLIPDRAW/*|PF_MIDDLEJUSTIFY|PF_WORDWRAP|PF_CLIPWRAP*/, font, text);
 	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	if (!str) return NULL;
-	
 	//lSaveImage(str, L"tmp.png", IMG_PNG|IMG_KEEPALPHA, 0, 0);
 	
 	int w = MIN(str->width, maxW);
@@ -1265,7 +1182,6 @@ TFRAME *newStringEx2 (THWD *hw, const TMETRICS *metrics, const int bpp, const in
 	}
 	
 	//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
-	
 	return str;
 }
 
@@ -1300,10 +1216,6 @@ TFRAME *newStringEx (THWD *hw, TMETRICS *metrics, const int bpp, const int flags
 
 TFRAME *newStringListEx (THWD *hw, const int bpp, const int flags, const int font, const unsigned int *glist, const int gtotal, const int maxW, const int nsex_flags)
 {
-	//printf("newStringList %p %i, %i\n", glist, gtotal, *glist);
-	//printf("%p\n", glist);
-
-
 	TFRAME *str = lNewStringList(hw, bpp, flags|PF_EXTRA|PF_CLIPDRAW, font, glist, gtotal);
 	if (str){
 		if (str->width > maxW){
@@ -1773,31 +1685,16 @@ static inline int getPixel32 (const TFRAME *frm, const int x, const int y)
 		return 0;
 }
 
-//static inline void setPixel32a_addr (const TFRAME *frame, const int x, const intptr_t *addrRow, const int value)
+
 static inline void setPixel32a_addr (const TFRAME *frame, const int x, const uintptr_t addrRow, const int value)
 {
-	 //int *des = (int32_t*)(frame->pixels+((y*frame->pitch)+(x<<2)));
-#if 0
-	 intptr_t *des = (intptr_t*)(addrRow+(x<<2));
-	*des = ablend((int32_t)*des, value);
-#else
+
 	int *des = (int32_t*)(addrRow+(x<<2));
 	*des = ablend(*des, value);
-#endif
 }
 
 void copyArea (TFRAME *from, TFRAME *to, int dx, int dy, int x1, int y1, int x2, int y2)
 {
-	 
-/*	if (from->hw != to->hw){
-		int w = (x2 - x1);
-		int h = (y2 - y1);
-		printf("copyArea from %p %i %i %i %i %i %i (%i/%i)\n", from, dx, dy, x1, y1, x2, y2, w, h);
-		//assert(from->hw == to->hw);
-		return;
-	}
-*/	
-	 
 	if (dx < 0){
 		x1 += abs(dx);
 		dx = 0;
@@ -2500,8 +2397,6 @@ unsigned int getHashW (const wchar_t *path)
 	return hash;
 }
 
-
-// #f024+654+086+e23 +788 + 345 +234 + ++
 int hexToInts (const char *_str, const char sep, int **val)
 {
 	int tSep = countChr((char*)_str, sep);
@@ -2740,10 +2635,6 @@ int doesFileExist8 (const char *path8)
 
 int isDirectoryW (const wchar_t *path)
 {
-
-    //int isDir = (GetFileAttributesW(path) & FILE_ATTRIBUTE_DIRECTORY)>0;
-	//wprintf(L"isDirectoryW #%s#  %i %i\n",path, PathIsDirectoryW(path)>0, isDir);
-	
 	if (path){
     	int isDir = (GetFileAttributesW(path) & FILE_ATTRIBUTE_DIRECTORY) > 0;
 		return isDir && (PathIsDirectoryW(path) > 0);
