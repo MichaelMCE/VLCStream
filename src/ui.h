@@ -25,7 +25,7 @@
 #define _UI_H_
 
 #define PLAYER_NAME				"VLCStream"
-#define PLAYER_DATE				"05JUNE2025"	/* __DATE__ */
+#define PLAYER_DATE				"10JUNE2025"	/* __DATE__ */
 #define PLAYER_VERSION			PLAYER_NAME "-" PLAYER_DATE
 
 #define VCHROMA					"RV32"			/* Select VLC output chroma */
@@ -66,13 +66,12 @@
 #define MFONT						LFTW_B24 	/* WENQUANYI12P used where full unicode is required (track meta detail) */
 #define LFONT						LFTW_B34
 
-
 #define CLK_POLAR_LABEL_FONT		LFTW_B24
 #define CLK_POLAR_INNER_FONT		LFTW_B34
 #define CLK_PREDATOR_TIME_FONT		LFTW_RACER96
 #define CLK_BOXDIGITAL_TIME_FONT	LFTW_198FIVE162
 #define CLK_SBDK_DATE_FONT			LFTW_RACER96
-#define PANE_FONT					LFTW_B32
+#define PANE_FONT					LFTW_B34
 #define PANE_LOCBAR_FONT			LFTW_B30
 #define PANE_TITLE_FONT				LFTW_B28
 #define PANE_TIMESTAMP_FONT			LFTW_B28
@@ -89,7 +88,7 @@
 #define DMSG_FONT					LFTW_B24
 #define HOME_CLK_FONT				LFTW_76LONDON38
 #define PLAYLIST_PANEL_FONT			LFTW_B24
-#define PLAYLIST_TV_FONT			LFTW_B32
+#define PLAYLIST_TV_FONT			LFTW_B34
 #define PANEL_FONT					LFTW_B28
 #define KEYPAD_INPUT_FONT			LFONT
 #define BROWSER_FONT				LFONT

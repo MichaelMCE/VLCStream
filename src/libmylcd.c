@@ -103,7 +103,7 @@ TMYLCD *libmylcd_Init (const int width, const int height, const int bpp)
 		lSetFontCharacterSpacing(ml->hw, LFTW_UNICODE72, lGetFontCharacterSpacing(ml->hw,LFTW_UNICODE72)+4);
 		lSetFontCharacterSpacing(ml->hw, LFTW_UNICODE36, lGetFontCharacterSpacing(ml->hw,LFTW_UNICODE36)+4);
 		lSetFontCharacterSpacing(ml->hw, LFTW_RACER96, lGetFontCharacterSpacing(ml->hw,LFTW_RACER96)+16);
-		lSetFontCharacterSpacing(ml->hw, LFTW_B34, lGetFontCharacterSpacing(ml->hw,LFTW_B34)+1);
+		lSetFontCharacterSpacing(ml->hw, LFTW_B34, lGetFontCharacterSpacing(ml->hw,LFTW_B34)-1);
 		icoSetDefaultHeight(ml->hw, 256);
 
 		mylog("initLibrary: libmylcd started successfully\n");

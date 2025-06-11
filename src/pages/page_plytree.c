@@ -167,8 +167,8 @@ static inline TTV_ITEM_DESC *tvTreeBuildDescPlc (TTV *tv, const char *name, cons
 {
 	TTV_ITEM_DESC *desc = my_calloc(1, sizeof(TTV_ITEM_DESC));
 	if (desc){
-		lGetTextMetrics(tv->cc->vp->ml->hw, name, 0, LFONT, &desc->metrics.width, &desc->metrics.height);
-		desc->metrics.height += 6;
+		lGetTextMetrics(tv->cc->vp->ml->hw, name, 0, PLAYLIST_TV_FONT, &desc->metrics.width, &desc->metrics.height);
+		desc->metrics.height += 12;
 		if (desc->metrics.height > TEXT_MAX_HEIGHT)
 			desc->metrics.height = TEXT_MAX_HEIGHT;
 		
@@ -197,7 +197,7 @@ static inline TTV_ITEM_DESC *tvTreeBuildDescTrack (TTV *tv, const char *name, co
 	TTV_ITEM_DESC *desc = my_calloc(1, sizeof(TTV_ITEM_DESC));
 	if (!desc) return NULL;
 	
-	lGetTextMetrics(tv->cc->vp->ml->hw, name, 0, LFONT, &desc->metrics.width, &desc->metrics.height);
+	lGetTextMetrics(tv->cc->vp->ml->hw, name, 0, PLAYLIST_TV_FONT, &desc->metrics.width, &desc->metrics.height);
 	desc->metrics.height += 6;
 	if (desc->metrics.height > TEXT_MAX_HEIGHT)
 		desc->metrics.height = TEXT_MAX_HEIGHT;
