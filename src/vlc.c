@@ -945,14 +945,11 @@ TVLCEPG **epg_dupEpg (TVLCCONFIG *vlc, int *tepg)
 	*tepg = 0;
 	TVLCEPG **epg = NULL;
 	
-	//printf("epg_dupEpg\n");
-	
 	if (vlc->mp){
 		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 		if (p_input){
 		
 			/*input_thread_private_t *p = p_input->p;
-			
 			printf("dubepg: a %p %p %p %p %p %p %p %p\n", p->slave, p->p_resource, p->p_resource_private, p->p_item, p->attachment, p->pp_bookmark, p->title, p->p_sout);
 			printf("dubepg: b %p %p %p %p\n", p->input.title, p->input.p_demux, p->input.p_stream, p->input.p_access);
 			printf("dubepg: c %p %p '%s' '%s' '%s' '%s'\n", p->input.p_demux->out, p->input.p_demux->s,
@@ -980,7 +977,6 @@ TVLCEPG **epg_dupEpg (TVLCCONFIG *vlc, int *tepg)
 									epg[i]->psz_name = my_strdup(vepg[i]->psz_name);
 								if (vepg[i]->p_current){
 									epg[i]->p_current = epg_dupEvent(vepg[i]->p_current);
-									//printf("[%i] %p\n", i, vepg[i]->p_current);
 								}
 								
 								epg[i]->i_event = vepg[i]->i_event;
@@ -990,7 +986,6 @@ TVLCEPG **epg_dupEpg (TVLCCONFIG *vlc, int *tepg)
 									if (epg[i]->pp_event){
 										for (int j = 0; j < epg[i]->i_event; j++){
 											epg[i]->pp_event[j] = epg_dupEvent(vepg[i]->pp_event[j]);
-											//printf("[%i,%i] %p\n", i, j, vepg[i]->pp_event[j]);
 										}
 									}
 								}
