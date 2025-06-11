@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
-#include "ext.h"
-#include "reg.h"
+#include "../ext.h"
+#include "../reg.h"
 
 
 

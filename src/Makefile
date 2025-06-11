@@ -125,6 +125,7 @@ xcpy:
 	@xcopy sdk "$(TEMPDIR)\sdk" /y /d /q /I /S > NUL
 	@xcopy bass "$(TEMPDIR)\bass" /y /d /q /I > NUL
 	@xcopy hook "$(TEMPDIR)\hook" /y /d /q /I > NUL
+	@xcopy extra "$(TEMPDIR)\extra" /y /d /q /I > NUL
 	@xcopy cc "$(TEMPDIR)\cc" /y /d /q /I > NUL
 	@xcopy tetris "$(TEMPDIR)\tetris" /y /d /q /I > NUL
 	@xcopy antplus "$(TEMPDIR)\antplus" /y /d /q /I > NUL
@@ -136,32 +137,31 @@ xcpy:
 
 vlcstream.exe: $(BASEOBJS2)
 	windres --output-format=coff $(RESTARGET) -i vlcstream.rc -o $(TEMPDIR)/res.o
-	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet -mwindows
+	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet -mwindows 
 	strip.exe $@
 
 
-#-lmsvcr100 
-
-vlcsCtrl.exe: vlcsCtrl.o crc.o
+vlcsCtrl.exe: $(TEMPDIR)/extra/vlcsCtrl.o $(TEMPDIR)/crc.o
 ifeq (,$(wildcard $@))
 	del /F $@ 
 endif
-	windres --output-format=coff $(RESTARGET) -i vlcsCtrl.rc -o resc.o
-	$(CC) -Os -o $@ $^ resc.o -s -lgdi32 -mwindows -m32
+	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsCtrl.rc -o $(TEMPDIR)/resc.o
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 -mwindows -m32
+
+vlcsAddto.exe: $(TEMPDIR)/extra/vlcsAddto.o
+	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsAddto.rc -o $(TEMPDIR)/resa.o
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 -mwindows -m32
+	strip.exe $@
+
+vlcsStart.exe: $(TEMPDIR)/extra/vlcsStart.o
+	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsStart.rc -o $(TEMPDIR)/ress.o
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 -mwindows -m32
+	strip.exe $@
 
 
 vlcsCtrl: vlcsCtrl.exe
 
 vlcscmd: vlcsCtrl.exe
-	
-
-vlcsAddto.exe: vlcsAddto.o
-	$(CC) -m32 -Os -o $@ $^ -mwindows 
-	strip.exe $@
-
-vlcsStart.exe: vlcsStart.o
-	$(CC) -m32 -Os -o $@ $^ -mwindows
-	strip.exe $@
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) -std=gnu18

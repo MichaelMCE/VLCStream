@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include "reg.h"
+#include "../reg.h"
 
 
 static inline int startProgram (wchar_t *path)
@@ -37,9 +37,7 @@ int main (const int argc, const char *argv[])
 	wchar_t path[MAX_PATH+1];
 	
 	if (getInstallPath(path, sizeof(path)-1)){
-		//wprintf(L"path:'%s'\n",path);
 		ret = startProgram(path);
-		//printf("ret = %i\n", ret);
 	}
 	return ret;
 }

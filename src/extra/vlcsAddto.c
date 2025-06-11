@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
-#include "ext.h"
+#include "../ext.h"
 
 
 #define SINGLEINSTANCE_USE_CDS	1
