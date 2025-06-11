@@ -29,15 +29,6 @@
 
 
 #include "common.h"
-/*#define CINTERFACE
-#define COBJMACROS
-#include <dbt.h>
-#include <shlobj.h>
-#include <initguid.h>
-#include <shobjidl.h>
-#undef CINTERFACE
-#undef COBJMACROS*/
-
 #include <dbt.h>
 #include <initguid.h>
 #include <gdiplus/gdiplus.h>
@@ -240,9 +231,6 @@ static inline unsigned int swapRB (const unsigned int b)
 	return (b&0x00FF00) | ((b&0xFF0000)>>16) | ((b&0x0000FF)<<16);
 }
 
-
-//if (hwnd) hwnd = FindWindowExA(hwnd, NULL, "SysListView32", NULL);
-
 static inline HWND getDesktopHWND ()
 {
 	char classname[260];
@@ -250,10 +238,8 @@ static inline HWND getDesktopHWND ()
 	HWND hwndChild = GetWindow(GetShellWindow(), GW_CHILD);
 	while(hwndChild){
 		GetClassNameA(hwndChild, classname, sizeof(classname));
-		//printf("#%s#\n", classname);
 		if (!stricmp(classname, "SHELLDLL_DefView")){
 			HWND hwndChild2 = GetWindow(hwndChild, GW_CHILD);
-			//printf("%p\n", hwndChild2);
 			if (hwndChild2)
 				return hwndChild2;
 		}
@@ -504,13 +490,6 @@ static inline void taskbarToolbarInit (TVLCPLAYER *vp, TVLCSTASKBAR *tb)
 	settingsGet(vp, "taskbar.font.point", &tb->font.point);
 	settingsGet(vp, "taskbar.font.weight", &tb->font.weight);
 	settingsGet(vp, "taskbar.font.quality", &tb->font.quality);
-
-
-
-//	HDESK desk = OpenDesktopA("Default", 0, TRUE, DESKTOP_WRITEOBJECTS);
-//	if (desk){
-//		SetThreadDesktop(desk);
-//	}
 
 
 	tb->hwnd = taskbarGetHWND(tb->toolbarName);
