@@ -327,8 +327,6 @@ static inline int artManagerItemGetMetrics (TART_ITEM *ai, int *width, int *heig
 	if (width) *width = 0;
 	if (height) *height = 0;
 
-	//wprintf(L"%X %i %i, %i %i\n", ai->id, ai->image.width, ai->image.height, ai->state&ARTC_STATE_HASMETRICS, ai->state&ARTC_STATE_HASPATH);
-
 	if (!(ai->state&ARTC_STATE_HASMETRICS)){
 		if (artManagerItemReadMetrics(ai)){
 			if (ai->state&ARTC_STATE_HASCUSTMETRICS){
@@ -346,9 +344,10 @@ static inline int artManagerItemGetMetrics (TART_ITEM *ai, int *width, int *heig
 		return ai->id;
 	}
 	
+#if (!RELEASEBUILD)
 	//if (ai->image.type != IMG_ICO)
 		__mingw_wprintf(L"artManagerImageGetMetrics failed 0x%X: %i %i, '%ls'\n", ai->id, ai->image.width, ai->image.height, ai->path);
-
+#endif
 	return 0;
 }
 
@@ -360,7 +359,6 @@ int artManagerImageResize (TARTMANAGER *am, const int id, const int width, const
 	if (ai){
 		if (artManagerImageAcquire(am, id)){
 			if (ai->acquireRefCt != 1){
-				//printf("artManagerImageResize: can not resize %X, surface in use (ct:%i/%i)\n", id, ai->acquireRefCt, ai->multiRefCt);
 				artManagerImageRelease(am, id);
 				return ret;
 			}
@@ -554,14 +552,9 @@ static inline int artManagerImageItemFlush (TART_BRANCH *ab, TART_ITEM *ai)
 		if (ai->acquireRefCt < 1){
 			ai->acquireRefCt = 0;
 			ai->state &= ~ARTC_STATE_HASSURFACE;
-			
-			//wprintf(L"## imgManagerImageItemFlush %i '%s'\n",  ai->id, ai->path);
-			//wprintf(L"## amFlush %i %i, '%s'\n", ai->id>>16, ai->id&0xFFF, ai->path);
-			
+
 			artManagerItemDeleteSurfaceData(ai);
 			artManagerItemDeleteScaledData(ai);
-
-			//wprintf(L"am Flush %i '%s'\n", ai->id&0xFFF, ai->path);
 			return 1;
 		}
 	}
@@ -644,33 +637,6 @@ static inline void hashRemove (TARTMANAGER *am, const wchar_t *path)
 	}	
 }
 
-
-// fix this.
-// consider whether to delete bucket or delete image data only while leaving paths' and metrics in place
-#if 0
-static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int force)
-{
-	printf("artManagerImageDelete %i %X\n", artIdToBranchId(id), id);
-	
-	TART_ITEM *ai = artManagerIdToItem(am, id);
-	if (ai){
-		ai->id = 0;
-		ai->state = ARTC_STATE_CANNOTREAD;
-
-		unsigned int hash = getHashW(ai->path);
-		for (int i = 0; am->hashTable[i].hash && i < am->hashTableSize; i++){
-			if (am->hashTable[i].hash == hash){
-				am->hashTable[i].id = 0;
-				am->hashTable[i].hash = 0;
-			}
-		}
-		
-	}
-
-	return 1;
-}
-
-#else
 static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int force)
 {
 	TLISTITEM *item = amGetList(am, id);
@@ -712,7 +678,6 @@ static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int
 	
 	return 0;
 }
-#endif
 
 int artManagerImageDelete (TARTMANAGER *am, const int id)
 {
@@ -759,8 +724,6 @@ char *artManagerImageGetPath8 (TARTMANAGER *am, const int id)
 
 int artManagerImageSetPath (TARTMANAGER *am, const int id, const wchar_t *path)
 {
-	//printf("artManagerImageSetPath %X\n", id);
-	
 	TART_ITEM *ai = artManagerIdToItem(am, id);
 	if (ai){
 		if (ai->state&ARTC_STATE_HASPATH)
@@ -774,9 +737,7 @@ int artManagerImageSetPath (TARTMANAGER *am, const int id, const wchar_t *path)
 		}else{
 			ai->path = my_wcsdup(path);
 		}
-		
-		//wprintf(L"artManagerImageSetPath @%s@\n", ai->path);
-		
+
 		ai->state |= ARTC_STATE_HASPATH;
 		ai->state &= ~ARTC_STATE_HASMETRICS;
 		ai->state &= ~ARTC_STATE_CANNOTREAD;
@@ -840,9 +801,6 @@ static inline int isImageAvailable (const wchar_t *path)
 
 int artManagerImageAddEx (TARTMANAGER *am, const wchar_t *path, const int width, const int height)
 {
-	
-	//wprintf(L"added '%s'\n", path);
-	
 	if (!isImageAvailable(path))
 		return 0;
 
@@ -1124,11 +1082,7 @@ int *artManagerGetIds (TARTMANAGER *am, int *count)
 void artManagerDelete (TARTMANAGER *am)
 {
 	amLock(am);
-	
-	//printf("am Delete added remaining:%i\n", artManagerCount(am));
-	//printf("am Delete unreleased:%i\n", artManagerUnreleasedCount(am));
-	//printf("am Delete ", am->branchTotal, am->branchTotal);
-	
+
 	for (int i  = 0; i < am->branchTotal; i++){
 		TART_BRANCH *ab = amGetBranch(am, i);
 		if (ab){
