@@ -44,7 +44,7 @@ static const libvlc_event_type_t mp_events[] = {
     //libvlc_MediaPlayerMediaChanged,
     //libvlc_MediaPlayerNothingSpecial,
     //libvlc_MediaPlayerOpening,
-#if (LIBVLC_VERSION_MAJOR >= 2 /*&& LIBVLC_VERSION_MINOR >= 1*/)
+#if (LIBVLC_VERSION_MAJOR >= 2)
     libvlc_MediaPlayerBuffering,
 #endif
     libvlc_MediaPlayerPlaying,
@@ -354,7 +354,7 @@ static inline TTITLE *dupTitles (input_title_t **i_titles, const int i_tTitles, 
 #endif
 
 #if 1
-extern HANDLE hDkStateEvent;
+
 extern volatile int SHUTDOWN;
 
 int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t oldval, vlc_value_t newval, void *p_userdata)
@@ -580,11 +580,9 @@ void vlc_inputEventCbSet (TVLCCONFIG *vlc, TVLCPLAYER *vp)
 	}
 }
 
+#if (LIBVLC_VERSION_MAJOR < 3)
 int vlc_attachmentsSave (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
-#if (LIBVLC_VERSION_MAJOR >= 3)
-	return 0;
-#else
 	if (!vlc->mp) return 0;
 	int ct = 0;
 
@@ -624,14 +622,10 @@ int vlc_attachmentsSave (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 		vlc_object_release(p_input);
 	}
 	return ct;
-#endif
 }
 
 int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
 {
-#if (LIBVLC_VERSION_MAJOR >= 3)
-	return 0;
-#else
 	if (!vlc->mp) return 0;
 
 	int ct = 0;
@@ -650,16 +644,25 @@ int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
 		vlc_object_release(p_input);
 	}
 	return ct;
-#endif
+}
+#else
+
+int vlc_attachmentsSave (TVLCPLAYER *vp, TVLCCONFIG *vlc)
+{
+	return 0;
 }
 
-#if 1
+int vlc_attachmentsGetCount (TVLCCONFIG *vlc)
+{
+	return 0;
+}
+#endif
+
+
+#if (LIBVLC_VERSION_MAJOR < 3)
 // chapter lock must be held
 TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 {
-#if (LIBVLC_VERSION_MAJOR >= 3)
-	return 0;
-#else
 	*tTitles = 0;
 	TTITLE *titles = NULL;
 
@@ -682,8 +685,13 @@ TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 		}
 	}	
 	return titles;
-#endif
 }
+#else
+TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
+{
+	return NULL;
+}
+#endif
 
 TCATEGORY *getCategories (TVLCCONFIG *vlc, int *tCat)
 {
@@ -736,7 +744,6 @@ TCATEGORY *getCategories (TVLCCONFIG *vlc, int *tCat)
 		*tCat = i_categories;
 	return cat;
 }
-#endif
 
 TAVTRACKS *getVideoTracks (TVLCCONFIG *vlc, int *currentVideoTrack)
 {
@@ -775,8 +782,6 @@ TAVTRACKS *getVideoTracks (TVLCCONFIG *vlc, int *currentVideoTrack)
 				if (*currentVideoTrack == trk->id) // *currentVideoTrack is an index
 					*currentVideoTrack = tTracks;
 				tTracks++;
-
-				//printf("  '%i' '%s'\n", trk->id, trk->name);
 				trk++;
 			}
 			t = t->p_next;
@@ -784,9 +789,7 @@ TAVTRACKS *getVideoTracks (TVLCCONFIG *vlc, int *currentVideoTrack)
 		libvlcTrackDescriptionRelease(trks);
 		
 		avts->totalTracks = tTracks;
-		//printf("current Video track: %i\n", *currentVideoTrack);
 	}
-	//printf("\n");
 
 	return avts;
 }
@@ -828,8 +831,6 @@ TAVTRACKS *getAudioTracks (TVLCCONFIG *vlc, int *currentAudioTrack)
 				if (*currentAudioTrack == trk->id) // *currentAudioTrack is an index
 					*currentAudioTrack = tTracks;
 				tTracks++;
-
-				//printf("  '%i' '%s'\n", trk->id, trk->name);
 				trk++;
 			}
 			t = t->p_next;
@@ -837,14 +838,12 @@ TAVTRACKS *getAudioTracks (TVLCCONFIG *vlc, int *currentAudioTrack)
 		libvlcTrackDescriptionRelease(trks);
 		
 		avts->totalTracks = tTracks;
-		//printf("current audio track: %i\n", *currentAudioTrack);
 	}
-	//printf("\n");
 
 	return avts;
 }
 
-#if 0
+#if (LIBVLC_VERSION_MAJOR == 2)
 void epg_freeEPGEvent (TVLCEPGEVENT *epgevent)
 {
 	if (epgevent){
@@ -1350,15 +1349,10 @@ int vlc_metaExtraGetCount (TVLCCONFIG *vlc)
 }
 */
 
-
 vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 {
-	return NULL; 
-	
 	vlc_meta_extra_t *extra = NULL;
-	
-	//printf("vlc_metaExtraGet\n");
-	
+
 	if (vlc->mp){
 		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 		if (p_input){
@@ -1399,7 +1393,6 @@ vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 	}
 	return extra;
 }
-
 
 void vlc_metaExtraFree (vlc_meta_extra_t *extra)
 {
@@ -1452,15 +1445,10 @@ int vlc_getVideoSize (TVLCCONFIG *vlc, int *w, int *h)
 			libvlc_media_track_info_t *tracks = NULL;
 			int total = libvlc_media_get_tracks_info(vlc->m, &tracks);
 			if (total > 0){
-				//printf("total tracks %i\n", total);
-				
 				for (int i = 0; i < total; i++){
-					//printf("track %i, type:%i\n", i, tracks[i].i_type);
-					
 					if (tracks[i].i_type == libvlc_track_video){
 						*w = tracks[i].u.video.i_width;
 						*h = tracks[i].u.video.i_height;
-						//printf("%i: %i %i\n", i, *w, *h);
 						if (*w && *h){
 							ret = 1;
 							break;
@@ -1473,15 +1461,10 @@ int vlc_getVideoSize (TVLCCONFIG *vlc, int *w, int *h)
 			libvlc_media_track_t **tracks = NULL;
 			int total = libvlc_media_tracks_get(vlc->m, &tracks);
 			if (total > 0){
-				//printf("total tracks %i\n", total);
-				
 				for (int i = 0; i < total; i++){
-					//printf("track %i, type:%i\n", i, tracks[i].i_type);
-					
 					if (tracks[i]->i_type == libvlc_track_video){
 						*w = tracks[i]->video->i_width;
 						*h = tracks[i]->video->i_height;
-						//printf("%i: %i %i\n", i, *w, *h);
 						if (*w && *h){
 							ret = 1;
 							break;
