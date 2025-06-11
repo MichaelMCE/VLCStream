@@ -313,7 +313,7 @@ char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, con
 	const unsigned int hash = playlistGetHashById(plc, trackId);
 	if (!hash) return NULL;
 	
-	int len = MAX_PATH_UTF8*2;		// 4meg should be enough to cover everything
+	int len = MAX_PATH_UTF8*10;		// should be enough to cover every possibility and then some
 	char *meta = my_calloc(len+1, sizeof(char));
 	if (!meta) return NULL;
 
@@ -456,8 +456,6 @@ char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, con
 #endif
 	}
 
-
-	//printf("metaGetMetaAll EXIT %i %i\n", len, strlen(meta)+1);
 	return meta;
 }
 
