@@ -385,8 +385,6 @@ void treeEntryMoveEx (TTREE *tree, const int64_t nodeId, const int64_t fromId, c
 
 void treeDestoryItem (TTREE *tree, const int64_t id)
 {
-	//printf("@@@ treeDestoryItem %i\n", id);
-
 	TTREEENTRY *entry = treeEntryRemove(tree, id);
 	if (entry){
 		treeEntryDestroy(entry);

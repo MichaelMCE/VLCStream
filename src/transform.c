@@ -89,7 +89,7 @@ static inline void blurStackFastNoAlpha (TFRAME *src, const int x1, const int y1
 
     const unsigned int *pImage = (unsigned int*)src->pixels;
     const unsigned int w = src->width;
-    const unsigned int h = (y2-y1)+1; //src->height;
+    const unsigned int h = (y2-y1)+1;
     
     unsigned int x = 0, xp = 0, yp = 0, i = 0, t = 0;
     unsigned int stack_ptr = 0;
@@ -744,9 +744,7 @@ static inline void bitblit (TFRAME *src, TFRAME *des, const int x1, const int y1
 	for (int y = y1; y <= y2; y++){
 		char *psrc = lGetPixelAddress(src, x1, y);
 		char *pdes = lGetPixelAddress(des, desX, desY++);
-		
-		//for (int x = x1; x <= x2; x++)
-		//	*pdes++ = *psrc++;
+
 		my_memcpy(pdes, psrc, pitch);
 		pdes += pitch;
 	}
@@ -1141,48 +1139,6 @@ int transScale (TFRAME *src, TFRAME *des, const int width, const int height, con
 	return 1;
 }
 
-#if 0
-void transBrightness (TFRAME *src, const int brightness)
-{
-	// Check for valid bitmap
-	int m_iBpp = 4;
-	// Calculate brightness params
-	int _brightness = MAX(-255, MIN(255, brightness));
-	
-	// Change bitmap brightness
-	int dwHorizontalOffset;
-	int dwVerticalOffset = 0;
-	int dwTotalOffset;
-	int *lpDstData = (int*)src->pixels;
-	
-	for (int i = 0; i < src->height; i++){
-		dwHorizontalOffset = 0;
-		
-		for (int j = 0; j < src->width; j++){
-			// Update total offset
-			dwTotalOffset = dwVerticalOffset + dwHorizontalOffset;
-	
-			// Update bitmap
-			int red = _GetRValue(lpDstData[dwTotalOffset>>2]);
-			int green = _GetGValue(lpDstData[dwTotalOffset>>2]);
-			int blue = _GetBValue(lpDstData[dwTotalOffset>>2]);
-			
-			red = (int)MAX(0, MIN(red+_brightness, 255));
-			green = (int)MAX(0, MIN(green+_brightness, 255));
-			blue = (int)MAX(0, MIN(blue+_brightness, 255));
-			lpDstData[dwTotalOffset>>2] = _RGB(red, green, blue);
-	
-			// Update horizontal offset
-			dwHorizontalOffset += m_iBpp;
-		}
-	
-		// Update vertical offset
-		dwVerticalOffset += src->pitch;
-	}
-}
-#endif
-
-
 void transPixelize (TFRAME *src, const int size)
 {
 	// Check for valid bitmap
@@ -1260,172 +1216,4 @@ void transPixelize (TFRAME *src, const int size)
 	src->pixels = (unsigned char*)lpData;
 	
 }
-
-#if 0
-void transContrast (TFRAME *src, const int contrast)
-{
-	// Check for valid bitmap
-	int m_iBpp = 4;
-	
-	// Calculate contrast params
-	int _contrast = MAX(1, MIN(100, contrast));
-	int f_contrast = ftofx(1.0f/_contrast);
-	int f_128 = itofx(96);
-	
-	// Change bitmap contrast
-	int dwHorizontalOffset;
-	int dwVerticalOffset = 0;
-	int dwTotalOffset;
-	int *lpDstData = (int*)src->pixels;
-	
-	for (int i = 0; i < src->height; i++){
-		dwHorizontalOffset = 0;
-		
-		for (int j = 0; j < src->width; j++){
-			// Update total offset
-			dwTotalOffset = dwVerticalOffset + dwHorizontalOffset;
-	
-			// Update bitmap
-			int f_red = itofx(_GetRValue(lpDstData[dwTotalOffset>>2]));
-			int f_green = itofx(_GetGValue(lpDstData[dwTotalOffset>>2]));
-			int f_blue = itofx(_GetBValue(lpDstData[dwTotalOffset>>2]));
-			f_red = Mulfx(f_red-f_128, f_contrast) + f_128;
-			f_green = Mulfx(f_green-f_128, f_contrast) + f_128;
-			f_blue = Mulfx(f_blue-f_128, f_contrast) + f_128;
-			
-			int red = (int)MAX(0, MIN(fxtoi(f_red), 255));
-			int green = (int)MAX(0, MIN(fxtoi(f_green), 255));
-			int blue = (int)MAX(0, MIN(fxtoi(f_blue), 255));
-			lpDstData[dwTotalOffset>>2] = _RGB(red, green, blue);
-	
-			// Update horizontal offset
-			dwHorizontalOffset += m_iBpp;
-		}
-	
-		// Update vertical offset
-		dwVerticalOffset += src->pitch;
-	}
-	
-}
-#endif
-
-#if 0
-void transSharpen (TFRAME *src, const float value)
-{
-	// Check for valid bitmap
-	int m_iBpp = 4;
-	// Calculate sharp params
-	int f_6 = ftofx(value);
-	int f_1_2 = ftofx(1.0f/2.0f);
-	
-	// Create temporary bitmap
-	int dwSize = src->pitch * src->height;
-	char *lpData = (char*)my_Malloc(dwSize * sizeof(char)+src->pitch, funcname, linenumber);
-	if (!lpData) return;
-	
-	// Sharp bitmap
-	int dwHorizontalOffset;
-	int dwVerticalOffset = 0;
-	int dwTotalOffset;
-	int *lpSrcData = (int*)src->pixels;
-	int *lpDstData = (int*)lpData;
-	
-	for (int i = 0; i < src->height; i++){
-		dwHorizontalOffset = 0;
-		
-		for (int j = 0; j < src->width; j++){
-			// Update total offset
-			dwTotalOffset = dwVerticalOffset + dwHorizontalOffset;
-	
-			// Update bitmap
-			int dwSrcOffset = dwTotalOffset;
-			int f_red = 0, f_green = 0, f_blue = 0;
-			
-			for (int k=-1; k<=1; k++){
-				int m = i + k;
-				if (m < 0)
-					m = 0;
-				if (m >= src->height-1)
-					m = src->height - 1;
-					
-				for (int l=-1; l<=1; l++){
-					int n = j + l;
-					
-					if (n < 0)
-						n = 0;
-					if (n >= src->width-1)
-						n = src->width - 1;
-					dwSrcOffset = m*src->pitch + n*m_iBpp;
-					
-					if ((k == 0) && (l == 0)){
-						f_red += Mulfx(itofx(_GetRValue(lpSrcData[dwSrcOffset>>2])),f_6);
-						f_green += Mulfx(itofx(_GetGValue(lpSrcData[dwSrcOffset>>2])),f_6);
-						f_blue += Mulfx(itofx(_GetBValue(lpSrcData[dwSrcOffset>>2])),f_6);
-					}else if (((k == -1) && (l == 0)) || ((k == 0) && (l == -1)) || ((k == 0) && (l == 1)) || ((k == 1) && (l == 0))){
-						f_red -= itofx(_GetRValue(lpSrcData[dwSrcOffset>>2]));
-						f_green -= itofx(_GetGValue(lpSrcData[dwSrcOffset>>2]));
-						f_blue -= itofx(_GetBValue(lpSrcData[dwSrcOffset>>2]));
-					}
-				}
-			}
-			
-			int red = (int)MAX(0, MIN(fxtoi(Mulfx(f_red,f_1_2)), 255));
-			int green = (int)MAX(0, MIN(fxtoi(Mulfx(f_green,f_1_2)), 255));
-			int blue = (int)MAX(0, MIN(fxtoi(Mulfx(f_blue,f_1_2)), 255));
-			lpDstData[dwTotalOffset>>2] = _RGB(red, green, blue);
-	
-			// Update horizontal offset
-			dwHorizontalOffset += m_iBpp;
-		}
-	
-		// Update vertical offset
-		dwVerticalOffset += src->pitch;
-	}
-	
-	// Update bitmap info
-	my_Free(src->pixels, funcname, linenumber);
-	src->pixels = (unsigned char*)lpData;
-}
-#endif
-
-#if 0
-void transGrayscale (TFRAME *src)
-{
-	// Check for valid bitmap
-	int m_iBpp = 4;
-	// Calculate grayscale params
-	int f_w1 = ftofx(0.299f);
-	int f_w2 = ftofx(0.587f);
-	int f_w3 = ftofx(0.114f);
-	
-	// Grayscale bitmap
-	int dwHorizontalOffset;
-	int dwVerticalOffset = 0;
-	int dwTotalOffset;
-	int *lpDstData = (int*)src->pixels;
-	
-	for (int i = 0; i < src->height; i++){
-		dwHorizontalOffset = 0;
-		
-		for (int j = 0; j < src->width; j++){
-			// Update total offset
-			dwTotalOffset = dwVerticalOffset + dwHorizontalOffset;
-	
-			// Update bitmap
-			int f_red = itofx(_GetRValue(lpDstData[dwTotalOffset>>2]));
-			int f_green = itofx(_GetGValue(lpDstData[dwTotalOffset>>2]));
-			int f_blue = itofx(_GetBValue(lpDstData[dwTotalOffset>>2]));
-			int f_value = Mulfx(f_w1,f_red) + Mulfx(f_w2,f_green) + Mulfx(f_w3,f_blue);
-			int newPixel = _RGB(fxtoi(f_value),fxtoi(f_value),fxtoi(f_value));
-			lpDstData[dwTotalOffset>>2] = newPixel;
-	
-			// Update horizontal offset
-			dwHorizontalOffset += m_iBpp;
-		}
-	
-		// Update vertical offset
-		dwVerticalOffset += src->pitch;
-	}
-}
-#endif
 
