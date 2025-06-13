@@ -48,11 +48,7 @@ typedef struct{
 	int ready;
 	int font;
 }TMARQUEE;
-
-
-
-
-
+
 void marqueeDelete (TMARQUEE *marquee);
 TMARQUEE *marqueeNew (const int tLines, const unsigned int flags, const int font);
 

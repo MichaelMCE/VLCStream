@@ -30,7 +30,6 @@ void marqueeDelete (TMARQUEE *marquee)
 	if (marquee){
 		lockWait(marquee->hLock, INFINITE);
 		lockClose(marquee->hLock);
-		//my_free(marquee->entry);
 		my_free(marquee);
 	}
 }
@@ -39,17 +38,10 @@ TMARQUEE *marqueeNew (const int tLines, const unsigned int flags, const int font
 {
 	TMARQUEE *marquee = my_calloc(1, sizeof(TMARQUEE));
 	if (marquee){
-	//	marquee->entry = (TMARQUEELINE*)my_calloc(tLines, sizeof(TMARQUEELINE));
-	//	if (marquee->entry){
-			marquee->total = tLines;
-			marquee->font = font;
-			
-			marquee->hLock = lockCreate("marqueeNew");
-			marquee->flags = flags;
-	//	}else{
-	//		my_free(marquee);
-	//		marquee = NULL;
-	//	}
+		marquee->total = tLines;
+		marquee->font = font;
+		marquee->hLock = lockCreate("marqueeNew");
+		marquee->flags = flags;
 	}
 	return marquee;
 }
