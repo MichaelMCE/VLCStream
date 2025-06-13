@@ -3,25 +3,25 @@
 #define INITGUID     1
 #define USE___UUIDOF 0
 
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wtypes.h>
-
 #include <endpointvolume.h>
 #include <mmdeviceapi.h>
 #include "common.h"
 
 
-
-// H:/Compilers/MinGW/include/unknwnbase.h
-
 static HWND ghWnd;
-static int ComCount = 0;
+static int comCount = 0;
+
+
+
 
 int InitCom ()
 {
-	if (!(ComCount++)){
+	if (!(comCount++)){
 		HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
 		return (hr == S_OK || hr == S_FALSE);
 	}
@@ -30,15 +30,15 @@ int InitCom ()
 
 void KillCom ()
 {
-	if (ComCount){
-		ComCount = 0;
+	if (comCount){
+		comCount = 0;
 		CoUninitialize();
 	}
 }
 
 void UninitCom ()
 {
-	if (!--ComCount)
+	if (!--comCount)
 		CoUninitialize();
 }
 
