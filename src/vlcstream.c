@@ -76,13 +76,6 @@ int cursorSetState (TGUIINPUT *cursor, const int state)
 	return olds;
 }
 
-/*
-void resetPageAccessed (TVLCPLAYER *vp, const int pageId)
-{
-	vp->gui.pageAccessed[pageId-PAGE_BASEID] = 0;
-}
-*/
-
 void setPageAccessed (TVLCPLAYER *vp, const int pageId)
 {
 	vp->gui.pageAccessed[pageId-PAGE_BASEID] = 1;
@@ -103,13 +96,8 @@ void setBaseUpdateRate (const double rate)
 	UPDATERATE_BASE = rate;
 }
 
-
-//void _setTargetRate (TVLCPLAYER *vp, const double fps, const char *func, const int line)
 void setTargetRate (TVLCPLAYER *vp, const double fps)
 {
-	//printf("setTargetRate %.2f, %i:'%s'\n", fps, line, func);
-	//printf("setTargetRate %f\n", fps);
-	
 	vp->gui.targetRate = fps;
 }
 
@@ -197,7 +185,7 @@ int isMediaLocal (const char *name)
 			isMediaFile(name) ||
 			isMediaDVD(name) ||
 #if 0
-			isMediaDVB(name) ||		/* unsure if this should be here */
+			isMediaDVB(name) ||
 #endif
 			isMediaScreen(name) ||
 			isMediaDShow(name));
@@ -217,8 +205,6 @@ void shutdownAppl (TVLCPLAYER *vp)
 
 static inline void setIdle (TVLCPLAYER *vp)
 {
-	//printf("setIdle\n");
-	
 	vp->gui.awake = 0;
 	page2Set(vp->pages, PAGE_CLOCK, 1);
 }
@@ -297,8 +283,6 @@ void timer_setIdleB (TVLCPLAYER *vp)
 	updateTickerStart(vp, vp->settings.general.idleFps);
 	timerSet(vp, TIMER_SETIDLEC, 120*60*1000);
 	renderSignalUpdate(vp);
-
-	//tagFlushOrfhansPlm(vp->tagc, vp->plm);
 }
 
 // TIMER_SETIDLEC
@@ -307,8 +291,6 @@ void timer_setIdleC (TVLCPLAYER *vp)
 	//printf("timer_setIdleC %i\n", vp->gui.awake);
 	
 	if (vp->gui.awake) return;
-	
-#if 1
 
 	strcFlush(vp->strc);
 	imageManagerFlush(vp->im);
@@ -321,28 +303,6 @@ void timer_setIdleC (TVLCPLAYER *vp)
 	invalidateShadows(vp->gui.shadow);
 	ccLabelFlushAll(vp->cc);
 	libmylcd_FlushFonts(vp->ml->hw);
-
-#else
-	printf("stringCache %i\n", vp->strc->totalAdded);
-	strcFlush(vp->strc);
-	int flushed = ccLabelFlushAll(vp->cc);
-	printf("ccLabelFlushAll flushed %i images\n", flushed);
-
-	flushed = imageManagerFlush(vp->im);
-	printf("im Flush flushed %i images\n", flushed);
-
-	flushed = libmylcd_FlushFonts(vp->ml->hw);
-	printf("libmylcd_FlushFonts flushed %i chars\n", flushed);
-		
-	if (renderLock(vp)){
-		printf("6 in\n");
-  		flushed = artworkFlush(vp, vp->am);
-  		printf("6 out\n");
-		renderUnlock(vp);
-	}
-  	printf("artworkFlush flushed %i images\n", flushed);
-
-#endif
 
 	tagFlushOrfhansPlm(vp->tagc, vp->plm);
 	vlcEventListInvalidate(vp->vlc);
@@ -436,61 +396,18 @@ void timertest (TVLCPLAYER *vp)
 
 void artcleanup (TVLCPLAYER *vp)
 {
-	//printf("artcleanup in: %i\n", (int)GetCurrentThreadId());
-		
 	if (renderLock(vp)){
 		artworkFlush(vp, vp->am);
 		renderUnlock(vp);
 	}
 	timerSet(vp, TIMER_ARTCLEANUP, ARTWORKFLUSH_PERIOD + (5*1000));
-	
-	//printf("artcleanup out: %i\n", (int)GetCurrentThreadId());
 }
 
 void setApplState (TVLCPLAYER *vp, int state)
 {
 	vp->applState = state;
 	if (!state) SHUTDOWN = 1;
-
-	//printf("SHUTDOWN == %i\n", SHUTDOWN);
 }
-
-/*
-static int getApplState (TVLCPLAYER *vp)
-{
-	return vp->applState;
-}
-*/
-/*
-// must not be called from render thread
-void waitForRenderUpdate (TVLCPLAYER *vp, const unsigned int timeout)
-{
-	// scyncronise render thread with this
-	renderLock(vp);
-	int fps0 = vp->gui.frameCt;
-	renderUnlock(vp);
-
-	// force a render pass
-	renderSignalUpdate(vp);
-
-	// wait for render thread to complete a new pass
-	int ttime = timeout;
-	while (ttime > 0 && fps0 == vp->gui.frameCt && getApplState(vp)){
-		double t0 = getTime(vp);
-		lSleep(5);
-		ttime -= (int)(getTime(vp)-t0);
-	}
-
-	renderSignalUpdate(vp);
-
-	fps0 = vp->gui.frameCt;
-	ttime = timeout;
-	while (ttime > 0 && fps0 == vp->gui.frameCt && getApplState(vp)){
-		double t0 = getTime(vp);
-		lSleep(5);
-		ttime -= (int)(getTime(vp)-t0);
-	}
-}*/
 
 int loadLock (TVLCPLAYER *vp)
 {
@@ -582,8 +499,6 @@ int getPlaybackRandom (TVLCPLAYER *vp)
 
 void setPlaybackMode (TVLCPLAYER *vp, const int mode)
 {
-	//printf("setPlaybackMode %i, %i\n", mode, vp->currentFType);
-	
 	/*
 	0:audio or video with visualizations disabled
 	1:audio with visuals enabled
@@ -612,7 +527,6 @@ int startVlc (TVLCPLAYER *vp)
 	settingsGet(vp, "vlc.startArguments", &vars);
 	
 	char cmdline[MAX_PATH_UTF8+1];
-	//--qt-system-tray --vout=any TV_all.xspf
 	__mingw_snprintf(cmdline, MAX_PATH_UTF8, "vlc.exe %s", vars);
 	my_free(vars);
 
@@ -638,7 +552,7 @@ int startVlcTrackPlayback (TVLCPLAYER *vp)
 	if (stopOnVlcPlayback){
 		if (getPlayState(vp) != 2){
 			trackStop(vp);
-			//printf("vp->vlc->playEnded %i\n", vp->vlc->playEnded);
+
 			while(MediaPlayerStopped_complete != 1){
 				if (renderLock(vp)){
 					timerCheckAndFire(vp, getTime(vp));
@@ -647,7 +561,6 @@ int startVlcTrackPlayback (TVLCPLAYER *vp)
 				lSleep(5);
 			}
 			lSleep(25);
-			//printf("vp->vlc->playEnded %i %i %f\n", vp->vlc->playEnded, vp->vlc->playState, vp->vlc->position );
 		}
 
 	}
@@ -661,7 +574,6 @@ int startVlcTrackPlayback (TVLCPLAYER *vp)
 		const wchar_t *cl = L"vlc.exe \"%ls\" :start-time=%f %ls";
 		int len = __mingw_snwprintf(NULL, 0, cl, pathw, position*(double)vp->vlc->length, vars);
 		if (len > 1){
-			//int len = 2047;
 			wchar_t cmdline[4*len+1];
 			 __mingw_snwprintf(cmdline, len, cl, pathw, position*(double)vp->vlc->length, vars);
 
@@ -681,16 +593,11 @@ int startVlcTrackPlayback (TVLCPLAYER *vp)
 
 int startPlaylistTrack (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int track)
 {
-	//printf("startPlaylistTrack %i: alb:'%s'\n", track, plc->title);
-
-	if (playlistGetItemType(plc, track) != PLAYLIST_OBJTYPE_TRACK){
-		//printf("%i is not a track\n", track);
+	if ((track < 0) || playlistGetItemType(plc, track) != PLAYLIST_OBJTYPE_TRACK)
 		return 0;
-	}
+
 
 	int ret = 0;
-	if (track < 0) return 0;
-
 	if (playlistLock(plc)){
 		char path[MAX_PATH_UTF8+1];
 
@@ -722,8 +629,6 @@ int startPlaylistTrack (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int track)
 				my_free(out);
 			}
 		}
-		
-		//playlistUnlock(plc);
 	}
 	return ret;
 }
@@ -752,8 +657,6 @@ static inline void player_stop (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 
 static inline void player_play (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
-	//printf("player_play \n");
-
 	if (vlc->playEnded || vlc->playState != 2)
 		vlc_stop(vlc);
 
@@ -799,7 +702,6 @@ static inline int player_randomTrack (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 		trklist[i] = vlc_lrand48()%total;
 
 	int trk = trklist[vlc_lrand48()%total];
-	//printf("random %i, %i %i\n", pr->playingItem, trk, total);
 
 	if (trk >= playlistGetTotal(plc)) trk = 0;
 	pr->playingItem = trk;
@@ -836,8 +738,6 @@ void trackNext (TVLCPLAYER *vp)
 // TIMER_REWIND
 void trackRewind (TVLCPLAYER *vp)
 {
-	//printf("trackRewind\n");
-	
 	if (getPlayState(vp) && getPlayState(vp) != 8){
 		const double tskip = 3.00;
 		if (tskip > 0.00000){
@@ -1033,20 +933,6 @@ void vmem_unlock (void *data, void *id, void *const *p_pixels)
 		renderSignalUpdate(vp);
 }
 
-/*
-void vmem_display (void *data, void *id)
-{
-	printf("vmem_display %p\n", id);
-	TVLCPLAYER *vp = (TVLCPLAYER*)data;
-
-	float t1 = getTime(vp);
-	if (++vp->vlc->fIndex >= 30) vp->vlc->fIndex = 0;
-	vp->vlc->dTime[vp->vlc->fIndex] = t1 - vp->vlc->vTime0;
-	vp->vlc->vTime0 = t1;
-	SetEvent(vp->ctx.hEvent);
-	renderSignalUpdate(vp);
-}*/
-
 void cleanVideoBuffers (TVLCPLAYER *vp)
 {
 	lockVLCVideoBuffer(vp);
@@ -1097,178 +983,20 @@ static inline int getKeyPress ()
 		return ch;
 }
 
-#if 0
-static int paneAlpha = 0xa4;
-static int paneRed = 0x44;
-static int paneGreen = 0x3c;
-static int paneBlue = 0x5f;
-//A4 44 3C 5F
 
-
-void setPaneColour (TVLCPLAYER *vp)
-{
-	TEPG *epg = pageGetPtr(vp, PAGE_EPG);
-	
-	paneAlpha &= 0xFF;
-	paneRed &= 0xFF;
-	paneGreen &= 0xFF;
-	paneBlue &= 0xFF;
-	
-	if (paneAlpha < 0) paneAlpha = 0;
-	if (paneRed < 0) paneRed = 0;
-	if (paneGreen < 0) paneGreen = 0;
-	if (paneBlue < 0) paneBlue = 0;
-	
-	unsigned int colour = (paneAlpha<<24)|(paneRed<<16)|(paneGreen<<8)|paneBlue;
-	
-	printf("colour %X, %i %i %i %i\n", colour, paneAlpha, paneRed, paneGreen, paneBlue);
-	
-	labelBaseColourSet(epg->guide.paneContents->base, colour);
-}
-#endif
-
-#if 0
 int processKeyPress (TVLCPLAYER *vp, int ch)
 {
-
-	//PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
-	//PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
-	//PLAYLISTCACHE *plc = getPrimaryPlaylist(vp);
-
-	if (ch == 'a'){
-
-	}else if (ch == 'p'){
+	if (ch == 'p'){
 		playerWriteDefaultPlaylist(vp, VLCSPLAYLIST);
-	}
-	/*if (ch == 'a'){
-		int orig = getQueuedPlaylistUID(vp);
-		int uid = getQueuedPlaylistLeft(vp);
-		int ret = setQueuedPlaylistByUID(vp, uid);
-		printf("left: %X -> %X %X\n", orig, uid, ret);
-		
-	}else if (ch == 's'){
-		int orig = getQueuedPlaylistUID(vp);
-		int uid = getQueuedPlaylistRight(vp);
-		int ret = setQueuedPlaylistByUID(vp, uid);
-		printf("right: %X -> %X %X\n", orig, uid, ret);
-	
-	}else if (ch == 'w'){
-		int orig = getQueuedPlaylistUID(vp);
-		int uid = getQueuedPlaylistParent(vp);
-		int ret = setQueuedPlaylistByUID(vp, uid);
-		printf("up: %X ^-> %X %X\n", orig, uid, ret);
-	
-	}else if (ch == 'z'){
-		printf("stringCache %i %iKb\n", (int)vp->strc->totalAdded, (int)strcGetStoredSize(vp->strc)/1024);
-		strcFlush(vp->strc);
 
-		int ct = imageManagerFlush(vp->im);
-		printf("imageManagerFlush %i\n", ct);
-		ct = artManagerFlush(vp->am);
-		printf("artManagerFlush %i\n", ct);
-
-		invalidateShadows(vp->gui.shadow);
-		ccLabelFlushAll(vp->cc);
-		printf("chars flushed %i\n", libmylcd_FlushFonts(vp->ml->hw));	
-
-	}else if (ch == 'p'){
-		playerWriteDefaultPlaylist(vp, VLCSPLAYLIST);
-		*/
-#if 0
-	int dt = 4;
-	if (ch == 'q'){
-		paneAlpha += dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 'w'){
-		paneRed += dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 'e'){
-		paneGreen += dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 'r'){
-		paneBlue += dt;
-		setPaneColour(vp);
-
-	}else if (ch == 'a'){
-		paneAlpha -= dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 's'){
-		paneRed -= dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 'd'){
-		paneGreen -= dt;
-		setPaneColour(vp);
-		
-	}else if (ch == 'f'){
-		paneBlue -= dt;
-		setPaneColour(vp);
-		
-	}else 
-#endif
-#if 0		
-	}else if (ch == 'l'){
-		printf("stringCache %i %iKb\n", vp->strc->totalAdded, strcGetStoredSize(vp->strc)/1024);
-		strcFlush(vp->strc);
-
-		int ct = imageManagerFlush(vp->im);
-		printf("imageManagerFlush %i\n", ct);
-		ct = artManagerFlush(vp->am);
-		printf("artManagerFlush %i\n", ct);
-
-		invalidateShadows(vp->gui.shadow);
-		ccLabelFlushAll(vp->cc);
-		printf("chars flushed %i\n", libmylcd_FlushFonts(vp->ml->hw));
-
-	}else if (ch == 'l'){
-		printf("chars flushed %i\n", libmylcd_FlushFonts(vp->ml->hw));
-	}else if (ch == 'l'){
-		printf("artwork flushed %i\n", artworkFlush(vp, vp->am));
-		
-	}else if (ch == 'l'){
-		printf("\nimage manager:");
-		artManagerDumpStats(vp->im);
-		printf("\nart manager:");
-		artManagerDumpStats(vp->am);
-
-		int ct = 0;
-		TCCOBJ *obj = vp->cc->objs;
-		while((obj=obj->next)){
-			if (obj->obj)
-				ct++;
-		}
-		printf("cc objects %i %i\n", vp->cc->ccIdIdx, ct);
-
-#endif
-#if 0		
-	}else if (ch == 'z'){
-		TSPL *spl = pageGetPtr(vp, PAGE_PLY_SHELF);
-		double sigma = spl->shelf->sigma - 0.025;
-		if (sigma < 0.10) sigma = 1.0;
-		shelfSetSigma(spl->shelf, sigma);
-		renderSignalUpdate(vp);
-		printf("sigma %f\n", sigma);
-		
-	}else if (ch == 'x'){
-		TSPL *spl = pageGetPtr(vp, PAGE_PLY_SHELF);
-		double sigma = spl->shelf->sigma + 0.025;
-		shelfSetSigma(spl->shelf, sigma);
-		renderSignalUpdate(vp);
-		printf("sigma %f\n", sigma);
-		
 	}else if (ch == 'f'){
 		printf("~~~~~~~~~~~~~~\n");
 		my_MemStatsDump(vp->ml->hw);
 		printf("~~~~~~~~~~~~~~\n");
 	}
-#endif
+
 	return 1;
 }
-#endif
 
 static inline void processConsoleInput (TVLCPLAYER *vp)
 {
@@ -1277,12 +1005,12 @@ static inline void processConsoleInput (TVLCPLAYER *vp)
 		//timerSet(vp, TIMER_SHUTDOWN, 0);
   		exitInitShutdown(vp);
 	}else if (ch > 1){
-		//processKeyPress(vp, ch);
+		processKeyPress(vp, ch);
 	}
 }
 #endif
 
-/*static inline*/ double getFPS (TVLCPLAYER *vp)
+double getFPS (TVLCPLAYER *vp)
 {
 	double t = 0.0;
 	for (int i = 0; i < 16; i++)
@@ -1298,13 +1026,9 @@ static inline void drawFPSOverlay (TVLCPLAYER *vp, TFRAME *frame, const float fp
 	lSetCharacterEncoding(frame->hw, CMT_UTF8);
 	outlineTextEnable(frame->hw, 0xFF000000);
 
-
-	//unsigned int colour = lGetPixel(frame, vp->gui.cursor.dx-MOFFSETX, vp->gui.cursor.dy-MOFFSETY);
 	const int showVideoFps = getPlaybackMode(vp) == PLAYBACKMODE_VIDEO/* || (getPlaybackMode(vp) == PLAYBACKMODE_AUDIO && vp->gui.visual)*/;
 	y -= 72;
 	if (showVideoFps) y -= 22;
-
-	//lPrintf(frame, x-45, y, UPDATERATE_FONT, LPRT_CPY, "%.8X", colour);
 
 	const uint64_t mem = processGetMemUsage(vp->pid);
 	lPrintf(frame, x-10, y += 22, UPDATERATE_FONT, LPRT_CPY, "%.1f", (double)mem/1024.0/1024.0);
@@ -1363,15 +1087,12 @@ void renderSignalUpdateNow (TVLCPLAYER *vp)
 //void _renderSignalUpdate (TVLCPLAYER *vp, const char *func, const int line)
 void renderSignalUpdate (TVLCPLAYER *vp)
 {
-	//printf("renderSignalUpdate %i\n", (int)GetTickCount());
-	//printf("update: %s:%i\n", func, line);
 	vp->gui.updateSignaled = 1;
 }
 
 void (CALLBACK updateTickerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
 	TVLCPLAYER *vp = (TVLCPLAYER*)dwUser;
-	//printf("set event %i\n", getApplState(vp));
 
 	if (getApplState(vp)){
 		double t1 = getTime(vp);
@@ -1380,7 +1101,6 @@ void (CALLBACK updateTickerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD
 
 		//printf("set event a %i %f\n", vp->gui.updateSignaled, currentFps);
 		if (vp->gui.updateSignaled || currentFps - (currentFps*0.195) < vp->gui.targetRate){
-			//printf("set event b\n");
 			SetEvent(vp->gui.hUpdateEvent);
 			//vp->gui.cursorMoved = 0;
 			vp->gui.updateSignaled = 0;
@@ -1391,7 +1111,6 @@ void (CALLBACK updateTickerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD
 
 void updateTickerStop (TVLCPLAYER *vp)
 {
-	//printf("updateTickerStop %i\n", vp->updateTimer);
 	if (vp->updateTimer){
 		timeKillEvent(vp->updateTimer);
 		vp->updateTimer = 0;
@@ -1400,9 +1119,6 @@ void updateTickerStop (TVLCPLAYER *vp)
 
 void updateTickerStart (TVLCPLAYER *vp, double fps)
 {
-	//printf("updateTickerStart %lf\n", fps);
-	
-	
 	if (fps > 100.0) fps = 100.0;
 	if (fps != vp->gui.lastUpdateRate){
 		vp->gui.lastUpdateRate = fps;
@@ -1410,18 +1126,13 @@ void updateTickerStart (TVLCPLAYER *vp, double fps)
 
 		if (!vp->updateTimer){
 			vp->updateTimer = (int)timeSetEvent((1.0/fps)*1000, 5, updateTickerCB, (DWORD_PTR)vp, TIME_PERIODIC|TIME_KILL_SYNCHRONOUS);
-			//printf("updateTickerStart Set %f\n", fps);
 		}
-	}else{
-		//printf("updateTickerStart Not Set %f\n", fps);
 	}
 }
 
 /*###########################################################################*/
 /*###########################################################################*/
 /*###########################################################################*/
-
-
 	
 	
 static inline void _imageBestFit (const int bg_w, const int bg_h, int fg_w, int fg_h, int *w, int *h)
@@ -1450,7 +1161,6 @@ static inline void copyImage (TFRAME *src, TFRAME *des, const int sw, const int 
 	if (dx < 0) dx = 0;
 	if (dy < 0) dy = 0;
 
-	//printf("%i %i %i %i %i %i, %.3f %.3f\n", sw, sh, dx, dy, dw, dh, scalex, scaley);
 
 	int xlookup[dw];
 	for (int i = 0; i < dw; i++)
@@ -1494,8 +1204,6 @@ static inline void copyVideo (TVLCPLAYER *vp, TVLCCONFIG *vlc, TFRAME *src, TFRA
 			int x = 0, y = 0;
 			if (w < dw-2) x = (dw-w)/2.0;
 			if (h < dh-2) y = (dh-h)/2.0;
-
-	  		//printf("copyVideo %ix%i, %ix%i, %ix%i\n", dw, dh, vlc->videoWidth, vlc->videoHeight, w, h);
 
 			memset(des->pixels, 0, des->frameSize);
 			copyImage(src, des, dw, dh, x, y, w, h);
@@ -1584,83 +1292,6 @@ static inline void copyVideo (TVLCPLAYER *vp, TVLCCONFIG *vlc, TFRAME *src, TFRA
 	};
 }
 
-
-#if 0
-void getAudioOutputDetails (TVLCCONFIG *vlc)
-{
-#if 1
-
-	libvlc_audio_output_t *aud = libvlc_audio_output_list_get(vlc->hLib);
-	if (aud){
-		printf("audio device list:\n");
-
-		libvlc_audio_output_t *a = aud;
-		while(a){
-			int acount = libvlc_audio_output_device_count(vlc->hLib, a->psz_name);
-			if (acount){
-				printf("%i: '%s', '%s'\n",acount, a->psz_name, a->psz_description);
-				for (int i = 0; i < acount; i++){
-					char *longname = libvlc_audio_output_device_longname(vlc->hLib, a->psz_name, i);
-					char *id = libvlc_audio_output_device_id(vlc->hLib, a->psz_name, i);
-					printf("   %i: '%s'\n        '%s'\n", i, id, longname);
-
-					if (i == 2){
-						libvlc_audio_output_set(vlc->mp, a->psz_name);
-						libvlc_audio_output_device_set(vlc->mp, a->psz_name, id);
-						printf("### device set to: -%s- -%s-\n", a->psz_name, id);
-					}
-
-					free(longname);
-					free(id);
-				}
-			}
-			a = a->p_next;
-		}
-		libvlc_audio_output_list_release(aud);
-	}
-
-#if 0
-	static const char *audio_output_device_types[] = {
-    	"Error",
-    	"Mono",
-    	"Stereo",
-    	"Error",
-	    "2F2R",
-	    "3F2R",
-	    "5_1",
-	    "6_1",
-	    "7_1",
-	    "Error",
-	    "SPDIF",
-	    ""};
-
-	int otype = libvlc_audio_output_get_device_type(vlc->mp);
-	if (otype < 0 || otype > 10) otype = 0;
-	printf("\naudio output device type: '%s'\n",audio_output_device_types[otype]);
-#endif
-
-#endif
-
-#if 0
-	int aTracks = libvlc_audio_get_track_count(vlc->mp);
-	printf("number of audio tracks: %i\n", aTracks);
-
-	libvlc_track_description_t *trks = libvlc_audio_get_track_description(vlc->mp);
-	if (trks){
-		libvlc_track_description_t *t = trks;
-
-		while(t){
-			printf("  '%i' '%s'\n", t->i_id, t->psz_name);
-			t = t->p_next;
-		}
-		libvlcTrackDescriptionRelease(trks);
-		printf("current audio track: %i\n", libvlc_audio_get_track(vlc->mp));
-	}
-	printf("\n");
-#endif
-}
-#endif
-
 void getNewTrackVariables (TVLCPLAYER *vp)
 {
 	if (!getApplState(vp) || !getPlayState(vp))
@@ -1672,7 +1303,6 @@ void getNewTrackVariables (TVLCPLAYER *vp)
 
 	uint64_t t0 = getTickCount();
 	if (t0 - tLast < 150){
-		//printf("getNewTrackVariables: too soon %i\n",(int)(t0 - tLast));
 		timerSet(vp, TIMER_GETTRACKVARDELAYED, 10*1000);
 		return;
 	}else{
@@ -1687,13 +1317,11 @@ void getNewTrackVariables (TVLCPLAYER *vp)
 				if (w && h){
 					vlc->videoWidth = w;
 					vlc->videoHeight = h;
-					//printf("getNewTrackVariables: size %ix%i\n", w, h);
 				}
 			}
 
 			vlc_mediaParseAsync(vlc);
 			cfgAttachmentsSetCount(vp, vlc_attachmentsGetCount(vlc));
-			//getAudioOutputDetails(vlc);
 		}
 		loadUnlock(vp);
 	}
@@ -1979,34 +1607,14 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 #endif
 
 	  case libvlc_MediaSubItemAdded:{
-	 	//printf("@@@ sub item added %p %p\n", event->u.media_subitem_added.new_child, vp->vlc->m);
-
 	 	char *path = libvlc_media_get_mrl(event->u.media_subitem_added.new_child);
 	 	if (path){
-	 		//printf("'%s'\n", path);
-
-	 		//PLAYLISTCACHE *plc = playlistManagerCreatePlaylist(vp->plm, path, 1);
-	 		//if (plc){
-	 		//	playlistAdd(getQueuedPlaylist(vp), path);
-	 		//	if (!playlistIsChild(plc, getQueuedPlaylist(vp)))
-	 		//		playlistAddPlc(getQueuedPlaylist(vp), plc);
-	 		//}
-#if 0
-			for (int i = 0; i < 17; i++){
-				char *title = libvlc_media_get_meta(event->u.media_subitem_added.new_child, i);
-				if (title){
-					printf("%i:'%s'\n", i, title);
-					free(title);
-				}
-			}
-#endif
 #if 1
 	 		PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 			if (plc){
 	 			playlistSetPath(plc, plc->pr->playingItem, path);
 				timerSet(vp, TIMER_STOP, 1);
 		 		timerSet(vp, TIMER_PLAY, 50);
-		 		//m_tmp = event->u.media_subitem_added.new_child;
 	 		}
 #endif
 	 		free(path);
@@ -2024,20 +1632,7 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 
 		if (title){
 			TVIDEOOVERLAY *pctrl = pageGetPtr(vp, PAGE_OVERLAY);
-#if 0
-			char *length = getPlayingLengthStr(vp);
-			if (length){
-				char buffer[MAX_PATH_UTF8+1];
-	  			__mingw_snprintf(buffer, MAX_PATH_UTF8, "%s - %s", title, length);
-	  			marqueeAdd(vp, pctrl->marquee, buffer, getTime(vp)+5000);
-	  			my_free(length);
-	  		}else{
-	  			marqueeAdd(vp, pctrl->marquee, title, getTime(vp)+5000);
-	  		}
-#else
 			overlayAddTitle(pctrl, title);
-			//printf("overlayAddTitle '%s'\n", title);
-#endif
 			my_free(title);
 		}
 	    break;
@@ -2050,84 +1645,12 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 void vlc_eventsCallbackLocked (const libvlc_event_t *event, void *udata)
 {
 	if (SHUTDOWN) return;
-	//TVLCPLAYER *vp = (TVLCPLAYER*)udata;
 
 	if (lockWait(g_vp->ctx.hVideoCBLock, INFINITE)){
 		vlc_eventsCallback(event, udata);
 		lockRelease(g_vp->ctx.hVideoCBLock);
 	}
 }
-
-#if 0
-void aplayCb (void *data, const void *samples, unsigned count, int64_t pts)
-{
-	int *buffer = (int*)samples;
-	printf("audio_play_cb: %i %i\n", count, buffer[1]);
-}
-
-void apauseCb (void *data, int64_t pts)
-{
-	printf("audio_pause_cb\n");
-}
-
-void aresumeCb (void *data, int64_t pts)
-{
-	printf("audio_resume_cb\n");
-}
-
-void adrainCb (void *data)
-{
-	printf("audio_drain_cb\n");
-}
-
-void aflushCb (void *data, int64_t pts)
-{
-	printf("audio_flush_cb\n");
-}
-
-void setupaudio (TVLCPLAYER *vp, TVLCCONFIG *vlc)
-{
-
-
-	//libvlc_audio_set_callbacks(vlc->mp, aplayCb, apauseCb, aresumeCb, aflushCb, adrainCb, vp);
-
-	var_SetAddress((vlc_object_t*)vlc->mp, "amem-play", aplayCb);
-    var_SetAddress((vlc_object_t*)vlc->mp, "amem-pause", apauseCb);
-    var_SetAddress((vlc_object_t*)vlc->mp, "amem-resume", aresumeCb);
-    var_SetAddress((vlc_object_t*)vlc->mp, "amem-flush", aflushCb);
-    var_SetAddress((vlc_object_t*)vlc->mp, "amem-drain", adrainCb);
-    var_SetAddress((vlc_object_t*)vlc->mp, "amem-data", vp);
-
-
-	//var_SetString((vlc_object_t*)vlc->mp, "sout", "waveout,amem");
-	//vlc_addOption(vlc, "sout=waveout,amem");
-	
-	var_SetString((vlc_object_t*)vlc->mp, "aout", "amem");
-	vlc_addOption(vlc, "sout-keep");
-	vlc_addOption(vlc, "sout-display-audio");
-
-	libvlc_audio_set_format(vlc->mp, "FL32", 48000, 2);
-
-	//aout_EnableFilter((vlc_object_t*)vlc->mp, "directx", 1);
-
-	//var_SetString((vlc_object_t*)vlc->mp, "sout-keep", "");
-	//var_SetString((vlc_object_t*)vlc->mp, "sout", "directx");
-
-	//vlc_addOption(vlc, "sout-keep");
-	//vlc_addOption(vlc, "sout=win32");
-
-	char *aout = var_CreateGetString((vlc_object_t*)vlc->mp, "aout");
-	if (aout)
-		printf("@@ Setup Audio aout #%s#\n", aout);
-
-	//var_SetString((vlc_object_t*)vlc->mp, "audio-filter", "amem");
-	//vlc_addOption(vlc, "audio-filter=amem");
-	
-	
-	//vlc_addOption(vlc, "sout=waveout,amem");
-}
-#endif
-
 
 int loadMediaPlayer (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *inlineOpts, char *opts)
 {
@@ -2141,9 +1664,6 @@ int loadMediaPlayer (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *inlineOpts, char *op
 
 	vlc->mp = vlc_newFromMedia(vlc);
 	if (vlc->mp){
-		//setupaudio(vp, vlc);
-		//getAudioOutputDetails(vlc);
-
 		vlc_setVideoFormat(vlc, VCHROMA, vlc->width, vlc->height, VPITCH(vlc->width));
 		vlc_setVideoCallbacks(vlc, vmem_lock, vmem_unlock, NULL, vp);
 		vlc_attachEvents(vlc, vlc_eventsCallbackLocked, vp);
@@ -2155,8 +1675,6 @@ int loadMediaPlayer (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *inlineOpts, char *op
 
 void unloadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
-	//printf("unloadMedia %p %p\n", vp->vlc->m, vp->vlc->mp);
-	
 	vlc_inputEventCbDel(vp->vlc, vp);
 	vlc_detachEvents(vlc, vlc_eventsCallbackLocked, vp);
 	vlc_mp_release(vlc);
@@ -2167,10 +1685,6 @@ void unloadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 
 int loadMedia (TVLCPLAYER *vp, TVLCCONFIG *vlc, char *mediaPath, char *opts)
 {
-	//if (vlc->m)
-		//printf("@@@ loadMedia open '%s' \n", mediaPath);
-	//printf("loadMedia %p %p\n", vp->vlc->m, vp->vlc->mp);
-	
 	int ret = 0;
 	char *inlineOpts = vlc_configureGetOptions(mediaPath);
 
@@ -2281,8 +1795,8 @@ void vlc_configure (TVLCPLAYER *vp, TVLCCONFIG *vlc, const int width, const int 
 	//vlc_addOption(vlc, "aout=any");
 
 	//vlc_addOption(vlc, "vout=opengl");
-//	vlc_addOption(vlc, "quiet");
-//	vlc_addOption(vlc, "quiet-synchro");
+	//vlc_addOption(vlc, "quiet");
+	//vlc_addOption(vlc, "quiet-synchro");
 	vlc_addOption(vlc, "http-album-art");
 	vlc_addOption(vlc, "album-art=2");
 	vlc_addOption(vlc, "album-art-filename=cover.jpg");
@@ -2344,10 +1858,6 @@ void vlc_configure (TVLCPLAYER *vp, TVLCCONFIG *vlc, const int width, const int 
 	if (getPlaybackMode(vp) == PLAYBACKMODE_VIDEO){
 		vlc_addOption(vlc, "audio-filter=");
 	}else{
-/*
-<projectm-title-font=C:\WINDOWS\Fonts\arial.ttf,<projectm-menu-font=C:\WINDOWS\Fonts\arial.ttf,projectm-preset-path=C:\Program Files (x86)\VLC\projectm,vout=opengl,projectm-width=480,projectm-height=272,audio-filter=projectm>
-*/
-
 		__mingw_snprintf(buffer, sizeof(buffer)-1, "effect-width=%i", vlc->width);
 		vlc_addOption(vlc, buffer);
 		__mingw_snprintf(buffer, sizeof(buffer)-1, "effect-height=%i", vlc->height);
@@ -2431,23 +1941,6 @@ void vlc_configure (TVLCPLAYER *vp, TVLCCONFIG *vlc, const int width, const int 
 	vlc_addOption(vlc, "dshow-chroma="DSCHROMA);
 
 #else
-
-//	setTunerChannel(vp, vp->tuner.channelIdx);
-//	sprintf(vp->tuner.cchannel, "dshow-tuner-channel=%d", vp->tuner.channel);
-//	vlc_addOption(vlc, vp->tuner.cchannel);
-
-//	setTunerCountry(vp, CHN_COUNTRY);
-//	sprintf(vp->tuner.ccountry, "dshow-tuner-country=%d", vp->tuner.country);
-//	vlc_addOption(vlc, vp->tuner.ccountry);
-
-/*
-	vlc_addOption(vlc, "dshow-caching="DSCACHING);
-	vlc_addOption(vlc, "dshow-tuner-input="DSINPUT_TYPE);
-	//vlc_addOption(vlc, "dshow-chroma="DSCHROMA);
-	vlc_addOption(vlc, "dshow-audio-samplerate="DSAUDIO_SAMRATE);
-	vlc_addOption(vlc, "dshow-audio-bitspersample="DSAUDIO_BPS);
-	vlc_addOption(vlc, "dshow-audio-channels="DSAUDIO_CHNS);
-*/
 
 #ifdef DSVIDEO_SIZE
 	vlc_addOption(vlc, "dshow-size="DSVIDEO_SIZE);
@@ -2562,31 +2055,6 @@ static inline int createVLCInstance (TVLCCONFIG *vlc, const int width, const int
 	return (vlc->hLib != NULL);
 }
 
-/*
-static char *manglePath (TVLCPLAYER *vp, const char *src)
-{
-	// if we don't do this subtitles won't be detected
-	if (isLocalMedia(src) > 0 && getPlaybackMode(vp) == PLAYBACKMODE_VIDEO){
-		size_t len = strlen(src);
-		char *tmp = my_calloc(1, len + 16);		// enough for source path + file:///
-		char *path = my_calloc(8, len + 16);	// enough space for a uri encoded utf8 path
-		if (!path || !tmp) return 0;
-		sprintf(tmp, "file:///%s", src);
-
-#if 1	// we do this because vlc/src/text/strings.c:decode_URI() fucks up utf8 encoded paths
-		encodeURI(tmp, path, strlen(tmp));
-#else
-		strcpy(path, tmp);
-#endif
-		my_free(tmp);
-		return path;
-	}else{
-		// dshow:// and screen:// pass straight through
-		return my_strdup(src);
-	}
-}
-*/
-
 static inline int _browserLoadMediaFile (TVLCPLAYER *vp, char *path, char *opts)
 {
 
@@ -2597,9 +2065,6 @@ static inline int _browserLoadMediaFile (TVLCPLAYER *vp, char *path, char *opts)
 
 	if (vlc->isMediaLoaded)
 		unloadMedia(vp, vlc);
-
-	//char *path = manglePath(vp, utf8path);
-	//if (path == NULL) return 0;
 
 	vlc->isMediaLoaded = loadMedia(vp, vlc, path, opts);
 	if (vlc->isMediaLoaded){
@@ -2620,16 +2085,13 @@ static inline int _browserLoadMediaFile (TVLCPLAYER *vp, char *path, char *opts)
 		}
 	}
 
-	//my_free(path);
 	return vlc->isMediaLoaded;
 }
 
 static inline int browserLoadMediaFile (TVLCPLAYER *vp, char *utf8path, char *opts)
 {
 	if (loadLock(vp)){
-		//printf("browserLoadMediaFile in\n");
 		int ret = _browserLoadMediaFile(vp, utf8path, opts);
-		//printf("browserLoadMediaFile out\n");
 		loadUnlock(vp);
 		return ret;
 	}
@@ -2638,7 +2100,6 @@ static inline int browserLoadMediaFile (TVLCPLAYER *vp, char *utf8path, char *op
 
 static inline void exitAppl (TVLCPLAYER *vp)
 {
-	//printf("exitAppl %i\n", vp->applState);
 	SHUTDOWN = 1;
 	sbuiSetApplState(1);
 
@@ -2716,16 +2177,11 @@ int setVolume (TVLCPLAYER *vp, int volume, const int whichVolume)
 				vlc->volume = -1;
 #else
 			vlc_setVolume(vlc, volume);
-			vlc->volume = volume;//vlc_getVolume(vlc);
-
-			/*vlc_setMute(vlc, (vlc->volume <= 0));
-			if (vlc_getMute(vlc))
-				vlc->volume = -1;*/
+			vlc->volume = volume;
 #endif
 		}
 	}
 	return vlc->volume;
-
 }
 
 static inline PLAYLISTCACHE *getFirstTrackPlaylist (TPLAYLISTMANAGER *plm)
@@ -2793,10 +2249,6 @@ static inline int page_videoStartup (TPAGEVIDEO *video, TVLCPLAYER *vp, const in
 	vp->vlc->volume = 50;
 
 	vp->lastRenderTime = 0.0;
-
-	//vp->gui.hRenderLock = lockCreate("frameRender");
-	//vp->gui.hLoadLock = lockCreate("mediaLoad");
-
 	return 1;
 }
 
@@ -2813,8 +2265,6 @@ static inline int page_videoInitalize (TPAGEVIDEO *video, TVLCPLAYER *vp, const 
 	vp->gui.image[IMGC_NOART_SHELF_PLAYING] = imageManagerImageAdd(vp->im, L"shelf/noartplaying.png");
 	vp->gui.image[IMGC_POINTER] = imageManagerImageAdd(vp->im, L"common/cursor.png");
 
-	//vp->gui.cursorUnderlay = lNewFrame(cur->hw, cur->width, cur->height, LFRM_BPP_32);
-		
 	createVideoBuffers(vp);
 	initCS(vp);
 	wcscpy(vp->gui.snapshot.filename, SNAPSHOTFILE);
@@ -2842,14 +2292,10 @@ static inline int page_videoShutdown (TPAGEVIDEO *video, TVLCPLAYER *vp)
 
 static inline int page_videoInput (TPAGEVIDEO *video, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("@ page_videoInput msg:%i\n",msg);
-	
 #if 1
 	if (0 && vp->gui.cursor.isHooked && getPlayState(vp) && !flags){
 		vlc_cursorSet(vp->vlc->mp, vp->gui.cursor.dx, vp->gui.cursor.dy);
 		vlc_cursorClicked(vp->vlc->mp, vp->gui.cursor.dx, vp->gui.cursor.dy);
-		
-		//printf("page_videoInput: %i %i\n", vp->gui.cursor.dx, vp->gui.cursor.dy);
 	}else{
 	
 		switch(msg){
@@ -2874,8 +2320,6 @@ static inline int page_videoInput (TPAGEVIDEO *video, TVLCPLAYER *vp, const int 
 static inline int page_videoRender (TPAGEVIDEO *video, TVLCPLAYER *vp,  TFRAME *frame)
 {
 #if 1
-	//printf("page_videoRender\n");
-	
 	if (pageRenderGetTop(vp->pages) != PAGE_META){
 		TVIDEOOVERLAY *playctrl = pageGetPtr(vp, PAGE_OVERLAY);
 		marqueeDraw(vp, frame, playctrl->marquee, 2, 2);
