@@ -76,9 +76,6 @@ int addCaret (TEDITBOX *input, wchar_t *src, wchar_t *des, size_t desSize)
 
 int drawEditBox (TEDITBOX *input, TFRAME *frame, int x, int y, int width, wchar_t *ptext, size_t *offset)
 {
-	
-	//lSetForegroundColour(frame->hw, 0xFFFFFFFF);
-	
 	width += x;
 	TLPRINTR rect2 = {x+2,0,width,frame->height-1,x,0,x,frame->height-1};
 	const int renderFlags = PF_DONTFORMATBUFFER|PF_WORDWRAP|PF_CLIPWRAP|PF_CLIPTEXTV;
@@ -272,7 +269,6 @@ int previousHistoryBuffer (TEDITBOX *input)
 void addWorkingBuffer (TEDITBOX *input)
 {
 	my_memcpy(input->buffers[input->historyBufferi], input->workingBuffer, EDITBOXIN_INPUTBUFFERLEN*sizeof(wchar_t));
-	//wcsncpy(input->buffers[input->historyBufferi], input->workingBuffer, EDITBOXIN_INPUTBUFFERLEN-1);
 }
 
 static inline void addHistoryBuffer (TEDITBOX *input)
@@ -286,8 +282,6 @@ int editBoxInputProc (TEDITBOX *input, HWND hwnd, int key)
 {
 	if (key == VK_LSHIFT || key == VK_SHIFT || key == VK_RSHIFT)
 		return 0;
-			
-	//printf("%i\n",key);
 
 	if (key&0x1000){
 		key &= ~0x1000;

@@ -68,8 +68,6 @@ void drawCharTotal (TEDITBOX *input, TFRAME *frame, const int x, const int y);
 
 int editBoxInputProc (TEDITBOX *input, HWND hwnd, int key);
 
-
-
 void clearWorkingBuffer (TEDITBOX *input);
 void addWorkingBuffer (TEDITBOX *input);
 
