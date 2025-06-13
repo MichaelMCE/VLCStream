@@ -108,8 +108,7 @@ static inline int picQueueRenderPicture (TPICQUEUE *pq, TPICTURE *picture, TFRAM
 		if (img){
 			drawCt++;
 			drawImage(img, frame, *x, *y, img->width-1, img->height-1);
-			//printf("picQueueRenderPicture btm, %i, %i %i\n", picture->imgBtmId, *x, *y);
-			
+
 			maxWidth = img->width;
 			maxHeight = img->height;
 			imageManagerImageRelease(pq->im, picture->imgBtmId);
@@ -127,7 +126,6 @@ static inline int picQueueRenderPicture (TPICQUEUE *pq, TPICTURE *picture, TFRAM
 			}
 			
 			drawImage(img, frame, *x + xc, *y + yc, img->width-1, img->height-1);
-			//printf("picQueueRenderPicture top, %i, %i %i\n", picture->imgTopId, *x, *y);
 			
 			if (img->width > maxWidth) maxWidth = img->width;
 			if (img->height > maxHeight) maxHeight = img->height;

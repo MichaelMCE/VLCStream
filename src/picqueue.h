@@ -26,7 +26,7 @@
 #define _PICQUEUE_H_
 
 
-#define PICQUEUE_MAX	32
+#define PICQUEUE_MAX	64
 
 typedef struct{
 	int status;
