@@ -25,20 +25,8 @@
 #include "common.h"
 
 
-/*
 
-int listSetStorage (TLISTITEM *u, void *storage)
-{
-	u->storage = storage;
-	return 1;
-}*/
 
-/*
-void *listGetStorage (TLISTITEM *u)
-{
-	return u->storage;
-}
-*/
 
 /*	return last item in list beginning at u
 */

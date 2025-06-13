@@ -53,9 +53,6 @@ TLISTITEM *listGetLast (TLISTITEM *u);
 
 int listCount (TLISTITEM *u);
 
-//void *listGetStorage (TLISTITEM *u);
-//int listSetStorage (TLISTITEM *u, void *storage);
-
 
 
 #define listAdd(list,item)					\
