@@ -23,7 +23,6 @@
 
 
 #define SHELF_ANIRATE_DEFAULT (0.017*1.5)
-//static const double maxArtHeight = 442.0;
 static const double expMult = 4.0;
 
 #define isNoArt(s,i)	((s)->imgNoArtId==(i))
@@ -108,10 +107,6 @@ int shelfClientRender (TSHELF *shelf, const int idx, TFRAME *src, TFRAME *des, c
 
 int shelfSetImage (TSHELF *shelf, const int shelfIndex, const int imgId, int imgSrcIndex, const int data)
 {
-	//if (shelf->simg[shelfIndex].img)
-		//shelfFreeImage(shelf, (void*)shelf->simg[shelfIndex].img, shelf->simg[shelfIndex].imgSrcIndex);
-		
-	//printf("setimage NULL image\n");
 	if (!imgId) imgSrcIndex = -1;
 
 	shelf->simg[shelfIndex].imgId = imgId;
@@ -151,12 +146,7 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 			}
 		}
 		img = simg->imgId;
-		if (!img){
-			//simg->imgId = shelf->imgNoArtId;
-			//img = simg->imgId;
-			//printf("b %i %i %f\n", index, offset, imgPosition);
-			return 0;
-		}
+		if (!img) return 0;
 	}
 
 	if (isNoArt(shelf, img)){
@@ -175,7 +165,6 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 	
 	int imgWidth = 1, imgHeight = 1;
 	if (!artManagerImageGetMetrics(shelf->am, img, &imgWidth, &imgHeight)){
-		//printf("shelf getmetrics failed %X %i\n", img, index);
 		artManagerImageDelete(shelf->am, img);
 
 		img = shelf->imgNoArtId;
@@ -187,12 +176,6 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 	// got the imageId, now render it
 	double scale;
 	if (!isNoArt(shelf, img))
-		//scale = (double)frame->height/780.0; //272.0/maxArtHeight;
-		//scale = ((double)(frame->height - 120 - 80)/(double)frame->height) * shelf->imgScaleMult;
-		//scale = ((double)((frame->height - 120.0 - 80.0))/((double)frame->height*shelf->imgScaleMult));
-		//scale = (double)((frame->height - 120.0 - 80.0)*shelf->imgScaleMult) / (double)frame->height;
-		//scale = ((double)(frame->height - 100 - 80) / 442.0) * shelf->imgScaleMult;
-		//scale = (double)((frame->height - 120.0 - 80.0)*shelf->imgScaleMult) /  442.0;
 		scale = (double)(frame->height - 120.0 - 80.0) /  ((frame->height*0.92)/shelf->imgScaleMult);
 	else
 		scale = (1.0 / (imgHeight*2.0)) * (double)frame->height;
@@ -206,25 +189,17 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 	const double semiWidth = width / 2.0;
 
 	simg->modifier = computeModifier(shelf, imgPosition);
-	//simg->modifier = simg->zOrder;
 	int newWidth = (int)(imgWidth * simg->modifier);
-	if (newWidth == 0){
-		//printf("c %i %i %f\n", index, offset, imgPosition);
-		return 0;
-	}
+	if (newWidth == 0) return 0;
 
 	int newHeight = (int)(imgHeight * simg->modifier);
-	if (newHeight == 0){
-		//printf("d %i %i %f\n", index, offset, imgPosition);
+	if (newHeight == 0)
 		return 0;
-	}
 
 	const double img_x = (/* x + */  (width - newWidth) / 2.0) + (imgPosition * semiWidth);
 	const double img_y = /* y + */ (height - newHeight / 2.0) / 3.0;
-	if (img_x >= width || img_x < -newWidth){
-		//printf("e %i %i %f\n", index, offset, imgPosition);
-	   return 0;
-	}
+	if (img_x >= width || img_x < -newWidth) return 0;
+
 
 	TLPOINTEX *pos = &simg->pos;
 	pos->x1 = img_x;
@@ -239,9 +214,7 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 			srcImg->udata_int = SHELF_IMGTYPE_ARTWORK;
 		else
 			srcImg->udata_int = SHELF_IMGTYPE_NOART;
-		
-		//printf("scale %i %i %f %f\n", index, simg->imgSrcIndex, scale, simg->modifier);
-		
+
 		if (shelfClientRender(shelf, simg->imgSrcIndex, srcImg, frame, img_x, img_y, newWidth, newHeight, simg->modifier)){
 			if (simg->modifier < 1.0)
 				drawImageScaledOpacity(srcImg, frame, 0, 0, imgWidth, imgHeight, (int)img_x, (int)img_y, newWidth, newHeight, simg->modifier, simg->modifier*shelf->imgOpacityMult);
@@ -257,7 +230,7 @@ int shelfDrawImage (TSHELF *shelf, TFRAME *frame, const int index, const int off
 		lDrawRectangle(frame, pos->x1, pos->y1, pos->x1+pos->x2, pos->y1+pos->y2, DRAWTOUCHRECTCOL);
 #endif
 	}
-	//printf("f %i %i %f\n", index, offset, imgPosition);
+
 	return ret;
 }
 
@@ -395,11 +368,6 @@ TSHELF *shelfNew (const int totalImg, const double sigma, const double spacing, 
 void shelfDelete (TSHELF *shelf)
 {
 	shelfFlush(shelf);
-	/*for (int i = 0; i < shelf->totalImg; i++){
-		shelfFreeImage(shelf, (void*)shelf->simg[i].img, shelf->simg[i].imgSrcIndex);
-		shelf->simg[i].img = NULL;
-		shelf->simg[i].imgSrcIndex = -1;
-	}*/
 	
 	my_free(shelf->simg);
 	my_free(shelf->sortlist);
@@ -408,9 +376,6 @@ void shelfDelete (TSHELF *shelf)
 
 int shelfSetState (TSHELF *shelf, const int from, const int to, const double x)
 {
-
-	//printf("shelfSetState %p %i %i %f\n", shelf, from, to, x);
-
 	shelf->from = from;
 	shelf->to = to;
 	shelf->x = x;
@@ -426,16 +391,7 @@ int shelfSetState (TSHELF *shelf, const int from, const int to, const double x)
 		shelf->direction = 1;
 		shelf->index = from+3;
 
-		/*if (from > to){
-			int img = shelfGetClientImage(shelf, from-1, &data);
-			shelfSetImage(shelf, 2, img, from-1, data);
-			
-			img = shelfGetClientImage(shelf, from-2, &data);
-			shelfSetImage(shelf, 1, img, from-2, data);
-			
-			img = shelfGetClientImage(shelf, from-3, &data);
-			shelfSetImage(shelf, 0, img, from-3, data);
-		}else*/ if (from > 1){
+		if (from > 1){
 			int img = shelfGetClientImage(shelf, from-1, &data);
 			shelfSetImage(shelf, 2, img, from-1, data);
 			
@@ -509,12 +465,6 @@ int shelfSetState (TSHELF *shelf, const int from, const int to, const double x)
 
 int shelfAnimateNext (TSHELF *shelf)
 {
-	/*if (shelf->from < shelf->to)
-		shelf->direction = 1;
-	else if (shelf->from > shelf->to)
-		shelf->direction = 2;*/
-		
-	
 	if (shelf->direction){
 		if (shelf->direction == 1){		// moving from right to left
 			shelf->x -= shelf->xDelta;
@@ -554,8 +504,6 @@ int shelfAnimateNext (TSHELF *shelf)
 						shelf->direction = 0;
 					}
 				}else{
-					//printf(" > requesting index %i, %i\n", shelf->index, shelf->from);
-					
 					// accquire an updated left most image
 					int data = 0;
 					int img = shelfGetClientImage(shelf, shelf->index-6, &data);
