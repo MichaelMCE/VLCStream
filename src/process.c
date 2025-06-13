@@ -55,12 +55,6 @@ int processCreateW (const wchar_t *cmdLine)
 	resetCurrentDirectory();
 	CreateProcessW(NULL, (wchar_t*)cmdLine, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
 
-	//printf("processCreateW: %p %p %i\n", pi.hProcess, pi.hThread, (int)pi.dwProcessId);
-
-	/*printf("waiting..\n");
-	int ret = (int)WaitForSingleObject(pi.hThread, INFINITE);
-	printf("waiting.. done %i\n", ret == WAIT_OBJECT_0);
-	*/
 	return pi.dwProcessId;
 }
 
@@ -223,8 +217,7 @@ int processGetPid (const char *exeModule)
 	proc.dwSize = sizeof(PROCESSENTRY32);
 
 	Process32First(hSnap, &proc);
-	while(Process32Next(hSnap, &proc)){
-		//printf("'%s'\n", proc.szExeFile);
+	while (Process32Next(hSnap, &proc)){
 		if (stristr(proc.szExeFile, exeModule))
 			return (int)proc.th32ProcessID;
 	};
@@ -243,8 +236,7 @@ int processGetPidW (const wchar_t *exeModule)
 	proc.dwSize = sizeof(PROCESSENTRY32);
 
 	Process32FirstW(hSnap, &proc);
-	while(Process32NextW(hSnap, &proc)){
-		//printf("'%s'\n", proc.szExeFile);
+	while (Process32NextW(hSnap, &proc)){
 		if (wcsistr(proc.szExeFile, exeModule))
 			return (int)proc.th32ProcessID;
 	};
@@ -264,20 +256,9 @@ uint64_t processGetMemUsage (const int pid)
     	//pmc.PrivateUsage = 0;
     	if (GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
     		mem = (uint64_t)pmc.WorkingSetSize;
-    		//mem = (uint64_t)pmc.PrivateUsage;
     	processClose(hProcess);
 	}
 
-
-	/*
-	GetProcessTimes(
-    IN HANDLE hProcess,
-    OUT LPFILETIME lpCreationTime,
-    OUT LPFILETIME lpExitTime,
-    OUT LPFILETIME lpKernelTime,
-    OUT LPFILETIME lpUserTime
-    );
-	*/
     return mem;
 }
 
@@ -311,30 +292,6 @@ wchar_t *processGetFilename (const int pid)
 	return NULL;
 }
 
-/*
-  typedef struct tagPROCESSENTRY32W {
-    DWORD dwSize;
-    DWORD cntUsage;
-    DWORD th32ProcessID;
-    ULONG_PTR th32DefaultHeapID;
-    DWORD th32ModuleID;
-    DWORD cntThreads;
-    DWORD th32ParentProcessID;
-    LONG pcPriClassBase;
-    DWORD dwFlags;
-    WCHAR szExeFile[MAX_PATH];
-  } PROCESSENTRY32W;
-
-
-typedef struct process_list {
-	PROCESSENTRY32W entry;
-	struct process_list *next;
-}process_list;
-
-
-*/
-
-
 static inline void freeProclist (process_list *list)
 {
 	while (list){
@@ -365,9 +322,7 @@ static inline int getProclist (HANDLE hSnap, process_list *list)
 		list->next = my_calloc(1, sizeof(*list));
 
 	if (Process32FirstW(hSnap, &list->entry)){
-		while(Process32NextW(hSnap, &list->entry)){
-
-			//wprintf(L"%i, '%s'\n", i, list->entry.szExeFile);
+		while (Process32NextW(hSnap, &list->entry)){
 
 			if (!list->next)
 				list->next = my_calloc(1, sizeof(*list));
@@ -492,45 +447,6 @@ uint64_t processGetMemoryWorkingSize (const int pid)
    	return pmc.WorkingSetSize;
 }
 
-int processQueryVariable (
-     HANDLE ProcessHandle,
-     PROCESSINFOCLASS ProcessInformationClass,
-     PVOID *Buffer
-    )
-{
-    NTSTATUS status;
-    PVOID buffer;
-    ULONG returnLength = 0;
-
-    NtQueryInformationProcess(
-        ProcessHandle,
-        ProcessInformationClass,
-        NULL,
-        0,
-        &returnLength
-        );
-    buffer = my_calloc(3, returnLength);
-    status = NtQueryInformationProcess(
-        ProcessHandle,
-        ProcessInformationClass,
-        buffer,
-        returnLength,
-        &returnLength
-        );
-
-    if (NT_SUCCESS(status))
-    {
-        *Buffer = buffer;
-    }
-    else
-    {
-        my_free(buffer);
-    }
-
-    return (int)status;
-}
-
-
 static inline process_list_extended *getProcListExtended (int *procTotal)
 {
 
@@ -583,56 +499,15 @@ static inline process_list_extended *getProcListExtended (int *procTotal)
 
 		if (!proc->info.processId){
 			proc->info.path = my_wcsdup(proc->info.imageName);
+			
 		}else{
 			HANDLE hprocess = processOpen(proc->info.processId);
 			if (hprocess){
-				/*KERNEL_USER_TIMES kut;
-				ULONG len = 0;
-				NtQueryInformationProcess(hprocess, ProcessTimes, &kut, sizeof(KERNEL_USER_TIMES), &len);
-				uint64_t kernelTime = *(uint64_t*)&kut.KernelTime;
-    			uint64_t userTime = *(uint64_t*)&kut.UserTime;
-				uint64_t ttime = userTime + kernelTime;
-				printf("%i: %I64d %I64d %I64d\n", proc->info.processId, kernelTime, userTime, ttime-proc->info.sumTime);*/
-
 				int len = MAX_PATH+8;
 				wchar_t buffer[len];
 				STRING *str = (STRING*)buffer;
 				NtQueryInformationProcess(hprocess, ProcessImageFileNameWin32, str, len, (ULONG*)&len);
 				proc->info.path = my_wcsdup((wchar_t*)str->Buffer);
-				//wprintf(L"len %i '%s'\n", str->Length, proc->info.path);
-
-				//char *varTmp = NULL;
-				/*UNICODE_STRING *varTmp = NULL;
-				processQueryVariable(hprocess, ProcessCommandLineInformation, (void*)&varTmp);
-				if (varTmp)
-					wprintf(L":: %i %i, '%s'\n", proc->info.processId, varTmp->Length, varTmp->Buffer);*/
-
-#if ENABLE_PHSTUFF
-				HANDLE tokenHandle;
-				NTSTATUS status = OpenProcessToken(&tokenHandle, TOKEN_QUERY, hprocess);
-				printf("OpenProcessToken %i\n", (int)status);
-				if (NT_SUCCESS(status)){
-					// User name
-            		{
-                		PTOKEN_USER user = NULL;
-                		status = PhGetTokenUser(tokenHandle, &user);
-                		printf("PhGetTokenUser %i\n", (int)status);
-
-                		if (NT_SUCCESS(status)){
-                    		wchar_t *UserName = PhGetSidFullName(user->User.Sid, TRUE, NULL);
-                    		__mingw_wprintf(L"username '%ls'\n", UserName);
-                    		free(UserName);
-                		}
-            		}
-
-            		NtClose(tokenHandle);
-        		}
-#endif
-
-				/*DWORD lpcchReturnLength;
-				GetVolumePathNamesForVolumeNameW((LPCWSTR)fileNameTmp, buffer, MAX_PATH, &lpcchReturnLength);
-				wprintf(L"-- '%s'\n", buffer);*/
-
 
 // win64
 #if WIN64
@@ -652,13 +527,7 @@ static inline process_list_extended *getProcListExtended (int *procTotal)
 				for (int i = 0; i < 32; i++)
 					proc->info.affinity.total += ((proc->info.affinity.mask>>i)&0x01);
 #endif
-
-				//printf("## %i: %X %i\n", proc->info.processId, proc->info.affinity.mask, proc->info.affinity.total);
 			}else{
-				//wprintf(L"procesSOpen FAILED %i '%s'\n", proc->info.processId, proc->info.imageName);
-
-				//proc->info.path = my_calloc(1, 2048);
-				//_snwprintf(proc->info.path, 2048, L"n:\\windows\\system32\\%s", proc->info.imageName);
 				proc->info.path = my_wcsdup(proc->info.imageName);
 			}
 		}
@@ -672,8 +541,6 @@ static inline process_list_extended *getProcListExtended (int *procTotal)
 
 		const FILETIME ft = *(FILETIME*)&proc->info.sumTime;
 		FileTimeToSystemTime(&ft, &proc->time);
-
-		//wprintf(L"%i: pid:%i thrds:%i '%s', %.2i:%.2i:%.2i.%.3i\n", i, (int)spi->UniqueProcessId, (int)spi->NumberOfThreads, spi->ImageName.Buffer, proc->time.wHour, proc->time.wMinute, proc->time.wSecond, proc->time.wMilliseconds);
 
 		proc++;
 		if (!spi->NextEntryOffset) break;
@@ -698,7 +565,6 @@ process_list_extended *processGetProcessListExtended (int *count)
 	QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
 	QueryPerformanceCounter((LARGE_INTEGER*)&snapshotTime);
 	process_list_extended *ple = getProcListExtended(&total);
-	//printf("processGetProcessListExtended: %p %I64d %I64d\n", ple, freq, snapshotTime);
 
 	if (ple){
 		ple->snapshotTime = snapshotTime;
