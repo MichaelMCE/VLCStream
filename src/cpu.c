@@ -22,8 +22,7 @@
 
 
 #include "common.h"
-//#include <ddk/ntapi.h>
-//#include <ntapi.h>
+
 
 
 
@@ -350,11 +349,6 @@ double cpuGetCoreUsage (TVLCPLAYER *vp, const int core)
 	else if (cpuCoreTime > 100.0)
 		cpuCoreTime = 100.0;
 
-	/*if (!core){
-		printf("cpuGetCoreUsage %i %f\n", core, cpuCoreTime);
-		fflush(stdout);
-	}*/
-
 	return cpuCoreTime;
 }
 
@@ -377,18 +371,6 @@ double cpuGetProcessorUsage (TVLCPLAYER *vp)
 	SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION info[16];
 	ntQuerySystemInformation(SystemProcessorTimes, info, sizeof(info), &haveCpuData);
 
-
-	//if (*(int64_t*)&info[0].IdleTime == IdleTimeZero) return cpuCoreTimeOld;
-	//IdleTimeZero = *(int64_t*)&info[0].IdleTime;
-	
-	const int count = haveCpuData / sizeof(info[0]);
-	//printf("ret %i %i\n", ret, (int)count);
-	
-
-	//for (int i = 0; i < 6; i++)
-	//	printf("%i: %I64d %I64d %I64d\n", i, *(int64_t*)&info[i].IdleTime, *(int64_t*)&info[i].KernelTime, *(int64_t*)&info[i].UserTime);
-	
-	
 	uint64_t coreTime64;// = getTime64(vp);
 	QueryPerformanceCounter((LARGE_INTEGER*)&coreTime64);
 	double coreTime = coreTime64 / (double)vp->freq;
@@ -399,6 +381,8 @@ double cpuGetProcessorUsage (TVLCPLAYER *vp)
 
 		
 	int64_t idleTime = 0;
+	const int count = haveCpuData / sizeof(info[0]);
+		
 	for (int i = 0; i < count; i++)
 		idleTime += *(int64_t*)&info[i].IdleTime;
 	idleTime /= count;
@@ -426,5 +410,3 @@ void cpuGetUpTime (date64_t *ut)
 	ut->days = ((((lintTicks / 1000) / 60) / 60) / 24) % 7;
     ut->weeks = (((((lintTicks / 1000) / 60) / 60) / 24) / 7) % 52;
 }
-
-
