@@ -279,7 +279,6 @@ int shGetFolderPath (unsigned int csidl, wchar_t *path)
 {
 #if 1
 	int result = SHGetFolderPathW(NULL, csidl, NULL, 0, path);
-	//wprintf(L"##%s##\n", path);
 	return SUCCEEDED(result);
 	
 #else
@@ -287,7 +286,6 @@ int shGetFolderPath (unsigned int csidl, wchar_t *path)
 
     if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, csidl, &item))){
         BOOL result = SHGetPathFromIDListW(item, path);
-        //wprintf(L"##%s##\n", path);
         shMallocFree(item);
         return FALSE != result;
     }
