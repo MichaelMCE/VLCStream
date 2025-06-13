@@ -24,8 +24,6 @@
 #include "common.h"
 
 
-// playlsit support utils
-
 
 #define RETRYCOUNT_ART	(5)
 #define RETRYCOUNT_META (5)
@@ -84,7 +82,6 @@ int playlistGetTrackLengths (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int recur
 {
 	
 	const int total = playlistGetTotal(plc);
-	//printf("playlistGetTrackLengths %i, '%s'\n", total, plc->title);
 	if (!total) return 0;
 
 	char buffer[32];
@@ -128,31 +125,19 @@ int playlistGetTrackLengths (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int recur
 	return scanCt;
 }
 
-
-/*
-void vlcEventGetArt (job_controller *jc, TARTMANAGER *am, const char *path, const TMETACOMPLETIONCB *mccb, const unsigned int uid, const int position)
-{
-	//printf("vlcEventGetArt %X:'%s'\n", hash, path);
-}
-*/
-
-
 int playlistMetaGetTrackMetaByHash (TVLCPLAYER *vp, const unsigned int hash, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb)
 {
 
 	int ret = 0;
 	int isTitleReady = 0;
-	//int isArtReady = 0;
 	TPLAYLISTITEM *item = playlistGetItem(plc, position);
 
 	if (tagLock(vp->tagc)){
 		TMETAITEM *tagItem = g_tagFindEntryByHash(vp->tagc, hash);
 		if (tagItem){
 			if (item->artRetryCt > RETRYCOUNT_ART){
-				//isArtReady = 1;
 			}else{
 				item->artRetryCt++;
-				//isArtReady = playlistGetArtId(plc, position) != 0;
 			}
 			isTitleReady = tagItem->isParsed;
 		}
@@ -165,19 +150,11 @@ int playlistMetaGetTrackMetaByHash (TVLCPLAYER *vp, const unsigned int hash, PLA
 		ret = 1;
 	}
 
-#if 0
-	if (!isArtReady && isAudioFile8(path)){
-		const int uid = playlistManagerGetPlaylistUID(vp->plm, plc);
-		vlcEventGetArt(vp->jc, vp->am, path, mccb, uid, position);
-	}
-#endif
-
 	return ret;
 }
 
 int playlistMetaGetTrackMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const char *path, const int position, TMETACOMPLETIONCB *mccb)
 {
-	//printf("playlistMetaGetTrackMeta #%s#\n", path);
 	if (!*path) return -1;
 	return playlistMetaGetTrackMetaByHash(vp, getHash(path), plc, path, position, mccb);
 }
@@ -193,7 +170,7 @@ int playlistMetaGetMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, T
 	
 	from = MAX(0, from);
 	to = MIN(playlistGetTotal(plc)-1, to);
-	//printf("playlistMetaGetMeta %X %i %i\n", plc->uid, from, to);
+
 	
 	for (int i = from; i <= to; i++){
 		playlistGetPath(plc, i, path, MAX_PATH_UTF8);
@@ -204,9 +181,7 @@ int playlistMetaGetMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, T
 		  	if ((ret=playlistMetaGetTrackMeta(vp, plc, path, i, mccb)) > 0)
 		  		break;
 		  	if (ret < 0) break;
-		  	 //__attribute__ ((fallthrough)); // C and C++03
 		  	 ALLOW_FALLTHROUGH;
-		  	//[[gnu::fallthrough]];
 		  	// else continue to next, set a title
 		  case 0:
 		  	*fname = 0; *ext = 0;
@@ -220,15 +195,11 @@ int playlistMetaGetMeta (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, T
 
 int setPlaylistPlayingItem (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int trk, const unsigned int hash)
 {
-	//printf("setPlaylistPlayingItem '%s' %X %i\n", plc->title, hash, trk);
-
 	if (!hash) return -1;
 	TPLAYLISTITEM *item;
 	int pos = -1;
 
 	while ((item=playlistGetItem(plc, trk))){
-		//printf("%i, %i %X\n", trk, item->objType, item->obj.track.hash);
-
 		if (item->objType == PLAYLIST_OBJTYPE_TRACK && item->obj.track.hash == hash){
 			pos = plc->pr->playingItem = trk;
 			playlistChangeEvent(vp, plc, trk);
@@ -280,9 +251,7 @@ int importPlaylistW (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *t
 	TM3U *m3u = m3uNew();
 	if (m3u){
 		if (m3uOpen(m3u, path, M3U_OPENREAD)){
-			//wprintf(L"reading #%ls#\n", path);
 			total = m3uReadPlaylist(m3u, plm, plc, tagc, am, filepane);
-			//wprintf(L"importPlaylist: '%ls', %i tracks read\n", path, total);
 			m3uClose(m3u);
 		}
 		m3uFree(m3u);
@@ -308,9 +277,6 @@ int importPlaylist (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETATAGCACHE *ta
 int importPlaylistUIDW (TPLAYLISTMANAGER *plm, TMETATAGCACHE *tagc, TARTMANAGER *am, const wchar_t *path, const int uid, TFILEPANE *filepane)
 {
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(plm, uid);
-	
-	//printf("importPlaylistUIDW %p\n", plc);
-	
 	if (plc)
 		return importPlaylistW(plm, plc, tagc, am, path, filepane);
 	else
@@ -345,8 +311,6 @@ void playlistChangeEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx
 		}
 	}
 
-//	printf("playlistChangeEvent %i\n", hasPageBeenAccessed(vp, PAGE_PLY_QUEUE));
-	
 	if (hasPageBeenAccessed(vp, PAGE_PLY_QUEUE)){
 		TPLYQUEUE *plyqueue = pageGetPtr(vp, PAGE_PLY_QUEUE);
 		if (plyqueue)
@@ -367,10 +331,6 @@ static inline void trackSetRegMeta (TVLCPLAYER *vp, const char *metaStr, const i
 
 void trackLoadEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx)
 {
-	
-	//printf("trackLoadEvent in\n");
-	//printf("trackLoadEvent %i %i '%s'\n", trackIdx, plc->uid, plc->title);
-	
 	TMETA *meta = pageGetPtr(vp, PAGE_META);
 	TMETADESC *desc = &meta->desc;
 	
@@ -406,9 +366,6 @@ void trackLoadEvent (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackIdx)
 		plyQueueNewTrackEvent(plyqueue, plc->uid, trackIdx);
 
 	taskbarPostMessage(vp, WM_TRACKPLAYNOTIFY, plc->uid, trackIdx);
-
-	//printf("trackLoadEvent out\n");
-
 }
 
 void playlistResetRetries (TVLCPLAYER *vp)
@@ -448,24 +405,17 @@ PLAYLISTCACHE *getPrimaryPlaylist (TVLCPLAYER *vp)
 
 PLAYLISTCACHE *getDisplayPlaylist (TVLCPLAYER *vp)
 {
-	//printf("getDisplayPlaylist %i %i\n", vp->displayPlaylist, vp->queuedPlaylist);
-	//printf("getDisplayPlaylist: %i\n", (int)GetCurrentThreadId());
-	
 	PLAYLISTCACHE *plcD = playlistManagerGetPlaylistByUID(vp->plm, vp->playlist.display);
 	if (!plcD){
 		int idx = playlistManagerGetPlaylistNext(vp->plm, -1);
 		vp->playlist.display = playlistManagerGetUIDByIndex(vp->plm, idx);
 		plcD = playlistManagerGetPlaylistByUID(vp->plm, vp->playlist.display);
 	}
-	//if (!plcD)
-	//	printf("void display playlist %i\n", vp->displayPlaylist);
-
 	return plcD;
 }
 
 PLAYLISTCACHE *getQueuedPlaylist (TVLCPLAYER *vp)
 {
-	//printf("getQueuedPlaylist: %i\n", (int)GetCurrentThreadId());
 	return playlistManagerGetPlaylistByUID(vp->plm, vp->playlist.queued);
 }
 
@@ -571,8 +521,7 @@ unsigned int getSelectedHash (TVLCPLAYER *vp)
 
 char *getPlayingTitle (TVLCPLAYER *vp)
 {
-	//printf("getPlayingTitle: %i\n", (int)GetCurrentThreadId());
-	
+
 	char title[MAX_PATH_UTF8+1];
 	
 	PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
@@ -737,7 +686,6 @@ char *getPlayingProgramme (TVLCPLAYER *vp)
 	if (plc){
 		char *title = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (title){
-			//playlistGetTitle(plc, plc->pr->playingItem, title, MAX_PATH_UTF8);
 			char *path = getPlayingPath(vp);
 			if (path){
 				tagRetrieve(vp->tagc, path, MTAG_NowPlaying, title, MAX_PATH_UTF8);
@@ -759,7 +707,6 @@ wchar_t *getPlayingProgrammeW (TVLCPLAYER *vp)
 	if (plc){
 		char *title = my_calloc(MAX_PATH_UTF8+1, sizeof(char));
 		if (title){
-			//playlistGetTitle(plc, plc->pr->playingItem, title, MAX_PATH_UTF8);
 			char *path = getPlayingPath(vp);
 			if (path){
 				tagRetrieve(vp->tagc, path, MTAG_NowPlaying, title, MAX_PATH_UTF8);
@@ -1001,8 +948,6 @@ int playlistUIDToIdx (TPLAYLISTMANAGER *plm, const int uid)
 void timer_regTrackInfoUpdate (TVLCPLAYER *vp)
 {
 #if ENABLE_REGMETAUPDATE
-	//printf("timer_regTrackInfoUpdate start\n");
-
 	char *str = getPlayingTitle(vp);
 	if (str){
 		regSetString8("track_title", str);
@@ -1022,8 +967,6 @@ void timer_regTrackInfoUpdate (TVLCPLAYER *vp)
 		regSetDword(L"track_number", getPlayingItem(vp)+1);
 		regSetQword(L"track_added", getTickCount());
 	}
-	
-	//printf("timer_regTrackInfoUpdate end\n");
 #endif
 }
 
