@@ -21,7 +21,7 @@
 
 
 
-#include "common.h"
+#include "../common.h"
 #include <psapi.h>
 
 
@@ -29,7 +29,6 @@
 enum _panelbtn {
 	GHK_BUTTON_1 = 0,
 	GHK_BUTTON_2,
-	//GHK_BUTTON_3,
 	GHK_BUTTON_TOTAL
 };
 
@@ -71,11 +70,9 @@ char *ghkGetRunningVLCWindowTitle (HWND hWnd, char *buffer, const int blen)
 
 	//HWND hWnd = FindWindowExW(0, NULL, L"QWidget", NULL);
 	const int vlen = wcslen(VLCFILENAME);
-	//printf("ghkGetRunningVLCWindowTitle %p\n", hWnd);
 
 	while(hWnd){
 		int pid = processGetWindowThreadPid(hWnd);
-		//printf("pid %i\n", pid);
 		if (pid){
 			wchar_t *path = processGetFilename(pid);
 			if (path){
@@ -89,9 +86,7 @@ char *ghkGetRunningVLCWindowTitle (HWND hWnd, char *buffer, const int blen)
 				if (!_wcsicmp(file, VLCFILENAME)){
 					wchar_t title[2048] = {0};
 					GetWindowTextW(hWnd, title, 2047);
-						
-					//wprintf(L"window: '%s' #%s#\n", title, file);
-						
+
 					if (*title){
 						wchar_t *found = wcsstr(title, L" - VLC media player");
 						if (!found){
@@ -104,8 +99,6 @@ char *ghkGetRunningVLCWindowTitle (HWND hWnd, char *buffer, const int blen)
 						}
 						if (found){
 							*found = 0;
-							//wprintf(L"%i %p #%s#\n", (int)pid, hWnd, path);
-							//wprintf(L"'%s' #%s#\n", file, title);
 							char *title8 = convertto8(title);
 							if (title8){
 								strncpy(buffer, title8, blen);
@@ -125,25 +118,13 @@ char *ghkGetRunningVLCWindowTitle (HWND hWnd, char *buffer, const int blen)
 	return NULL;
 }
 
+
+// needs improving
 int ghkIsVlcRunning ()
 {
 	return 	FindWindowExW(0, 0, L"QToolTip", NULL) && 
 			FindWindowExW(0, 0, L"QPopup", NULL) && 
 			FindWindowExW(0, 0, L"QWidget", NULL);
-
-	/*wchar_t buffer[64];
-
-	for (int p = 0; p <= 2; p++){
-		for (int i = 0; i <= 10; i++){
-			snwprintf(buffer, sizeof(buffer), L"VLC ghk 2.%d.%d", p, i);
-			HWND hWnd = FindWindowW(NULL, buffer);
-
-			//wprintf(L"'%s' %p\n",buffer, hWnd);
-			if (hWnd) return 1;
-		}
-	}*/
-
-	return 0;
 }
 
 void ghkFreeKey (THOTKEY *hk)
@@ -177,10 +158,7 @@ THOTKEY **ghkAllocKeyList (const int total)
 
 static inline int ghkPanButtonPress (TGLOBALHOTKEYS *ghk, TCCBUTTON *btn, const int btn_id, const TTOUCHCOORD *pos)
 {
-	//TVLCPLAYER *vp = btn->cc->vp;
-	//printf("ghkPanButtonPress: %i: %i,%i\n", btn_id, pos->x, pos->y);
-
-	TPANEL *panel = ghk->panel; //(TPANEL*)buttonGetUserData(button);
+	TPANEL *panel = ghk->panel;
 	if (!panel) return 0;
 
 	panel->btns->t0 = getTickCount();	
@@ -256,9 +234,6 @@ int ghkPanelAddKeys (TPANEL *panel, THOTKEY **keys, const int total, const int s
 			if (item) button2AnimateSet(item->btn, 1);
 		}
 	}
-
-	//TMETRICS metrics = {0, 0, panel->metrics.width, panel->metrics.height};	
-	//panel->vHeight = panelImgPositionMetricsCalc(panel->list, panel->listSize, &metrics, panel->itemHoriSpace, panel->itemVertSpace);
 	return 1;
 }
 
