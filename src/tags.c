@@ -198,15 +198,12 @@ static inline int _tagAddByHash (TMETATAGCACHE *tagc, const unsigned int hash, c
 TMETAITEM *g_tagCreateNew (TMETATAGCACHE *tagc, const unsigned int hash)
 {
 	if (_tagAddByHash(tagc, hash, 0, NULL, 0)){
-		//if (tagc->lastCreated->item->hash == hash)
-		//	return tagc->lastCreated->item;
-		//else
 			return _tagFindEntryByHash(tagc, hash);
 	}
 	return NULL;
 }
 
-/*
+#if 0
 TMETAITEM *tagFindEntryByHash (TMETATAGCACHE *tagc, const unsigned int hash)
 {
 	TMETAITEM *item = NULL;
@@ -216,18 +213,15 @@ TMETAITEM *tagFindEntryByHash (TMETATAGCACHE *tagc, const unsigned int hash)
 	}
 	return item;
 }
-*/
+#endif
+
+
+// taglock must be held before entering
 int g_tagAddByHash (TMETATAGCACHE *tagc, const unsigned int hash, const int tagid, const char *tag, const int overwrite)
 {
-	//if (!tag || !hash || tagid < 0 || tagid >= MTAG_TOTAL)
-	//	return 0;
-
 	int ret = 0;
-	//if (_tagLock(tagc)){
-		if (*tag)
-			ret = _tagAddByHash(tagc, hash, tagid, tag, overwrite);
-		//_tagUnlock(tagc);
-	//}
+	if (*tag)
+		ret = _tagAddByHash(tagc, hash, tagid, tag, overwrite);
 	return ret;
 }
 
@@ -381,8 +375,6 @@ static inline int _tagFlushOrfhansPlm (TMETATAGCACHE *tagc, TPLAYLISTMANAGER *pl
 		if (rec->item && rec->item->hash){
 			if (!isHashInList(hlist, hlistTotal, rec->item->hash)){
 				totalPruned++;
-				//printf("got orfhen for %i: %X\n", totalPruned, rec->item->hash);
-	
 				rec->item->hash = 0;
 				rec->item->hasTitle = 0;
 				rec->item->hasFilename = 0;
@@ -476,12 +468,11 @@ void tagcFree (TMETATAGCACHE *tagc)
 	my_free(tagc);
 }
 
-TMETATAGCACHE *tagcNew (/*TVLCPLAYER *vp, */THWD *hw)
+TMETATAGCACHE *tagcNew (THWD *hw)
 {
 	TMETATAGCACHE *tagc = my_calloc(1, sizeof(TMETATAGCACHE));
 	if (tagc){
 		tagc->hw = hw;
-		//tagc->vp = vp;
 		tagc->hMutex = lockCreate("tagNew");
 	}
 	return tagc;

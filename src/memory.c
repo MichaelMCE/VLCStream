@@ -143,8 +143,7 @@ void * x_calloc (size_t nelem, size_t elsize MEM_DEBUG_FUNCDEC)
 		len = sizeof(void*);
 		//abort();
 	}
-	//len += 4;
-	
+
 	void *ptr = x_malloc(len MEM_DEBUG_FUNCARG);
 	if (ptr)
 		memset(ptr, 0, len);
@@ -192,8 +191,7 @@ char * x_strdup (const char *str MEM_DEBUG_FUNCDEC)
 			return ptr;
 		}
 	}
-	
-	//printf("strdup(%p): %s:%i\n", str, func, line);
+
 	return NULL;
 }
 
@@ -209,8 +207,7 @@ wchar_t * x_wcsdup (const wchar_t *str MEM_DEBUG_FUNCDEC)
 			return ptr;
 		}
 	}
-	
-	//printf("wcsdup(%p): %s:%i\n", str, func, line);
+
 	return NULL;
 }
 
