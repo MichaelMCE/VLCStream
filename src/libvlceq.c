@@ -40,6 +40,7 @@
 
 
 
+// lovely
 #define N_ 
 
 
@@ -324,8 +325,6 @@ static inline int apply_equalizer (input_thread_t *p_input, libvlc_media_player_
     audio_output_t *p_aout = (audio_output_t*)input_GetAout(p_input);
     if (p_aout){
         char *psz_bands = var_GetString((vlc_object_t*)p_mi, "equalizer-bands");
-        //printf("apply_equalizer bands: %p\n", psz_bands);
-        
         if (psz_bands){
         	if (*psz_bands){
             	var_SetString((vlc_object_t*)p_aout, "equalizer-bands", psz_bands);
@@ -337,8 +336,6 @@ static inline int apply_equalizer (input_thread_t *p_input, libvlc_media_player_
         }
 
         vlc_object_release((vlc_object_t*)p_aout);
-    //}else{
-    	//printf("apply_equalizer: no aout\n");
     }
     return ret;
 }
@@ -346,9 +343,6 @@ static inline int apply_equalizer (input_thread_t *p_input, libvlc_media_player_
 
 int libvlc_media_player_set_equalizer (libvlc_media_player_t *p_mi, libvlc_equalizer_t *p_equalizer)
 {
-	
-	//printf("libvlc_media_player_set_equalizer\n");
-	
     if (!p_equalizer){
 #if (LIBVLC_VERSION_MAJOR == 2 && LIBVLC_VERSION_MINOR == 0)
         aout_EnableFilter((vlc_object_t*)p_mi, "equalizer", false);
