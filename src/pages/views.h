@@ -48,6 +48,8 @@
 #include "page_sub.h"
 #include "page_plm.h"
 
+#include "page_hotkeys.h"
+
 #include "page_eq.h"
 #include "page_alarm.h"
 #include "page_epg.h"
