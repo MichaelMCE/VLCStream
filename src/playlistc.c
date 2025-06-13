@@ -37,59 +37,6 @@ Non-underscored functions will contain the lock
 
 
 
-/*
-static inline int matchWildcardsW (wchar_t *String, wchar_t *Pattern, const int IgnoreCase)
-{
-    wchar_t *s, *p;
-    int star = FALSE;
-
-    // Code is from http://xoomer.virgilio.it/acantato/dev/wildcard/wildmatch.html
-
-LoopStart:
-    for (s = String, p = Pattern; *s; s++, p++){
-        switch (*p){
-        case L'?':
-            break;
-        case L'*':
-            star = TRUE;
-            String = s;
-            Pattern = p;
-
-            do{
-                Pattern++;
-            }while (*Pattern == '*');
-
-            if (!*Pattern) return TRUE;
-
-            goto LoopStart;
-            
-        default:
-            if (!IgnoreCase){
-                if (*s != *p)
-                    goto StarCheck;
-            }else{
-                if (towupper(*s) != towupper(*p))
-                    goto StarCheck;
-            }
-            break;
-        }
-    }
-
-    while (*p == L'*')
-        p++;
-
-    return (!*p);
-
-StarCheck:
-    if (!star)
-        return FALSE;
-
-    String++;
-    goto LoopStart;
-}
-*/
-
-
 static inline int matchWildcards8IgnoreCase (const char *_String, const char *_Pattern)
 {
     char *s, *p;
@@ -182,8 +129,6 @@ StarCheck:
 
 static inline int matchWildcards8 (const char *string, const char *pattern, const int ignoreCase)
 {
-	//printf("matchWildcards8 %i\n", ignoreCase);
-	
 	if (!ignoreCase)
 		return matchWildcards8WithCase(string, pattern);
 	else
@@ -197,8 +142,6 @@ static inline int strMatch (const char *haystack, const char *needle, const int 
 
 static inline int strFind (const char *haystack, const char *needle, const int searchHow)
 {
-	//printf("strFind: '%s' '%s' %i\n", haystack, needle, searchHow);
-
 	if (searchHow == PLAYLIST_SEARCH_CASE_SENSITIVE)
 		return !strMatch(haystack, needle, 0);
 	else
@@ -207,22 +150,13 @@ static inline int strFind (const char *haystack, const char *needle, const int s
 
 
 int playlistLock (PLAYLISTCACHE *plc)
-//int _playlistLock (PLAYLISTCACHE *plc, const char *func, const int line)
 {
-	//printf("playlistLock: WAIT %X, %i, %i, (%s:%i)\n", plc->uid, plc->hMutex->lockCount, (int)GetCurrentThreadId(), func, line);
 	const int ret = lockWait(plc->hMutex, INFINITE);
-	/*if (ret > 0)
-		printf("playlistLock: GOT: %X, %i, %i, (%s:%i)\n", plc->uid, plc->hMutex->lockCount, (int)GetCurrentThreadId(), func, line);
-	else
-		printf("playlistLock: FAILED: %X, %i, %i, (%s:%i)\n", plc->uid, plc->hMutex->lockCount, (int)GetCurrentThreadId(), func, line);*/
-	
 	return ret;
 }
 
 void playlistUnlock (PLAYLISTCACHE *plc)
-//void _playlistUnlock (PLAYLISTCACHE *plc, const char *func, const int line)
 {
-	//printf("playlistUnlock: RELEASE %X, %i, %i, (%s:%i)\n", plc->uid, plc->hMutex->lockCount, (int)GetCurrentThreadId(), func, line);
 	lockRelease(plc->hMutex);
 }
 
@@ -246,17 +180,10 @@ static inline int _playlistInsertLast (PLAYLISTCACHE *plc, TPLAYLISTITEM *item)
 	TPLAYLISTRECORD *newrec = (TPLAYLISTRECORD*)my_malloc(sizeof(TPLAYLISTRECORD));
 	if (!newrec) return -1;
 
-	//printf("_playlistInsertLast %X %i %p, %p, %p %p\n", plc->uid, plc->total, item, newrec, plc->first, plc->last);
-	
 	newrec->next = NULL;
 	newrec->item = item;
 	
 	TPLAYLISTRECORD *rec = _playlistGetLast(plc);
-	//TPLAYLISTRECORD *rec = plc->last;
-	
-	//if (rec != _playlistGetLast(plc))
-	//	printf("%p %p\n", rec, _playlistGetLast(plc));
-	
 	if (!plc->first){
 		plc->first = newrec;
 		plc->last = newrec;
@@ -359,14 +286,6 @@ int playlistIsChild (PLAYLISTCACHE *plcA, PLAYLISTCACHE *plcB)
 		}
 		playlistUnlock(plcA);
 	}
-/*
-	if (plcA && plcB)
-		printf("playlistIsChild %i %X %X\n", ret, plcA->uid, plcB->uid);
-	else if (plcA)
-		printf("playlistIsChild %i plcA %X\n", ret, plcA->uid);
-	else if (plcB)
-		printf("playlistIsChild %i plcB %X\n", ret, plcB->uid);
-*/
 	return ret;
 }
 
@@ -489,33 +408,6 @@ static inline int _playlistGetTotal (PLAYLISTCACHE *plc)
 		return 0;
 }
 
-// just print everything
-/*
-int playlistRunList (PLAYLISTCACHE *plc)
-{
-	if (!playlistLock(plc))
-		return 0;
-		
-	int total = 0;
-	char *path;
-	char *title;
-	
-	TPLAYLISTRECORD *rec = _playlistGetRoot(plc);
-	if (rec){
-		do{
-			path = rec->item->path;
-			if (!path) path = "no path";
-			title = rec->item->title;
-			if (!title) title = "no title";
-			
-			printf("%i: %X '%s' '%s'\n", total++, rec->item->hash, path, title);
-		}while((rec=rec->next));
-	}
-	
-	playlistUnlock(plc);
-	return total;
-}
-*/
 static inline int _playlistIdToIdx (PLAYLISTCACHE *plc, const int tid)
 {
 	TPLAYLISTRECORD *rec = _playlistGetRoot(plc);
@@ -569,7 +461,6 @@ static inline int _playlistInsertById (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newR
 	
 	// special case for first
 	if (!pos){
-		//printf("insert first\n");
 		TPLAYLISTRECORD *first = _playlistGetRoot(plc);
 		plc->first = newRec;
 		newRec->next = first;
@@ -578,11 +469,8 @@ static inline int _playlistInsertById (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newR
 	
 	// special case for last
 	if (pos > plc->total-1){
-		//printf("insert last %i\n", plc->total);
 		newRec->next = NULL;
 		TPLAYLISTRECORD *rec = _playlistGetLast(plc);
-		//TPLAYLISTRECORD *rec = plc->last;
-		
 		if (rec)
 			rec->next = newRec;
 		else
@@ -604,12 +492,8 @@ static inline int _playlistInsertById (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newR
 
 static inline int _playlistInsert (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newRec, int pos)
 {
-	//printf("_playlistInsert %X '%s' %i\n", plc->uid, plc->title, pos);
-	//if (pos >= plc->total) pos = plc->total-1;
-	
 	// special case for first
 	if (!pos){
-		//printf("_playlistInsert (First) %p %p\n", plc->first, plc->last);
 		TPLAYLISTRECORD *first = _playlistGetRoot(plc);
 		plc->first = newRec;
 		newRec->next = first;
@@ -618,12 +502,8 @@ static inline int _playlistInsert (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newRec, 
 	
 	// special case for last
 	if (pos > plc->total-1){
-		//printf("_playlistInsert (Last) %i %p %p %p\n", plc->total, plc->first, plc->first->next, plc->last);
-				
 		newRec->next = NULL;
 		TPLAYLISTRECORD *rec = _playlistGetLast(plc);
-		//TPLAYLISTRECORD *rec = plc->last;
-		
 		if (rec)
 			rec->next = newRec;
 		else
@@ -634,7 +514,6 @@ static inline int _playlistInsert (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newRec, 
 
 	TPLAYLISTRECORD *recPre = _playlistGetRecord(plc, pos-1);	
 	TPLAYLISTRECORD *rec = _playlistGetRecord(plc, pos);
-
 	if (rec){
 		newRec->next = rec;
 		recPre->next = newRec;
@@ -655,8 +534,6 @@ int playlistInsert (PLAYLISTCACHE *plc, TPLAYLISTRECORD *newRec, const int pos)
 
 static inline int _playlistUnlinkRecord (PLAYLISTCACHE *plc, TPLAYLISTRECORD *recunlink)
 {
-	//printf("_playlistUnlinkRecord %X %p\n", plc->uid, recunlink);
-	
 	TPLAYLISTRECORD *rec = _playlistGetRoot(plc);
 	if (rec){
 		if (rec == recunlink){	// handle special case that be root
@@ -701,29 +578,14 @@ TPLAYLISTRECORD * playlistRemoveRecord (PLAYLISTCACHE *plc, const int pos)
 static inline int _playlistMoveById (PLAYLISTCACHE *plcFrom, PLAYLISTCACHE *plcTo, const int fromId, const int toId)
 {
 	TPLAYLISTRECORD *recFrom = _playlistGetRecordById(plcFrom, fromId);
-	if (!recFrom){
-		//printf("playlistMove(): invalid rec %i\n", fromIdx);
-		return 0;
-	}
+	if (!recFrom) return 0;
 
 	if (_playlistUnlinkRecord(plcFrom, recFrom)){
-		//printf("_playlistUnlinkRecord\n");
-
-		//if (plcFrom == plcTo)
-			plcFrom->total--;
+		plcFrom->total--;
 
 		if (_playlistInsertById(plcTo, recFrom, toId)){
-			//printf("playlist item %i:'%s' moved to %i:'%s'\n", fromIdx, plcFrom->title, toIdx, plcTo->title);
-			
-			//if (plcFrom != plcTo){
-			//	plcFrom->total--;
-				plcTo->total++;
-			//}else{
-			//	plcTo->total++;
-			//}
+			plcTo->total++;
 			return 1;
-		}else{
-			//printf("_playlistInsert failed\n");
 		}
 	}
 	return 0;
@@ -748,29 +610,14 @@ int playlistMoveById (PLAYLISTCACHE *plcFrom, PLAYLISTCACHE *plcTo, const int fr
 static inline int _playlistMove (PLAYLISTCACHE *plcFrom, PLAYLISTCACHE *plcTo, int fromIdx, int toIdx)
 {
 	TPLAYLISTRECORD *recFrom = _playlistGetRecord(plcFrom, fromIdx);
-	if (!recFrom){
-		//printf("playlistMove(): invalid rec %i\n", fromIdx);
-		return 0;
-	}
+	if (!recFrom) return 0;
 
 	if (_playlistUnlinkRecord(plcFrom, recFrom)){
-		//printf("_playlistUnlinkRecord\n");
-
-		//if (plcFrom == plcTo)
-			plcFrom->total--;
+		plcFrom->total--;
 
 		if (_playlistInsert(plcTo, recFrom, toIdx)){
-			//printf("playlist item %i:'%s' moved to %i:'%s'\n", fromIdx, plcFrom->title, toIdx, plcTo->title);
-			
-			//if (plcFrom != plcTo){
-			//	plcFrom->total--;
-				plcTo->total++;
-			//}else{
-			//	plcTo->total++;
-			//}
+			plcTo->total++;
 			return 1;
-		}else{
-			//printf("_playlistInsert failed\n");
 		}
 	}
 	return 0;
@@ -794,7 +641,6 @@ int playlistMove (PLAYLISTCACHE *plcFrom, PLAYLISTCACHE *plcTo, const int fromId
 
 static inline int _playlistCopyTrackById (PLAYLISTCACHE *plcFrom, const int fromId, PLAYLISTCACHE *plcTo, const int toId)
 {
-	//if (tid < PLAYLIST_TRACK_BASEIDENT) return 0;
 	int destId = 0;
 	
 	TPLAYLISTITEM *item = _playlistGetItemById(plcFrom, fromId);
@@ -825,7 +671,7 @@ static inline int _playlistCopyTrackById (PLAYLISTCACHE *plcFrom, const int from
 
 int playlistCopyTrackById (PLAYLISTCACHE *plcFrom, const int fromId, PLAYLISTCACHE *plcTo, const int toId)
 {
-	if (/*plcFrom == plcTo ||*/ fromId < PLAYLIST_TRACK_BASEIDENT || toId < PLAYLIST_TRACK_BASEIDENT)
+	if (fromId < PLAYLIST_TRACK_BASEIDENT || toId < PLAYLIST_TRACK_BASEIDENT)
 		return -1;
 
 	int ret = -1;
@@ -890,7 +736,6 @@ static inline int _playlistSearch_tag (PLAYLISTCACHE *plc, TMETATAGCACHE *tagc, 
 		}
 		
 		// TODO, add deep search of playlists' (plc->obj.plc)
-
 		do{
 			if (rec->item && rec->item->objType == PLAYLIST_OBJTYPE_TRACK){
 				tagRetrieveByHash(tagc, rec->item->obj.track.hash, tag, buffer, MAX_PATH_UTF8);
@@ -923,7 +768,6 @@ static inline int _playlistSearch_path (PLAYLISTCACHE *plc, const char *str, con
 			if (rec->item && rec->item->objType == PLAYLIST_OBJTYPE_TRACK){
 				if (strFind(rec->item->obj.track.path, str, searchHow))
 					return idx;
-				//idx++;
 			}
 			idx++;
 		}while((rec=rec->next));
@@ -948,7 +792,6 @@ static inline PLAYLISTCACHE *_playlistSearch_title_plc (PLAYLISTCACHE *plc, cons
 			if (rec->item && rec->item->objType == PLAYLIST_OBJTYPE_PLC){
 				if (rec->item->obj.plc->title && strFind(rec->item->obj.plc->title, str, searchHow))
 					return rec->item->obj.plc;
-				//idx++;
 			}
 			idx++;
 		}while((rec=rec->next));
@@ -1320,7 +1163,6 @@ static inline int _playlistSetTitle (PLAYLISTCACHE *plc, const int pos, const ch
 {
 	TPLAYLISTITEM *item = _playlistGetItem(plc, pos);
 	if (item && item->objType == PLAYLIST_OBJTYPE_TRACK){
-		//printf("## _playlistSetTitle %X %i '%s' %i\n", plc->uid, pos, title, overwrite);
 		if (item->obj.track.title){
 			if (overwrite)
 				my_free(item->obj.track.title);
@@ -1891,8 +1733,6 @@ void playlistDeleteRecords (PLAYLISTCACHE *plc)
 void playlistFree (PLAYLISTCACHE *plc)
 {
 	if (playlistLock(plc)){
-		//printf("## playlistFree: '%s'\n", plc->title);
-		
 		_playlistDeleteRecords(plc);
 		my_free(plc->pr);
 		my_free(plc->title);
