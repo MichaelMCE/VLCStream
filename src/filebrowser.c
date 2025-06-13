@@ -170,15 +170,12 @@ static inline int decomposeDirectory (TDECOMPOSEPATH *decomp, char *srcDir)
 		last = lastB;
 	
 	if (last){
-		//printf("ADD '%s'\n", dir);
 		*last = 0;
 		decomposeDirectory(decomp, dir);
 	}
 	
 	int total = decomposeDirectoryAdd(decomp, srcDir);
-	
-	
-	//printf("srcDir '%s'\n", srcDir);
+
 	my_free(dir);
 	
 	return total;
@@ -191,14 +188,16 @@ TDECOMPOSEPATH *decomposePath (char *path)
 	
 	TDECOMPOSEPATH *decomp = decomposeDirectoryAlloc(total);
 	total = decomposeDirectory(decomp, path);
-/*
+
+#if 0
 	for (int i = 0; i < decomp->total; i++){
 		printf("\ndirComplete '%s'\n", decomp->dirs[i].dirComplete);
 		printf("folder '%s'\n", decomp->dirs[i].folder);
 		printf("dir '%s'\n", decomp->dirs[i].dir);
 		printf("drive '%s'\n", decomp->dirs[i].drive);
 	}
-*/
+#endif
+
 	if (!total){
 		decomposePathFree(decomp);
 		return NULL;
@@ -302,8 +301,6 @@ static inline int fbQsData64A (const void *a, const void *b)
 {
 	TFBSORT *item1 = (TFBSORT*)a;
 	TFBSORT *item2 = (TFBSORT*)b;
-	//printf("qs: %i %i, %I64d %I64d\n", item1->id, item2->id, item1->data64, item2->data64);
-
 
 	if (item1->type == TREE_TYPE_LEAF && item2->type == TREE_TYPE_LEAF){
 		if (item1->data64 < item2->data64)
@@ -327,7 +324,6 @@ static inline int fbQsData64D (const void *a, const void *b)
 {
 	TFBSORT *item1 = (TFBSORT*)a;
 	TFBSORT *item2 = (TFBSORT*)b;
-	//printf("qs: %i %i, %I64d %I64d\n", item1->id, item2->id, item1->data64, item2->data64);
 
 	if (item1->type == TREE_TYPE_LEAF && item2->type == TREE_TYPE_LEAF){
 		if (item1->data64 < item2->data64)
@@ -543,9 +539,6 @@ int fbGetTotals (TFB *fb, const int id, int *tBranch, int *tLeaf)
 
 static inline int fbAddDirectory (TFB *fb, const int nodeId, wchar_t *name, const WIN32_FIND_DATAW *ffd, const int id)
 {
-	//char convbuffer[MAX_PATH_UTF8+1];
-	
-	//if (UTF16ToUTF8(name, wcslen(name), convbuffer, MAX_PATH_UTF8)){
 	char *name8 = convertto8(name);
 	if (name8){
 		TTREEENTRY *entry = treeAddItem(fb->tree, nodeId, name8, id, TREE_TYPE_BRANCH);
@@ -564,50 +557,8 @@ static inline int fbAddDirectory (TFB *fb, const int nodeId, wchar_t *name, cons
 	return 0;
 }
 
-
-
 static inline int fbAddFile (TFB *fb, const int nodeId, const wchar_t *path, wchar_t *name, const WIN32_FIND_DATAW *ffd, const int id)
 {
-#if 0
-	wchar_t buffer[MAX_PATH+1];
-	
-	int flags = SHGFI_TYPENAME | SHGFI_LINKOVERLAY | SHGFI_SHELLICONSIZE | SHGFI_DISPLAYNAME | SHGFI_EXETYPE | SHGFI_LARGEICON | SHGFI_ICON | SHGFI_SYSICONINDEX;
-	SHFILEINFOW psfi;
-	memset(&psfi, 0, sizeof(SHFILEINFOW));
-	
-	__mingw_snwprintf(buffer, MAX_PATH, L"%ls%ls", path, name);
-	
-	HIMAGELIST sysimgl = (HIMAGELIST)SHGetFileInfoW(buffer, 0, &psfi, sizeof(SHFILEINFOW), flags);
-	HICON icon = ImageList_GetIcon(sysimgl, psfi.iIcon, ILD_IMAGE);
-	__mingw_wprintf(L"name ct:%i, %i %p %p '%ls' '%ls' '%ls'\n", ImageList_GetImageCount(sysimgl), sysimgl, icon, psfi.hIcon, name, psfi.szDisplayName, psfi.szTypeName);
-		
-	IMAGEINFO pImageInfo;
-	ImageList_GetImageInfo(sysimgl, psfi.iIcon, &pImageInfo);
-	printf("%p %p %i %i %i %i\n", pImageInfo.hbmImage, pImageInfo.hbmMask, (int)pImageInfo.rcImage.left, (int)pImageInfo.rcImage.top, (int)pImageInfo.rcImage.right, (int)pImageInfo.rcImage.bottom);
-	
-	GpBitmap *bitmap;
-	int ret = (int)GdipCreateBitmapFromHICON(icon, &bitmap);
-	printf("%p %i\n", bitmap, ret);
-	
-	int w = (pImageInfo.rcImage.right - pImageInfo.rcImage.left);
-	int h = (pImageInfo.rcImage.bottom - pImageInfo.rcImage.top);
-	
-	printf("w/h %i %i\n", w, h);
-	
-	/*TFRAME *frame = lNewFrame();
-	ARGB rgb = 0;	
-	for (int y = 0; y < h; y++)
-	for (int x = 0; x < w; x++){
-		GdipBitmapGetPixel(bitmap, x, y, &rgb);
-		printf("%i,%i %X\n", x, y, (unsigned int)rgb);
-	}*/
-	
-	
-	
-	ImageList_Destroy(sysimgl);
-	DestroyIcon(icon);
-#endif
-
 	char *name8 = convertto8(name);
 	if (name8){
 		TTREEENTRY *entry = treeAddItem(fb->tree, nodeId, name8, id, TREE_TYPE_LEAF);
@@ -632,26 +583,20 @@ int fbFindFiles (TFB *fb, const int nodeId, const wchar_t *path, const wchar_t *
 	WIN32_FIND_DATAW ffd;
 	memset(&ffd, 0, sizeof(WIN32_FIND_DATAW));
 
-
 	int depth = (*searchDepth)-1;
 	int count = 0;
 	
 	wchar_t buffer[MAX_PATH+1];
 	__mingw_snwprintf(buffer, MAX_PATH, L"%ls%ls", path, searchMask);
-	
-	//wprintf(L"FindFirstFile '%s'\n", buffer);
-	
+
 	HANDLE hFiles = FindFirstFileW(buffer, &ffd);
 	if (hFiles != INVALID_HANDLE_VALUE){
 		do{
-			//wprintf(L"findfile %i: %s %p\n",++count, ffd.cFileName, filesMasks);
-		
 			if ((ffd.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE) || (ffd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)){
 
 			}else if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
 				if (wcscmp(ffd.cFileName, L".") && wcscmp(ffd.cFileName, L"..")){
 					const int id = MAKEID;
-					//if (wcscmp(ffd.cFileName, L"$RECYCLE.BIN")){
 					if (ffd.cFileName[0] != L'$'){
 						if (fbAddDirectory(fb, nodeId, ffd.cFileName, &ffd, id)){
 							if (depth > 0){
@@ -702,9 +647,7 @@ TLOGICALDRIVE *fbGetLogicalDrives (int *tDrives)
 			
 			int dtype;
 			drives[ct].busType = getDriveBusType(drive[0]);
-			
-			//printf("%c: 0x%X %i\n", drive[0], drives[ct].busType, GetDriveTypeA(drive));
-			
+
 			if (drives[ct].busType == BusTypeUsb)
 				dtype = DRIVE_USB;
 			else
@@ -722,14 +665,7 @@ TLOGICALDRIVE *fbGetLogicalDrives (int *tDrives)
 					else
 						drives[ct].isSystemDrive = 0;
 						
-					//printf("%i %s\n", drives[ct].driveType, drives[ct].drive);
-					//wchar_t pszDrive[3] = {drive[0], L':', 0};
-					//DWORD pdwMediaContent = 0;
-					//SHGetDriveMedia(pszDrive, &pdwMediaContent);
-					//printf("# %c %X\n", drive[0], (int)pdwMediaContent);
-
 					SHGetDiskFreeSpaceExA(drives[ct].drive, NULL, (ULARGE_INTEGER*)&drives[ct].totalNumberOfBytes, (ULARGE_INTEGER*)&drives[ct].totalNumberOfFreeBytes);
-					//printf("'%s' %i %I64d %I64d %i\n", drives[ct].drive, dtype, drives[ct].totalNumberOfBytes, drives[ct].totalNumberOfFreeBytes, drives[ct].isSystemDrive);
 					ct++;
 				}
 			}
@@ -946,15 +882,15 @@ char *fbGetComputerName ()
 	size_t blen = MAX_PATH;
 	wchar_t buffer[blen+1];
 /*
-ComputerNameNetBIOS
-ComputerNameDnsHostname
-ComputerNameDnsDomain
-ComputerNameDnsFullyQualified
-ComputerNamePhysicalNetBIOS
-ComputerNamePhysicalDnsHostname
-ComputerNamePhysicalDnsDomain
-ComputerNamePhysicalDnsFullyQualified
-ComputerNameMax
+	ComputerNameNetBIOS
+	ComputerNameDnsHostname
+	ComputerNameDnsDomain
+	ComputerNameDnsFullyQualified
+	ComputerNamePhysicalNetBIOS
+	ComputerNamePhysicalDnsHostname
+	ComputerNamePhysicalDnsDomain
+	ComputerNamePhysicalDnsFullyQualified
+	ComputerNameMax
 */
 	if (GetComputerNameExW(ComputerNameDnsHostname, buffer, (DWORD*)&blen)){
 		__mingw_wprintf(L"GetComputerName #%ls#\n", buffer);
