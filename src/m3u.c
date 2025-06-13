@@ -27,7 +27,6 @@
 #define BLEN (MAX_PATH_UTF8+1)
 
 
-
 static unsigned int extHash;
 static int extLen;
 
@@ -46,7 +45,6 @@ static inline int isLineDirectory (const char *var)
 	wchar_t conbuffer[MAX_PATH+1] = {0};
 	
 	if (UTF8ToUTF16(var, strlen(var), conbuffer, MAX_PATH)){
-		//wprintf(L"%i #%s#\n", PathIsDirectoryW(conbuffer) != 0, conbuffer);
 		return PathIsDirectoryW(conbuffer) != 0;
 	}else{
 		return 0;
@@ -55,26 +53,15 @@ static inline int isLineDirectory (const char *var)
 
 static inline char *removeTrailingSpace (char *var)
 {
-#if 1
 	char *eos = var + strlen(var) - 1;
 	while (eos >= var && (/**eos == ' ' || *eos == '\t' ||*/ /**eos == '\r' ||*/ *eos == '\n'))
 		*eos-- = 0;
-#else
-	char *chr = strrchr(line, var);
-	if (chr) newLine = 0;
-#endif
 	return var;
 }
 
 static inline char *removeLeadingSpace (char *var)
 {
-#if 0
-	int i = strspn(var, " \t");
-	if (i) var += i;
-	return var;
-#else
 	return var+strspn(var, " \t");
-#endif
 }
 
 TM3U *m3uNew ()
@@ -95,23 +82,14 @@ void m3uFree (TM3U *m3u)
 
 static inline int m3uOpenRead (TM3U *m3u, const wchar_t *name)
 {
-	//if (m3u->al)
-	//	freeASCIILINE(m3u->al);
-	//m3u->al = readFileW(name);
 	m3u->hFile = _wfopen(name, L"rb");
-//	wprintf(L"'%s' %p\n", name, m3u->hFile);
 
 	return (m3u->hFile != NULL);
-	//return (m3u->al != NULL);
 }
 
 static inline void m3uCloseRead (TM3U *m3u)
 {
 	if (m3u){
-		//if (m3u->al){
-		//	freeASCIILINE(m3u->al);
-		//	m3u->al = NULL;
-		//}
 		if (m3u->hFile){
 			fclose(m3u->hFile);
 			m3u->hFile = NULL;
@@ -378,7 +356,7 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 	char title[BLEN];
 	char album[BLEN];
 	char artwork[BLEN];
-	char readBuffer[MAX_PATH_UTF8*2];
+	char readBuffer[BLEN*2];
 	char *buffer = readBuffer;
 	
 	int tagIdx = -999;
@@ -404,17 +382,16 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 
 
 	int i = 0;
-	//for (int i = 0; i < m3u->al->tlines; i++){
+
 	do{
 		i++;
-		//line = removeLeadingSpace((char*)m3u->al->line[i]);
+
 		if (*line == '#'){
 			line++;
 			
 			if (!strncmp(line, "EXTINF:", 7)){
 				if (m3uParseEXTINF(line+7, time, artist, title, BLEN-1))
 					tagIdx = i;
-				//printf("\n'%s'\n'%s'\n'%s'\n\n",time, artist, title);
 				
 			}else if (!strncmp(line, "EXTART:", 7)){
 				char *art = strtok(line+7, "\n");
@@ -440,7 +417,6 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 			}else if (!strncmp(line, "EXTPYLEND:", 10)){
 				if (--state < 0){
 					state = 0;
-					//printf("m3uReadPlaylist: playlist invalid or incorrectly formatted: '%s'\n", line+10);
 				}
 				if (plc->parent)
 					plc = plc->parent;
@@ -459,8 +435,7 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 			if (plcN){
 				wchar_t *inpath = converttow(line);
 				if (inpath){
-					/*int importTotal = */filepaneBuildPlaylistDir(filepane, plcN, inpath, FILEMASKS_MEDIA, 1);
-					//printf("m3u import #%s# %i\n", line, importTotal);
+					filepaneBuildPlaylistDir(filepane, plcN, inpath, FILEMASKS_MEDIA, 1);
 					my_free(inpath);
 				}
 					
@@ -500,7 +475,6 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 							if (item->tag[MTAG_Title])
 								my_free(item->tag[MTAG_Title]);
 							item->tag[MTAG_Title] = my_strdup(title);
-							//item->tag[MTAG_Title] = decodeURI_noprefix(title, strlen(title));
 							
 							playlistSetTitle(plc, pos, title, 1);
 							item->hasTitle = 1;
@@ -511,8 +485,6 @@ int m3uReadPlaylist (TM3U *m3u, TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, TMETA
 							if (item->tag[MTAG_Artist])
 								my_free(item->tag[MTAG_Artist]);
 							item->tag[MTAG_Artist] = my_strdup(artist);
-							//printf("##%s##\n", item->tag[MTAG_Artist]);
-							//item->tag[MTAG_Artist] = decodeURI_noprefix(artist, strlen(artist));
 							*artist = 0;
 						}
 
@@ -573,8 +545,6 @@ next:
 		if (buffer)
 			line = removeLeadingSpace(buffer);
 	}while(buffer != NULL);
-	
-	//printf("state %i, ct %i\n", state, ct);
-	
+
 	return ct;
 }
