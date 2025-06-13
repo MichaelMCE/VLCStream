@@ -25,7 +25,7 @@
 
 #include "common.h"
 
-#if 0
+#if (ENABLE_SBUI)
 
 
 extern volatile int SHUTDOWN;
@@ -147,8 +147,6 @@ int sbuiSetDKImageFile (TVLCPLAYER *vp, const int key, wchar_t *file)
 
 int sbuiSetDKImageArtId (TVLCPLAYER *vp, const int key, const int id)
 {
-	//printf("sbuiSetDKImageArtId %i %i\n", key, id);
-	
 	if (SHUTDOWN) return 0;
 	
 	int ret = 0;
@@ -189,9 +187,7 @@ static inline unsigned int __stdcall sbuiDKImageThread (void *ptr)
 {
 	
 #if 0
-	
 	TVLCPLAYER *vp = (TVLCPLAYER*)ptr;
-	//printf("sbuiDKImageThread started\n");
 
 	//wchar_t path[MAX_PATH+1];
 	sbuiDKSetImages(vp);
@@ -259,8 +255,7 @@ static inline unsigned int __stdcall sbuiDKImageThread (void *ptr)
 			sbuiSetDKImageArtId(vp, SBUI_DK_10, ids[id]);
 		}
 	}
-	
-	//printf("sbuiDKImageThread exited\n");
+
 #endif
 	_endthreadex(1);
 	return 1;
@@ -280,7 +275,6 @@ void sbuiSetApplState (const int state)
 
 static inline void sbuiDK_1_cb (TVLCPLAYER *vp, const int state)
 {
-	// printf("dk 1, %i\n", state);
 	if (state == SBUI_DK_DOWN)
 		timerSet(vp, TIMER_PREVTRACK, 0);
 }
@@ -306,9 +300,6 @@ static inline void sbuiDK_3_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_4_cb (TVLCPLAYER *vp, const int state)
 {
-	//printf("dk 4, %i %i\n", state, preState);
-	//static int preState = 0;
-	
 	if (state == SBUI_DK_DOWN){
 	/*	timerSet(vp, TIMER_FASTFORWARD, 500);
 		preState = 1;
@@ -322,7 +313,6 @@ static inline void sbuiDK_4_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_5_cb (TVLCPLAYER *vp, const int state)
 {
-	 //printf("dk 5, %i\n", state);
 
 	const int playlist = PAGE_PLY_PANE;
 	
@@ -354,7 +344,6 @@ static inline void sbuiDK_6_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_7_cb (TVLCPLAYER *vp, const int state)
 {
-	// printf("dk 7, %i\n", state);
 	if (state == SBUI_DK_DOWN){
 		if (pageGet(vp) == PAGE_OVERLAY)
 			page2SetPrevious(page2PageStructGet(vp->pages, PAGE_OVERLAY));
@@ -365,8 +354,6 @@ static inline void sbuiDK_7_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_8_cb (TVLCPLAYER *vp, const int state)
 {
-	//printf("dk 8, %i\n", state);
-	
 	if (state == SBUI_DK_DOWN){
 		if (pageGet(vp) == PAGE_EXP_PANEL)
 			page2SetPrevious(page2PageStructGet(vp->pages, pageRenderGetTop(vp->pages)));
@@ -377,8 +364,6 @@ static inline void sbuiDK_8_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_9_cb (TVLCPLAYER *vp, const int state)
 {
-	// printf("dk 9, %i %i\n", state, getPlayState(vp));
-
 	if (state == SBUI_DK_DOWN){
 		if (getPlayState(vp) == 1 || getPlayState(vp) == 2)
 			startVlcTrackPlayback(vp);
@@ -389,7 +374,6 @@ static inline void sbuiDK_9_cb (TVLCPLAYER *vp, const int state)
 
 static inline void sbuiDK_10_cb (TVLCPLAYER *vp, const int state)
 {
-	//printf("dk 10, %i\n", state);
 
 	static uint64_t t0 = 0;
 		
@@ -421,9 +405,7 @@ static inline void sbuiDK_10_cb (TVLCPLAYER *vp, const int state)
 	}else if (state == SBUI_DK_UP){
 		if (getTickCount() - t0 >= 4000){
 			printf("#### force shutdown initiated ####\n\n");
-			
-			//printf("%u %i, %u\n", (int)getTickCount(), (int)t0, (int)getTickCount()-t0);
-			
+
 			sbuiSetApplState(1);	// we're shutting down
 			setApplState(vp, 0);	// let everyone else know..
 			
@@ -468,10 +450,8 @@ static inline int sbuiGestureCB (const TSBGESTURE *sbg, void *ptr)
 	int total = sbg->params;
 	if (total > 1) total = 1;
 
-	if (sbg->type != SBUICB_GESTURE_PRESS){
-		//printf("invalid gesture\n");
+	if (sbg->type != SBUICB_GESTURE_PRESS)
 		return 0;
-	}
 		
 	TTOUCHCOORD pos;
 	pos.x = sbg->x;
@@ -484,10 +464,9 @@ static inline int sbuiGestureCB (const TSBGESTURE *sbg, void *ptr)
 	pos.id = sbg->id;
 	pos.pen = 1 & ~total;
 	pos.pressure = 100;
+
 	int pressState = 0;
-	
-	//printf("press type:%i, %i,%i '%i' %f %i:%i %f %f\n", sbg->type, sbg->x, sbg->y, 1&~total, sbg->dt, sbg->ct, sbg->id, pos.dt, sbg->time);
-	
+
 	if (streamId != sbg->id){	// attempt to get rid of invalid and/or ghost taps from the sbui device
 		if (sbg->dt < 20){
 			dumpId = sbg->id;
@@ -496,11 +475,8 @@ static inline int sbuiGestureCB (const TSBGESTURE *sbg, void *ptr)
 		}
 	}
 
-	if (sbg->id == dumpId){
-		//printf("dumping %i\n", dumpId);
+	if (sbg->id == dumpId)
 		return 1;
-	}
-
 	
 	//dumpId = -1;
 	streamId = sbg->id;
@@ -534,16 +510,13 @@ static inline int sbuiGestureCB (const TSBGESTURE *sbg, void *ptr)
 	
 	switch (pressState){
 	  case 1:
-		//printf("## down %i\n", pos.id);
-		touchSimulate(&pos, TOUCH_VINPUT|0, ptr);
+		touchSimulate(&pos, TOUCH_VINPUT|0, ptr);		// down
 		break;
 	  case 2:
-		//printf("## drag %i\n", pos.id);
-		touchSimulate(&pos, TOUCH_VINPUT|1, ptr);
+		touchSimulate(&pos, TOUCH_VINPUT|1, ptr);		// drag
 		break;
 	  case 3:
-		//printf("## up %i\n", pos.id);
-		touchSimulate(&pos, TOUCH_VINPUT|3, ptr);
+		touchSimulate(&pos, TOUCH_VINPUT|3, ptr);		// up
 		break;
 	}
 	
@@ -572,13 +545,9 @@ int sbuiGestureCBEnable (TVLCPLAYER *vp)
 		if (lSetDisplayOption(vp->ml->hw, did, lOPT_SBUI_UDATAPTR, (intptr_t*)vp)){
 			if (lSetDisplayOption(vp->ml->hw, did, lOPT_SBUI_GESTURECB, (intptr_t*)sbuiGestureCB)){
 				sbuiGestureCfg(vp, SBUICB_OP_GestureEnable, SBUICB_GESTURE_PRESS, SBUICB_STATE_ENABLED);
-				//sbuiGestureCfg(vp, SBUICB_OP_GestureSetNotification, SBUICB_GESTURE_PRESS, SBUICB_STATE_ENABLED);
-				//sbuiGestureCfg(vp, SBUICB_OP_GestureSetOSNotification, SBUICB_GESTURE_PRESS, SBUICB_STATE_DISABLED);
 				return 1;
 			}
 		}
-	}else{
-		// printf("SwitchBladeUI not found\n");
 	}
 	return 0;
 }
@@ -639,15 +608,12 @@ static inline void sbuiEndDKManager ()
 
 int sbuiDKCBEnable (TVLCPLAYER *vp)
 {
-	//printf("sbuiDKCBEnable\n");
-	
 	lDISPLAY did = sbuiGetLibmylcdDID(vp->ml->hw);
 	if (did){
 		if (lSetDisplayOption(vp->ml->hw, did, lOPT_SBUI_UDATAPTR, (intptr_t*)vp)){
 			if (lSetDisplayOption(vp->ml->hw, did, lOPT_SBUI_DKCB, (intptr_t*)sbuiDKCB)){
 				if (!hDkStateEvent)
 					hDkStateEvent = CreateEvent(NULL, 0, 0, NULL);
-				//printf("sbuiDKCBEnable hDkStateEvent %p\n", hDkStateEvent);
 				sbuiEndDKManager();
 				return 1;
 			}
@@ -685,8 +651,6 @@ int sbuiDKSetImages (TVLCPLAYER *vp)
 	memset(currentDk, 255, sizeof(currentDk));
 	currentDk[SBUI_DK_2] = getPlayState(vp);		// play/pause key
 
-	//lSleep(20);
-
 	if (!idsPlay[0] || !ids[0]){
 		for (int i = 0; i < 12; i++)
 			idsPlay[i] = artManagerImageAdd(vp->im, imagesPlay[i]);
@@ -695,13 +659,8 @@ int sbuiDKSetImages (TVLCPLAYER *vp)
 			ids[i] = artManagerImageAdd(vp->im, images[i]);
 	}		
 
-	//double t0 = getTime(vp);	
 	for (int i = 0; i < 10; i++)
 		ret += sbuiSetDKImageArtId(vp, i+1, ids[i]);
-
-	//double t1 = getTime(vp);
-	//printf("ret %i, %.2f %.2f\n", ret, t1-t0, (t1-t0)/(double)ret);
-	
 	return ret;
 }
 
@@ -776,8 +735,6 @@ static inline int sbuiDKCB (const int dk, const int state, void *ptr)
 			renderSignalUpdate(vp);
 		}
 	}else if (dk == SBUI_DK_DEACTIVATE){
-		//printf("SBUI_DK_DEACTIVATE\n");
-		
 		vp->renderState = 0;
 		if (mHookGetState()){
 			captureMouse(vp, 0);
@@ -826,18 +783,17 @@ int sbuiResync (TVLCPLAYER *vp, lDISPLAY did)
 	
 	intptr_t intp;
 	if (!lSetDisplayOption(vp->ml->hw, did, lOPT_SBUI_RECONNECT, &intp)){
-		//printf("sbui reconnect failed\n");
+
 	}else if (!sbuiGestureCBEnable(vp)){
-		//printf("sbui gesture cb initialization failed\n");
+
 	}else if (!sbuiDKCBEnable(vp)){
-		//printf("sbui dk cb initialization failed\n");
+
 	}else{
 		int ret = sbuiDKSetImages(vp);
 		lSleep(100);
 		isResyncing = 0;
 		
 		if (ret != 20){	// 20 = 10 keys with 2 images per key
-			//printf("sbui dk image setup failed (%i)\n", ret);
 		}else{
 			return 1;
 		}
@@ -860,7 +816,6 @@ static inline int sbuiInitDisplay (TVLCPLAYER *vp)
 // TIMER_SBUI_CONNECTED
 void timer_sbuiConnected (TVLCPLAYER *vp)
 {
-	//printf("timer_sbuiConnected\n");
 	static int tempDID = -1;
 	
 	if (!isSBUIEnabled(vp)){		// then activate it
@@ -904,8 +859,6 @@ void timer_sbuiConnected (TVLCPLAYER *vp)
 // TIMER_SBUI_DISCONNECTED
 void timer_sbuiDisconnected (TVLCPLAYER *vp)
 {
-	//printf("timer_sbuiDisonnected\n");
-	
 	if (!isSBUIEnabled(vp)){
 		SuspendThread(hSbuiDkThread);
 		return;

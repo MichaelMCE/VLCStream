@@ -26,7 +26,7 @@
 #define _SBUI_H_
 
 
-
+#if (ENABLE_SBUI)
 
 int isSBUIEnabled (TVLCPLAYER *vp);
 
@@ -36,7 +36,6 @@ void sbuiGestureCBDisable (TVLCPLAYER *vp);
 
 int sbuiDKCBEnable (TVLCPLAYER *vp);
 void sbuiDKCBDisable (TVLCPLAYER *vp);
-//int sbuiDKCB (const int dk, const int state, void *ptr);
 
 
 int sbuiDKSetImages (TVLCPLAYER *vp);
@@ -62,6 +61,8 @@ void timer_sbuiDisconnected (TVLCPLAYER *vp);
  
 void sbuiWoken (TVLCPLAYER *vp);
 
+
+#endif
 
 #endif
 
