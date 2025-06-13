@@ -73,19 +73,12 @@ tcx_renderContext *tcx_createRenderContext (tcx_activities *activities, const in
 	rc->dLat = rc->maxLat - rc->minLat;
 	rc->aspect = rc->dLong / rc->dLat;
 		
-		
-//	printf("tcx_createRenderContext %f %f\n", rc->dLat, rc->dLong);
-		
+
 	// 3.04 is the Strava.com map aspect/scale
 	// 2.35 is my display aspect for a best fit (4/3 * 480/272)
 	//%scaleFactor = 3.04;
-	//rc->scaleFactor = 4.0/3.0 * rc->daspect;
-	//rc->scaleFactor = 1.76470 * rc->daspect;
 	rc->scaleFactor = 1.71 * rc->daspect;
-	//rc->scaleFactor = 2.8;
 	rc->zoomFactor = 1.0;
-	
-	//printf("rc->daspect %f %f, %f\n", rc->daspect, rc->aspect, rc->scaleFactor);
 
 	rc->points.source = my_malloc((1+rc->points.total) * sizeof(tcx_renderPt));
 	rc->points.world = my_malloc((1+rc->points.total) * sizeof(tcx_screenPt));
@@ -463,10 +456,6 @@ int tcx_calcStats (tcx_activities *activities)
 
 static inline int tcx_normalizeActivity (tcx_renderContext *rc, tcx_activity *activity, const int activityNo, const double minLong, const double minLat, int *normalizedIdx)
 {
-	//double minLong = activity->stats.longitude.min;
-	//double minLat = activity->stats.latitude.min;
-	//int normalizedIdx = 0;
-
 	for (int l = 0; l < activity->laps.total; l++){
 		tcx_lap *lap = activity->laps.list[l];
 	
@@ -477,12 +466,6 @@ static inline int tcx_normalizeActivity (tcx_renderContext *rc, tcx_activity *ac
 				tcx_trackpoint *tp = track->trackPoints.list[p];
 				
 				if (tp->longitude != 0.0 && tp->latitude != 0.0){
-					//printf("tcx_normalizeActivity %f %f\n", tp->latitude, tp->longitude);
-					
-					//rc->points.source[*normalizedIdx].longitude = tp->longitude;
-					//rc->points.source[*normalizedIdx].latitude = tp->latitude;
-					//rc->points.source[*normalizedIdx].data = ((uint64_t)activityNo<<48) | ((uint64_t)l<<32) | ((t/*&0xFFFF*/)<<16) | (p&0xFFFF);
-					
 					rc->points.normalized[*normalizedIdx].longitude = (tp->longitude - minLong) * rc->scaleLongZoom;
 					rc->points.normalized[*normalizedIdx].latitude = 1.0 - ((tp->latitude - minLat) * rc->scaleLatZoom);
 					rc->points.normalized[*normalizedIdx].data = ((uint64_t)activityNo<<48) | ((uint64_t)l<<32) | ((t/*&0xFFFF*/)<<16) | (p&0xFFFF);
@@ -493,8 +476,6 @@ static inline int tcx_normalizeActivity (tcx_renderContext *rc, tcx_activity *ac
 	}
 	
 	rc->points.total = *normalizedIdx;
-
-	//printf("tcx_normalizeActivity: rc->points.total %i, %f %f\n", rc->points.total, minLong, minLat);
 	return rc->points.total;
 }
 
@@ -576,15 +557,13 @@ void tcx_screen (tcx_renderContext *rc, const double renderOffsetX, const double
 	offsetX += renderOffsetX;
 	offsetY -= renderOffsetY;
 	
-	//printf("offsetX %f\n", offsetX);
-
 	tcx_renderPt *scaled = rc->points.scaled;
 	tcx_screenPt *pts = tcx_screenGetBack(rc);
 	tcx_screenPt *plotted = rc->points.plotted;
 	int plottedTotal = 0;
 	int preX = -1;
 	int preY = -1;
-	//int ct = 0;
+
 	
 	for (int i = 0; i < rc->points.total; i++, scaled++, pts++){
 		pts->data = scaled->data;
@@ -600,8 +579,6 @@ void tcx_screen (tcx_renderContext *rc, const double renderOffsetX, const double
 				*plotted = *pts;
 				plotted++;
 				plottedTotal++;
-			//}else{
-			//	ct++;
 			}
 		}
 	}
@@ -609,7 +586,6 @@ void tcx_screen (tcx_renderContext *rc, const double renderOffsetX, const double
 	rc->startX = offsetX;
 	rc->startY = offsetY;
 
-	//printf("ct %i\n", ct);
 	rc->points.plottedTotal = plottedTotal;
 	//rc->points.screenModified++;
 }
@@ -620,19 +596,12 @@ double tcx_calcScaleMultipliers (tcx_renderContext *rc)
 		rc->aspectFactor = rc->aspect/rc->scaleFactor;
 		rc->scaleLong = rc->aspectFactor / rc->dLong;
 		rc->scaleLat = 1.0/rc->dLat;
-			
-		//printf("long factor: %f\n", factor);
 		
 	}else{
 		rc->aspectFactor = 1.0/(rc->aspect/rc->scaleFactor);
 		rc->scaleLat = rc->aspectFactor / rc->dLat;
 		rc->scaleLong = 1.0 / rc->dLong;
-						
-		//printf("lat factor: %f\n", factor);
 	}	
-
-	//printf("calcNormalization %f %f %f\n", rc->aspectFactor, rc->scaleLat, rc->scaleLong);	
-	
 	return rc->aspectFactor;
 }
 	
@@ -646,10 +615,6 @@ void tcx_zoom (tcx_renderContext *rc, const double factor)
 static inline mxml_type_t mxml_cb (mxml_node_t *node)
 {
 	const char *name = node->value.element.name;
-	//static int count = 0;
-	
-	//printf("mxml_cb %i: '%s'\n", count++, name);
-
 
 	if (!strcmp(name, "Trackpoint")){
 		return MXML_ELEMENT;
@@ -813,8 +778,7 @@ static inline int timeToTime (const char *str, tcx_time *t)
 {
 	if (strlen(str) < 20) return 0;
 	
-	//"2015-06-13T13:05:59Z"
-	
+	// expected format: "2015-06-13T13:05:59Z"
 	t->year = atoi(str);
 	t->mon = atoi(&str[5]);
 	t->mday = atoi(&str[8]);
@@ -836,7 +800,6 @@ uint64_t tcx_timeTo64 (tcx_time *t)
 
 // 10692
 //'2015-06-28T11:37:06Z' 2461026
-
 static inline void time64ToTm (uint64_t t64, tcx_time *t)
 {
 	struct tm *tm = _localtime64((__time64_t*)&t64);
@@ -854,10 +817,6 @@ static inline void time64ToTm (uint64_t t64, tcx_time *t)
 		t->min = modf(t64 / 60.0 / 60.0, &val) * 60.0;
 		t->sec = t64 % 60;
 	}
-	
-	//printf("time64ToTm %I64d %i %i %i\n", t64, t->hour, t->min, t->sec);
-	//printf("Time: %i %i %i:%.2i:%.2i, %i\n", tm->tm_year, tm->tm_mon, tm->tm_hour, tm->tm_min, tm->tm_sec, tm->tm_isdst);
-	
 }
 
 void tcx_time64ToTime (uint64_t t64, tcx_time *t)
@@ -868,8 +827,6 @@ void tcx_time64ToTime (uint64_t t64, tcx_time *t)
 
 static inline mxml_node_t *tcx_parseTrackpointPosition (mxml_node_t *parent, mxml_node_t *topNode, tcx_track *track, tcx_trackpoint *trackpoint)
 {
-	//printf("tcx_parseTrackpointPosition %p\n", parent);
-	
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
 
 	while (node){
@@ -903,7 +860,6 @@ static inline mxml_node_t *tcx_parseTrackpointPosition (mxml_node_t *parent, mxm
 
 static inline mxml_node_t *tcx_parseTrackpoint (mxml_node_t *parent, mxml_node_t *topNode, tcx_track *track, tcx_trackpoint *trackpoint)
 {
-	//printf("tcx_parseTrackpoint %p\n", parent);
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
 
 	while (node){
@@ -946,8 +902,6 @@ static inline mxml_node_t *tcx_parseTrackpoint (mxml_node_t *parent, mxml_node_t
 
 				timeToTime(node->value.text.string, &trackpoint->time.time);
 				trackpoint->time.time64 = tmTo64(&trackpoint->time.time);
-				
-				//printf("'%s' %I64d\n", node->value.text.string, trackpoint->time.time64);
 			}
 		}
 
@@ -962,8 +916,6 @@ static inline mxml_node_t *tcx_parseTrackpoint (mxml_node_t *parent, mxml_node_t
 
 static inline mxml_node_t *tcx_parseTrack (mxml_node_t *parent, mxml_node_t *topNode, tcx_lap *lap, tcx_track *track)
 {
-	
-	//printf("tcx_parseTrack %p\n", parent);
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
 	
 	while (node){
@@ -984,7 +936,6 @@ static inline mxml_node_t *tcx_parseTrack (mxml_node_t *parent, mxml_node_t *top
 
 static inline mxml_node_t *tcx_parseLapExtensions (mxml_node_t *parent, mxml_node_t *topNode, tcx_activity *activity, tcx_lap *lap)
 {
-	//printf("tcx_parseLapExtensions %p\n", parent);
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
 
 
@@ -1016,13 +967,9 @@ static inline mxml_node_t *tcx_parseLapExtensions (mxml_node_t *parent, mxml_nod
 
 static inline mxml_node_t *tcx_parseLap (mxml_node_t *parent, mxml_node_t *topNode, tcx_activity *activity, tcx_lap *lap)
 {
-	
-	//printf("tcx_parseLap %p\n", parent);
-
 	if (parent->value.element.num_attrs){
 		timeToTime(parent->value.element.attrs[0].value, &lap->time.start);
 		lap->time.start64 = tmTo64(&lap->time.start);
-		//printf("lap starttime: '%s'\n", parent->value.element.attrs[0].value);
 	}
 	
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
@@ -1088,11 +1035,8 @@ static inline mxml_node_t *tcx_parseLap (mxml_node_t *parent, mxml_node_t *topNo
 
 static inline mxml_node_t *tcx_parseActivity (mxml_node_t *parent, mxml_node_t *topNode, tcx_activities *activities, tcx_activity *activity)
 {
-	//printf("tcx_parseActivity %p\n", parent);
-	
 	if (parent->value.element.num_attrs){
 		strncpy(activity->name, parent->value.element.attrs[0].value, sizeof(activity->name)-1);
-		//printf("activity name: '%s'\n", activity->name);
 	}
 	
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
@@ -1106,7 +1050,6 @@ static inline mxml_node_t *tcx_parseActivity (mxml_node_t *parent, mxml_node_t *
 				if (node->type != MXML_TEXT) continue;
 
 				strncpy(activity->id, node->value.text.string, sizeof(activity->id)-1);
-				//printf("id: '%s'\n", activity->id);
 				tcx_time actTime = {0};
 				timeToTime(activity->id, &actTime);
 				activity->startTime64 = tmTo64(&actTime);
@@ -1126,11 +1069,8 @@ static inline mxml_node_t *tcx_parseActivity (mxml_node_t *parent, mxml_node_t *
 
 static inline mxml_node_t *tcx_parseCourse (mxml_node_t *parent, mxml_node_t *topNode, tcx_activities *activities, tcx_activity *activity)
 {
-	//printf("tcx_parseCourse %p\n", parent);
-	
 	if (parent->value.element.num_attrs){
 		strncpy(activity->name, parent->value.element.attrs[0].value, sizeof(activity->name)-1);
-		//printf("activity name: '%s'\n", activity->name);
 	}
 	
 	mxml_node_t *node = mxmlWalkNext(parent, topNode, MXML_DESCEND);
