@@ -809,9 +809,6 @@ static inline int alarmFire (TALARM *alarm, TALARMTIMER *alm)
 
 int alarmCheckAlarm (TALARM *alarm, const time64_t t0, TALARMTIMER *alm)
 {
-	//const double dt = _difftime64(getDayStartTime() + alm->trigger.time64, t0);
-	//printf("alarmCheckAlarm: %I64d %I64d %.0f\n", t0, alm->trigger.time64, dt);
-	
 	if (alm->trigger.period == ALARM_FIRE_WEEKLY){
 		struct tm *date = getTimeReal(NULL);
 		if (!(alm->trigger.when & (1<<date->tm_wday)))
@@ -820,12 +817,12 @@ int alarmCheckAlarm (TALARM *alarm, const time64_t t0, TALARMTIMER *alm)
 
 	const double dt = _difftime64(getDayStartTime() + alm->trigger.time64, t0);
 	if (dt <= ALARM_FIREWINDOW_HIGH && dt > ALARM_FIREWINDOW_LOW){
-		//printf("timer %i firing\n", alm->id);
-		
 		if (alm->wakeOnIdle){
 			if (getIdle(alarm->com->vp)){
 				wakeup(alarm->com->vp);
+#if (ENABLE_SBUI)
 				sbuiWoken(alarm->com->vp);	// shouldn't be here
+#endif
 			}
 		}
 		int fired = alarmFire(alarm, alm);

@@ -380,8 +380,9 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 		//printf("INPUT_EVENT_STATE volume:%i\n", getVolume(vp));
 		//if (getVolume(vp) == -1 /*&& vp->vlc->volume != -1*/)
 		//	setVolume(vp, vp->vlc->volume);
-
+#if (ENABLE_SBUI)
 		sbuiDKStateChange();
+#endif
 		break;
 
 		/* b_dead is true */
@@ -392,14 +393,18 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 		timerSet(vp, TIMER_ES_UPDATE, 50);
 		timerSet(vp, TIMER_META_UPDATE, 50);
 		timerSet(vp, TIMER_SUB_UPDATE, 50);
+#if (ENABLE_SBUI)
 	  	sbuiDKStateChange();
+#endif
 		break;
 	  
 	  /* a *user* abort has been requested */
 #if (LIBVLC_VERSION_MAJOR < 3)
 	  case INPUT_EVENT_ABORT:
 		//printf("INPUT_EVENT_ABORT  \n");
+#if (ENABLE_SBUI)
 		sbuiDKStateChange();
+#endif
 		break;
 #endif
       /* "rate" has changed */

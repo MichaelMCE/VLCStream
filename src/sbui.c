@@ -22,10 +22,10 @@
 //	Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-#include <math.h>
+
 #include "common.h"
 
-
+#if 0
 
 
 extern volatile int SHUTDOWN;
@@ -75,8 +75,7 @@ int sbuiSetDKImage (TVLCPLAYER *vp, const int key, TFRAME *img)
 	lDISPLAY did = sbuiGetLibmylcdDID(vp->ml->hw);
 	if (!did || SHUTDOWN) return 0;
 	
-	//printf("sbuiSetDKImage %i\n", key);
-	
+
 	TSBGESTURESETDK sbdk;
 	sbdk.size = sizeof(TSBGESTURESETDK);
 	sbdk.op = SBUI_SETDK_IMAGE;
@@ -923,3 +922,7 @@ void timer_sbuiDisconnected (TVLCPLAYER *vp)
 	}
 #endif
 }
+
+
+#endif
+

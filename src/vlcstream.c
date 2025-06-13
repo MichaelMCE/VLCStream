@@ -1234,8 +1234,10 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
       		vlc->playState = 8;
 			vlc->position = 0.0;
 		}
-		
+
+#if (ENABLE_SBUI)		
 		sbuiDKStateChange();
+#endif
 		timerSet(vp, TIMER_CTRL_UPDATETIMESTAMP, 1);
 				
 		if (vp->gui.drawVisuals){
@@ -1826,8 +1828,9 @@ static inline int browserLoadMediaFile (TVLCPLAYER *vp, char *utf8path, char *op
 static inline void exitAppl (TVLCPLAYER *vp)
 {
 	SHUTDOWN = 1;
+#if (ENABLE_SBUI)
 	sbuiSetApplState(1);
-
+#endif
 	if (hasPageBeenAccessed(vp, PAGE_SEARCH))
 		searchForceStop(vp);
 
@@ -2741,8 +2744,10 @@ int playerSetup (TVLCPLAYER *vp, const int startPage)
 	timerInit(vp, TIMER_IMAGECACHEFLUSH, timer_cacheFlush, NULL);
 	timerInit(vp, TIMER_REG_TRACK_UPDATE, timer_regTrackInfoUpdate, NULL);
 	timerInit(vp, TIMER_TASKBARTITLE_UPDATE, timer_drawTaskbarTrackTitle, NULL);
+#if (ENABLE_SBUI)
 	timerInit(vp, TIMER_SBUI_CONNECTED, timer_sbuiConnected, NULL);
 	timerInit(vp, TIMER_SBUI_DISCONNECTED, timer_sbuiDisconnected, NULL);
+#endif
 	timerInit(vp, TIMER_ALARM, timer_alarm, NULL);
 	timerInit(vp, TIMER_FLUSH, timer_flushcaches, NULL);
 	timerInit(vp, TIMER_SEARCH_ENDED, timer_searchEnded, NULL);
@@ -2750,10 +2755,10 @@ int playerSetup (TVLCPLAYER *vp, const int startPage)
 	timerInit(vp, TIMER_SEARCH_METACB, timer_metaCb, NULL);
 	timerInit(vp, TIMER_testingonly, timertest, NULL);
 
+#if (ENABLE_SBUI)
 	if (isSBUIEnabled(vp))
 		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS);
-//	else
-//		sbuiStartImageThread(vp, HIGH_PRIORITY_CLASS|CREATE_SUSPENDED);
+#endif
 
 	setApplState(vp, 1);
 	configApply(vp);

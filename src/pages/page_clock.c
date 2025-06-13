@@ -41,13 +41,16 @@ int __cdecl clock_gettime (clockid_t clock_id, struct timespec *tp);
 
 
 
-static const char *monthName_upper[12]  = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 static const char *monthName_lower[12]  = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
 static const char *monthName_CapLow[12]  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-static const char *weekdayName_upper[8] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
 static const char *weekdayName_lower[8] = {"mon", "tue", "wed", "thu", "fri", "sat", "sun", "mon"};
 static const char *weekdayName_capLow[8] = {"Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"};
 static const int daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+#if (ENABLE_SBUI)
+static const char *monthName_upper[12]  = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+static const char *weekdayName_upper[8] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
+#endif
+
 
 
 
@@ -340,6 +343,7 @@ static inline void clockRenderBoxDigital (TVLCPLAYER *vp, TCLK *clk, TFRAME *fra
 	clockRenderDigitStringBoxDigital(clk, clk->digital.images, frame, 0, y1, buffer);
 }
 
+#if (ENABLE_SBUI)
 static inline void clockRenderSBDK (TCLK *clk, const int dk, const int font, const unsigned int colour, const char Char)
 {
 	if (sbuiSetDKImageChar(clk->com->vp, dk, font, colour, Char)){
@@ -386,6 +390,7 @@ static inline void clockRenderSBDate (TCLK *clk, const int font, const int colou
 	
 	lSetRenderEffect(hw, LTR_DEFAULT);
 }
+#endif
 
 static inline void clockRenderPredator5pt (TCLK *clk, TFRAME *frame, TFRAME **images, int xc, int yc, const int drawFlags, const int num)
 {
@@ -735,10 +740,10 @@ void clockRenderPolar (TVLCPLAYER *vp, TCLK *clk, TFRAME *frame, const double xc
 	lSetRenderEffect(frame->hw, LTR_DEFAULT);
 }
 
+#if (ENABLE_SBUI)
 static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	//printf("sbSetDkTimerCB in: %i\n", (int)GetCurrentThreadId());
-	
+
 	TCLK *clk = (TCLK*)dwUser;
 	if (getApplState(clk->com->vp)){
 		if (renderLock(clk->com->vp)){
@@ -774,6 +779,7 @@ static void (CALLBACK sbSetDkTimerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser
 	}
 	clk->sbdk.timerState = 0;
 }
+#endif
 
 static inline int page_clkRender (TCLK *clk, TVLCPLAYER *vp, TFRAME *frame)
 {	
@@ -805,10 +811,12 @@ static inline int page_clkRender (TCLK *clk, TVLCPLAYER *vp, TFRAME *frame)
 		clockRenderPredator(vp, clk, frame, clk->pos.x, clk->pos.y, getIdle(vp));
 	}
 
+#if (ENABLE_SBUI)
 	if (isSBUIEnabled(vp) && getIdle(vp) && !clk->sbdk.timerState){
 		clk->sbdk.timerState = 1;
 		timeSetEvent(100, 20, sbSetDkTimerCB, (DWORD_PTR)clk, TIME_ONESHOT);
 	}
+#endif
 
 #if DRAWMISCDETAIL
 	lDrawLine(frame, 0, 0, frame->width-1, frame->height-1, 255<<24|COL_CYAN);
@@ -1062,9 +1070,10 @@ static inline int page_clkRenderEnd (TCLK *clk, TVLCPLAYER *vp, int64_t destId, 
 		for (int i = 0; i < predatorImageTotal; i++)
     		imageManagerImageRelease(vp->im, clk->predator.imageIds[i]);
 	}
-
+#if (ENABLE_SBUI)
 	if (isSBUIEnabled(vp) && getIdle(vp))
 		sbuiDKSetImages(vp);
+#endif
 
 	return 1;
 }

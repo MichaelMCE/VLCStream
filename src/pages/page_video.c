@@ -338,7 +338,7 @@ static void renderEditbox (TVLCPLAYER *vp, TFRAME *frame, int x, int y, const in
 	//drawStrInt(frame, frame->width-100, y, "", artworkGetTotal(vp->tagc), col[SWH_OVR_EBOXTEXTBK]);
 }
 
-static void drawCursor (TVLCPLAYER *vp, TFRAME *frame, TGUI *gui)
+static inline void drawCursor (TVLCPLAYER *vp, TFRAME *frame, TGUI *gui)
 {
 	TFRAME *cur = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_POINTER]);
 	//if (cur){
@@ -392,7 +392,7 @@ void video_composeFrame (TVLCPLAYER *vp, TFRAME *frame)
 	page2Render(vp->pages, frame, PAGE_TEXTOVERLAY);
 	
 
-#if (0 && ENABLE_BASS)
+#if (1 && ENABLE_BASS)
 	if (!getIdle(vp) && getPlayState(vp))
 		bass_render(&vp->bass, frame, ((frame->width - vp->bass.vwidth)/2)-27, frame->height-10);
 #endif

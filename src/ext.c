@@ -251,12 +251,14 @@ static inline void cmd_ss (TVLCPLAYER *vp, const char *var, const char *var2)
 
 static inline void cmd_resync (TVLCPLAYER *vp, const char *var, const char *var2)
 {
+#if (ENABLE_SBUI)
 	lDISPLAY did = sbuiGetLibmylcdDID(vp->ml->hw);
 	if (did){
 		wakeup(vp);
 		page2Set(vp->pages, PAGE_HOME, 1);
 		sbuiResync(vp, did);
 	}
+#endif
 }
 
 static inline void playlistUIJumpToUID (TVLCPLAYER *vp, int uid, int trk)
@@ -374,11 +376,13 @@ static inline void cmd_mediaVol (TVLCPLAYER *vp, const char *var, const char *va
 
 static inline void cmd_sbdkPress (TVLCPLAYER *vp, const char *var, const char *var2)
 {
+#if 0
 	if (isSBUIEnabled(vp)){
 		const int dk = decToInt(var);
 		if (dk >= SBUI_DK_1 && dk <= SBUI_DK_10)
 			sbuiSimulateDk(dk, vp);
 	}
+#endif
 }
 
 static inline void cmd_eqProfileSet (TVLCPLAYER *vp, const char *var, const char *var2)
@@ -590,7 +594,9 @@ void extReceiveCdsPath (TVLCPLAYER *vp, const int to, const unsigned int hash, c
 
 		setAwake(vp);
 		vp->gui.frameCt = 0;
+#if (ENABLE_SBUI)
 		sbuiWoken(vp);
+#endif
 		renderSignalUpdate(vp);
 
 		dbprintf(vp, "Importing '%s'", pathIn8);

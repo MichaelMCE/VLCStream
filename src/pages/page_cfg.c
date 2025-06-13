@@ -85,6 +85,7 @@ static const TLABELSTRINGS cfgSwapRB[] = {
 	{0, ""}
 };
 
+#if (ENABLE_SBUI)
 static const TLABELSTRINGS cfgSbuiGesture[] = {
 	{9, "Trackpad: OS"},
 	{9, "Trackpad: App."},
@@ -103,6 +104,7 @@ static inline void cfgSetPadCtrlMode (TCFG *cfg, const int mode)
 	cfg->com->vp->gui.padctrlMode = mode;
 	cfgSetPadCtrlLabel(cfg, mode);
 }
+#endif
 
 static inline void cfgSetSwapRBLabel (TCFG *cfg, const int mode)
 {
@@ -208,9 +210,10 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 				if (++cfg->com->vp->gui.padctrlMode >= BTN_CFG_PADCTRL_TOTAL)
 					cfg->com->vp->gui.padctrlMode = BTN_CFG_PADCTRL_OFF;
 			//	printf("cfg_label_cb: padctrl %i\n", vp->gui.padctrlMode);
-				
+#if (ENABLE_SBUI)				
 				cfgSetPadCtrlLabel(cfg, cfg->com->vp->gui.padctrlMode);
 				setPadControl(label->cc->vp, cfg->com->vp->gui.padctrlMode);
+#endif
 				renderSignalUpdate(label->cc->vp);
 			}
 			
@@ -452,9 +455,9 @@ void cfgAttachmentsSetCount (TVLCPLAYER *vp, const int count)
 		labelItemDisable(cfg->lbls[BTN_CFG_MISC_WRITEATTACH].label, cfg->lbls[BTN_CFG_MISC_WRITEATTACH].strId);
 }
 
+#if (ENABLE_SBUI)
 int getPadControl (TVLCPLAYER *vp)
 {
-	//TCFG *cfg = pageGetPtr(vp, PAGE_CFG);
 	return vp->gui.padctrlMode;
 }
 
@@ -464,6 +467,7 @@ void setPadControl (TVLCPLAYER *vp, const int mode)
 	if (cfg) cfgSetPadCtrlMode(cfg, mode);
 	sbuiCfgSetPadControl(vp, mode);
 }
+#endif
 
 void setRBSwap (TVLCPLAYER *vp, const int mode)
 {
@@ -474,7 +478,11 @@ void setRBSwap (TVLCPLAYER *vp, const int mode)
 int cfgInit (TVLCPLAYER *vp, TFRAME *frame, TCFG *cfg)
 {
 
+#if (ENABLE_SBUI)
 	const int isSbuiEnabled = isSBUIEnabled(vp);
+#else
+	const int isSbuiEnabled = 0;
+#endif
 
 	int y = 0;
 
@@ -653,8 +661,12 @@ int cfgInit (TVLCPLAYER *vp, TFRAME *frame, TCFG *cfg)
 	//setVis(vp, vp->gui.visual + BTN_CFG_VIS_DISABLED);
 	setShowStats(vp, vp->gui.drawStats);
 	setRBSwap(vp, vp->vlc->swapColourBits);
+	
+#if (ENABLE_SBUI)
 	if (isSbuiEnabled)
 		setPadControl(vp, BTN_CFG_PADCTRL_ON);
+#endif
+
 	cfgAttachmentsSetCount(vp, vp->vlc->hasAttachments);
 
 	return 1;

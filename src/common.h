@@ -38,7 +38,7 @@
 
 
 
-#define RELEASEBUILD			0				// disables console input when set
+#define RELEASEBUILD			1				// disables console input when set
 #define MOUSEHOOKCAP			1				// enable mouse hooking capability. keys: shift+control+A or Q, L or P (creates a new thread and hidden window)
 #define ASYNCHRONOUSREFRESH 	1
 #define USEEXTMEMFUNC			0				// define to 1 to use libmylcd's memory alloc and trace routines
@@ -69,6 +69,7 @@
 #define ENABLE_GARMINTCX		1
 #define ENABLE_BRIGHTNESS		0				// hardware brightness support where supported
 #define ENABLE_CMDFUNSTUFF		1
+#define ENABLE_SBUI				0
 
 #define SINGLEINSTANCE_USE_CDS	1
 #define ENABLE_BASS				(1/* || !RELEASEBUILD*/)

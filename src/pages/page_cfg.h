@@ -194,7 +194,9 @@ int page_cfgCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t
 void reloadSkin (TVLCPLAYER *vp, const int randBack);
 void setRBSwap (TVLCPLAYER *vp, int state);
 //void setVis (TVLCPLAYER *vp, int visButton);
+#if (ENABLE_SBUI)
 void setPadControl (TVLCPLAYER *vp, const int mode);
+#endif
 void setAR (TVLCPLAYER *vp, const int arButton);
 void setClockType (TVLCPLAYER *vp, const int type);
 void setBrightness (TVLCPLAYER *vp, int arButton);

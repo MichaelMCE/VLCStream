@@ -147,13 +147,17 @@ void touchDispatcherStart (TVLCPLAYER *vp, const void *fn, const void *ptr)
 	mDispatch.listUpper = -1;
 	
 	
+#if (ENABLE_SBUI)
 	if (sbuiGetLibmylcdDID(vp->ml->hw)){
 		if (!sbuiGestureCBEnable(vp)){
 
 		}else if (!sbuiDKCBEnable(vp)){
 
 		}
-	}else if (hiddGetLibmylcdDID(vp->ml->hw)){
+	}
+#endif
+	
+	if (hiddGetLibmylcdDID(vp->ml->hw)){
 		if (!hiddTouchCBEnable(vp)){
 
 		}
@@ -192,10 +196,12 @@ void touchDispatcherStop (TVLCPLAYER *vp)
 	endMouseCapture(vp);
 #endif
 
+#if (ENABLE_SBUI)
 	if (sbuiGetLibmylcdDID(vp->ml->hw)){
 		sbuiDKCBDisable(vp);
 		sbuiGestureCBDisable(vp);
 	}
+#endif
 
 	lDISPLAY did;	
 	if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSBHID", LDRV_DISPLAY))){

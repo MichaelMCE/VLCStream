@@ -935,12 +935,15 @@ static inline void cmd_resync (wchar_t *var, int vlen, void *uptr, int unused1, 
 	page2Set(vp->pages, PAGE_HOME, 1);
 
 	int success = 0;
-
-	lDISPLAY did = sbuiGetLibmylcdDID(vp->ml->hw);
-	if (did){
+	lDISPLAY did = 0;
+	
+#if (ENABLE_SBUI)
+	did = sbuiGetLibmylcdDID(vp->ml->hw);
+	if (did)
 		success = sbuiResync(vp, did);
-			
-	}else if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSBHID", LDRV_DISPLAY))){
+#endif	
+	
+	if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSBHID", LDRV_DISPLAY))){
 		
 	}else if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSB", LDRV_DISPLAY))){
 		
@@ -2914,6 +2917,7 @@ static inline void cmd_about (wchar_t *var, int vlen, void *uptr, int unused1, i
 
 static inline void cmd_trackpad (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 {
+#if (ENABLE_SBUI)
 	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
 	
 	wchar_t *state = strGetString(var, L" ");
@@ -2923,6 +2927,7 @@ static inline void cmd_trackpad (wchar_t *var, int vlen, void *uptr, int unused1
 		else if (!wcscmp(state, L"off") || !wcsicmp(state, L"os"))
 			setPadControl(vp, BTN_CFG_PADCTRL_OFF);
 	}
+#endif
 }
 
 static inline void cmd_keypad (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
