@@ -88,7 +88,6 @@ static inline void cmd_play (TVLCPLAYER *vp, const char *var, const char *var2)
 
 	if (var && *var){
 		int slen = strlen(var);
-		
 		if (slen < 4){
 			int trk = decToInt(var);
 			
@@ -103,7 +102,6 @@ static inline void cmd_play (TVLCPLAYER *vp, const char *var, const char *var2)
 		}else if (slen >= 4){		// uid is minimum 4 chars
 			int uid = 0, trk = -1;
 			hexIntToInt2(var, &uid, &trk);
-			//printf("CMD_MEDIA_PLAY %X %i\n", uid, trk);
 			
 			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
 			if (!plc || playlistGetTotal(plc) < trk) return;
@@ -129,7 +127,6 @@ static inline void cmd_pause (TVLCPLAYER *vp, const char *var, const char *var2)
 static inline void cmd_playpause (TVLCPLAYER *vp, const char *var, const char *var2)
 {
 	wakeup(vp);
-	//if (!getPlayState(vp) || getPlayState(vp) == 8)
 	if (!getPlayState(vp))
 		cmd_play(vp, var, var2);
 	else
@@ -301,8 +298,7 @@ static inline void playlistUIJumpToUID (TVLCPLAYER *vp, int uid, int trk)
 		timerSet(vp, TIMER_PLYPANE_REFRESH, 0);
 #endif
 	}
-	//if (page2RenderGetState(vp->pages, PAGE_PLY_TV))
-	//	timerSet(vp, TIMER_PLYTV_REFRESH, 0);
+
 	if (page2RenderGetState(vp->pages, PAGE_PLY_FLAT)){
 		int idx = playlistManagerGetIndexByUID(vp->plm, uid);
 		setDisplayPlaylistByUID(vp, uid);
@@ -321,9 +317,7 @@ static inline void cmd_playlistRename (TVLCPLAYER *vp, const char *var1, const c
 	int uid = 0, trk = -1;
 	hexIntToInt2(var1, &uid, &trk);
 	if (!uid) return;
-	
-	//printf("cmd_playlistRename %X %i '%s'\n", uid, trk, var2);
-	
+
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
 	if (trk < 1){
 		if (playlistSetName(plc, (char*)var2))
@@ -444,7 +438,6 @@ static inline void cmd_title (TVLCPLAYER *vp, const char *var1, const char *var2
 		TCHAPTER *chapt = pageGetPtr(vp, PAGE_CHAPTERS);
 		int title = decToInt(var1);
 		if (title > 0 && title <= 100 && title <= chapt->ttitles){
-			//dbwprintf(vp, L"Setting title %i of %i\n", title, chapt->ttitles);
 			vlc_setTitle(vp->vlc, title-1);
 		}
 	}
@@ -466,7 +459,6 @@ static inline void cmd_chapter (TVLCPLAYER *vp, const char *var1, const char *va
 		int chapter = decToInt(var1);
 		if (chapter > 0 && chapter <= MAX_CHAPTERS){
 			TCHAPTER *chapt = pageGetPtr(vp, PAGE_CHAPTERS);
-			//dbwprintf(vp, L"Setting chapter %i of %i\n", chapter, chapt->tchapters);
 			chapt->schapter = chapter;
 			vlc_setChapter(vlc, chapter-1);
 		}
@@ -511,7 +503,6 @@ static inline void cmd_botFacts (TVLCPLAYER *vp, const char *var1, const char *v
 
 static inline void cmd_taskbarupdate (TVLCPLAYER *vp, const char *var1, const char *var2)
 {
-	//printf("cmd_taskbarupdate\n");
 #if 0
 	wakeup(vp);
 	timerSet(vp, TIMER_TASKBARTITLE_UPDATE, 0);
@@ -528,36 +519,36 @@ static inline void cmd_flush (TVLCPLAYER *vp, const char *var1, const char *var2
 		
 static inline void cmd_ply_mvq_up (TVLCPLAYER *vp, const char *var1, const char *var2)
 {
-	int orig = getQueuedPlaylistUID(vp);
+
 	int uid = setQueuedPlaylistByUID(vp, getQueuedPlaylistParent(vp));
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-	char *title = playlistGetNameDup(plc);
-	printf("up: %X -> %X '%s'\n", orig, uid, title);
-	if (title) my_free(title);
+	
+	//char *title = playlistGetNameDup(plc);
+	//if (title) my_free(title);
 
 	playlistChangeEvent(vp, plc, getPlaylistFirstTrack(vp, uid));
 }
 
 static inline void cmd_ply_mvq_left (TVLCPLAYER *vp, const char *var1, const char *var2)
 {
-	int orig = getQueuedPlaylistUID(vp);
+
 	int uid = setQueuedPlaylistByUID(vp, getQueuedPlaylistLeft(vp));
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-	char *title = playlistGetNameDup(plc);
-	printf("left: %X -> %X '%s'\n", orig, uid, title);
-	if (title) my_free(title);
+
+	//char *title = playlistGetNameDup(plc);
+	//if (title) my_free(title);
 
 	playlistChangeEvent(vp, plc, getPlaylistFirstTrack(vp, uid));
 }
 
 static inline void cmd_ply_mvq_right (TVLCPLAYER *vp, const char *var1, const char *var2)
 {
-	int orig = getQueuedPlaylistUID(vp);
+
 	int uid = setQueuedPlaylistByUID(vp, getQueuedPlaylistRight(vp));
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-	char *title = playlistGetNameDup(plc);
-	printf("right: %X -> %X '%s'\n", orig, uid, title);
-	if (title) my_free(title);
+
+	//char *title = playlistGetNameDup(plc);
+	//if (title) my_free(title);
 
 	playlistChangeEvent(vp, plc, getPlaylistFirstTrack(vp, uid));
 }
@@ -592,17 +583,16 @@ void extReceiveCdsPath (TVLCPLAYER *vp, const int to, const unsigned int hash, c
 	if (!hash) return;
 	
 	if (hash == generateHash(pathIn8, pathInLen) && pathInLen == strlen(pathIn8)+1){
-		//if (1 || !vp->gui.awake){
-			if (pageGet(vp) == PAGE_CLOCK){
-				void *ptr = page2PageStructGet(vp->pages, PAGE_CLOCK);
-				page2SetPrevious(ptr);
-			}
+		if (pageGet(vp) == PAGE_CLOCK){
+			void *ptr = page2PageStructGet(vp->pages, PAGE_CLOCK);
+			page2SetPrevious(ptr);
+		}
 
-			setAwake(vp);
-			vp->gui.frameCt = 0;
-			sbuiWoken(vp);
-			renderSignalUpdate(vp);
-		//}
+		setAwake(vp);
+		vp->gui.frameCt = 0;
+		sbuiWoken(vp);
+		renderSignalUpdate(vp);
+
 		dbprintf(vp, "Importing '%s'", pathIn8);
 
 		if (to == WM_CDS_ADDTRACK_DSP)
@@ -655,8 +645,7 @@ void extReceiveCdsCmd (TVLCPLAYER *vp, const int op, const char *var1)
 			var2 = buffer;
 		}
 	}	
-	
-	//printf("extReceiveCdsCmd: '%s' '%s'\n", var1, var2);
+
 	extCommandFunc(vp, op, 0, var1, var2);
 }
 
