@@ -157,7 +157,7 @@ int hiddTouchCBEnable (TVLCPLAYER *vp)
 			}
 		}
 	}else{
-		// printf("SwitchBladeUI not found\n");
+		// printf("not found\n");
 	}
 	return 0;
 }
