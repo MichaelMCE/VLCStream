@@ -619,8 +619,6 @@ int fbFindFiles (TFB *fb, const int nodeId, const wchar_t *path, const wchar_t *
 	return count;
 }
 
-//STDAPI SHGetDriveMedia (PCWSTR pszDrive, DWORD *pdwMediaContent);
-
 TLOGICALDRIVE *fbGetLogicalDrives (int *tDrives)
 {
 	*tDrives = 0;
@@ -854,13 +852,11 @@ int fbShortcutsAdd (TLINKSHORTCUTS *linksc, const char *path, const char *link, 
 
 int fbShortcutsAdd8 (TLINKSHORTCUTS *linksc, const char *path, const char *link)
 {
-	//printf("fbShortcutsAdd8\n");
 	return fbShortcutsAdd(linksc, path, link, SYMLINK_SHORTCUT);
 }
 
 int fbShortcutAddModule (TLINKSHORTCUTS *linksc, const char *module, const char *name)
 {
-	//printf("fbShortcutAddModule\n");
 	return fbShortcutsAdd(linksc, module, name, SYMLINK_MODULE);
 }
 
@@ -927,7 +923,6 @@ char *fbGetMyComputerName ()
 
 	return convertto8(ret);
 }
-
 
 TTREEENTRY *fbGetEntry (TFB *fb, TFBITEM *item)
 {
