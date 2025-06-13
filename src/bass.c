@@ -30,7 +30,7 @@
 
 
 extern int SHUTDOWN;
-float audioLevel[2] = {0.0, 0.0};
+static float audioLevel[2] = {0.0f, 0.0f};
 
 #define blockWidth  12
 
@@ -47,14 +47,12 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 	int *visDataLive = my_malloc(vis->bufferLen);
 	my_memcpy(visDataLive, bass->visData[7], vis->bufferLen);
 
-	//int hPre = y1;
-	
 
 #if 0
 	for (int x = 0; x < bass->vwidth; x += blockWidth+1){
 		int acc = 0;
 		for (int a = x; a < x+blockWidth; a++)
-			acc += visDataLive[a>>1];
+			acc += visDataLive[a/3];
 			
 		acc /= blockWidth;
 		lDrawRectangleFilled(frame, x1+x, y1, x1+x+blockWidth-1, y1 - acc, 220<<24 | 0x00FF00);
@@ -64,15 +62,15 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 
 #if 1
 	int gap = 0;
-	for (int x = 0; x < bass->vwidth; x += blockWidth){
-		float acc = visDataLive[x>>1];
+	for (int x = 0; x < bass->vwidth; x += blockWidth-1){
+		float acc = visDataLive[x/3];
 		
-		for (int a = x+1; a < x+blockWidth-1; a++)
-			acc = (acc + visDataLive[a/2])/2.0f;
+		for (int a = x; a < x+blockWidth; a++)
+			acc += visDataLive[a/3]/2.0f;
 			
-		//acc /= blockWidth;
+		acc /= (blockWidth/2.0f);
 		float val = acc * (100.0f/(float)bass->vheight);
-		int colour = RGB(255-(2.55f*val),255-(2.15f*val),2.55f*val);
+		int colour = RGB(255-(2.55f*val), 255-(2.15f*val), 2.55f*val);
 		
 		lDrawRectangleFilled(frame, x1+x+gap, y1, gap+x1+x+blockWidth-1, y1 - acc, 255<<24 | (colour&0xFFFFFF));
 		gap++;
@@ -81,6 +79,7 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 
 
 #if 0
+	int hPre = y1;
 	for (int x = 1; x < bass->vwidth; x++){
 		int val = 0;
 		
@@ -120,11 +119,8 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 	}
 #endif
 
-
-
-
 #if 0
-	hPre = y1;
+	int hPre = y1;
 	for (int x = 1; x < bass->vwidth; x++){
 		int h = y1 - visDataLive[x>>1];
 		lDrawLine(frame, x1+x-1, hPre, x1+x, h, 170<<24 | 0xFF0000);
@@ -135,7 +131,7 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 #endif
 
 #if 0
-	int gap = 0;
+	gap = 0;
 	for (int x = 0; x < bass->vwidth; x += blockWidth){
 		float acc = visDataLive[x/2];
 		
@@ -157,8 +153,6 @@ void bass_render (TBASSLIB *bass, TFRAME *frame, const int x1, const int y1)
 		gap++;
 	}
 #endif
-
-	//sbuiSetDKImage3(bass->vp, frame, 0, 200, x1, y1-bass->vheight-1, x1+bass->vwidth-1, y1);
 
 	my_free(visDataLive);
 }
@@ -216,18 +210,14 @@ static inline int bass_getDefaultOut ()
 	return -1;
 }
 
-
+#if 0
 __stdcall unsigned int sbRenderLevelFunc (void *ptr)
 {
-	const int tid = GetCurrentThreadId();
-	printf("sbRenderLevelFunc START %i\n", tid);
-	
 	TBASSLIB *bass = (TBASSLIB*)ptr;
 	lSleep(1000);
 	
 	TFRAME *img = lNewFrame(bass->vp->ml->hw, 120, 120, LFRM_BPP_32);
 	for (int i = 1; i < 11; i++) sbuiSetDKImage(bass->vp, i, img);
-
 
 	
 	TFRAME *imgLeft = lNewFrame(bass->vp->ml->hw, 800, 64, LFRM_BPP_32);
@@ -235,9 +225,7 @@ __stdcall unsigned int sbRenderLevelFunc (void *ptr)
 	
 	while (WaitForSingleObject(bass->changeEventAudioLevel, INFINITE) == WAIT_OBJECT_0){
 		if (SHUTDOWN || !bass->chan) break;
-		
-		//sbuiSetDKImage(bass->vp, 2, img);
-		
+
 		float left = audioLevel[0] * 0.9f;
 		float vol = left * 1.0f;
 		if (vol > 1.0f) vol = 1.0f;
@@ -262,48 +250,15 @@ __stdcall unsigned int sbRenderLevelFunc (void *ptr)
 	lDeleteFrame(imgLeft);
 	lDeleteFrame(imgRight);
 
-	
-	//CloseHandle(bass->changeEventAudioLevel);
-	
-	printf("sbRenderLevelFunc EXIT %i\n", tid);
 	_endthreadex(1);
 	return 1;
 }
+#endif
 
-
-#if 1
 BOOL CALLBACK DuffRecording (HRECORD handle, const void *buffer, DWORD length, void *ptr)
 {
-	return FALSE;
-	
-	float *data = (float*)buffer;
-	//printf("DuffRecording %p %i\n", data, (int)length);
-	
-	length /= sizeof(float);
-	float maxValL = 0.0f;
-	float maxValR = 0.0f;
-	
-	for (int i = 0; i < length; i+=2){
-		if (*data > maxValL) maxValL = *data;
-		if (*(++data) > maxValR) maxValR = *data;
-	}
-
-	audioLevel[0] = maxValL;
-	audioLevel[1] = maxValR;
-	
-	TBASSLIB *bass = ptr;
-	SetEvent(bass->changeEventAudioLevel);
-	
-	//printf("DuffRecording %f %i\n", maxVal, (int)length);
-	return TRUE; // continue recording
-}
-#else
-BOOL CALLBACK DuffRecording (HRECORD handle, const void *buffer, DWORD length, void *ptr)
-{
-	
 	unsigned char *data = (unsigned char*)buffer;
-	//printf("DuffRecording %p %i\n", data, (int)length);
-	
+
 	length /= sizeof(unsigned char);
 	int maxValL = 0;
 	int maxValR = 0;
@@ -321,22 +276,15 @@ BOOL CALLBACK DuffRecording (HRECORD handle, const void *buffer, DWORD length, v
 	audioLevel[0] = maxValL;
 	audioLevel[1] = maxValR;
 	
-	TBASSLIB *bass = ptr;
-	SetEvent(bass->changeEventAudioLevel);
-	
-	//printf("DuffRecording %i %i\n", maxValL, maxValR);
-	return TRUE; // continue recording
-}
+	//TBASSLIB *bass = ptr;
+	//SetEvent(bass->changeEventAudioLevel);
 
-#endif
+	return TRUE; // continue monitoring
+}
 
 __stdcall unsigned int bassThreadInputFunc (void *ptr)
 {
 	TBASSLIB *bass = ptr;
-	
-	const int tid = GetCurrentThreadId();
-	printf("bassThreadInputFunc start %i\n", tid);
-	
 	
 /*	BASS_WASAPI_INFO info;
 	BASS_WASAPI_GetInfo(&info);
@@ -367,13 +315,9 @@ __stdcall unsigned int bassThreadInputFunc (void *ptr)
 	
 	//BASS_WASAPI_Lock(1);
 	while (!SHUTDOWN && bass->chan){
-	  if (0){
 		if (BASS_ChannelGetData(bass->chan, fft, BASS_DATA_FFT512) < 1)
 			break;
 
-		//printf("fft %f\n", fft[1]);
-		//memset(vis->buffer, 0, vis->bufferLen);
-			
 		float y;
 		float maxVal = 0.0f;
 		
@@ -381,53 +325,36 @@ __stdcall unsigned int bassThreadInputFunc (void *ptr)
 			float val = fft[x];
 			if (val > maxVal) maxVal = val;
 			
-			//printf("val %f\n", val);
 			if (val < 0.00010f)
 				y = 0.0f;
 			else
 				y = sqrtf(val) * 2.5f * (const int)(vis->height-1);		// scale it (sqrt to make low values more visible)
 				//y = fft[x+1]*10.0 * vis->height; // scale it (linearly)
 
-			//printf("%f %i\n", sqrt(fftPoint), y);
-			
 			if (y > vis->height) y = vis->height;			// cap it
 			vis->buffer[x] = (y+y1)/2;
 			y1 = y;
 		}
-	
-		//if (maxVal < 0.00010f) maxVal = 0.0f;
-		//y = sqrtf(maxVal) * 2.0f;
-		//y = maxVal * 5.0f;
-		//printf("max fft %f\n", y);
-	
+
 		//for (int i = 0; i < 7; i++)
 		//	my_memcpy(bass->visData[i], bass->visData[i+1], vis->bufferLen);
 		my_memcpy(bass->visData[7], vis->buffer, vis->bufferLen);
 
-		//printf("BASS_ChannelGetLevel %X\n", (unsigned int)BASS_ChannelGetLevel(bass->chan));
-
 		if (!SHUTDOWN){
 			if (!getIdle(bass->vp))
-				lSleep(70);
+				lSleep(15);
 			else
-				lSleep(2000);
+				lSleep(1000);
 		}
-	  }
-	  lSleep(1000);
 	}
-	//BASS_WASAPI_Lock(0);
-	
-	//BASS_WASAPI_Stop(1);
-	//BASS_WASAPI_Free();
 
 	BASS_RecordFree();	
-	
-	printf("bassThreadInputFunc end %i\n", tid);
 	_endthreadex(1);
 	return 1;
 }
 
-/*
+#if 0
+// set volume through LCDMisc.
 __stdcall unsigned int bassThreadVolChangeFunc (void *ptr)
 {
 	TBASSLIB *bass = ptr;
@@ -437,13 +364,9 @@ __stdcall unsigned int bassThreadVolChangeFunc (void *ptr)
 	while(!SHUTDOWN){
 		if (WaitForSingleObject(bass->volumeChangeEvent, INFINITE) == WAIT_OBJECT_0){
 			if (!SHUTDOWN && !getIdle(bass->vp)){
-				//if (pageGet(bass->vp) == PAGE_OVERLAY){
-					//printf("volume %.2f\n", bass_volumeGet(bass));
-					//overlayActivateOverlayResetTimer(bass->vp);
-					overlaySetOverlay(bass->vp);
-					setVolumeDisplay(bass->vp, bass_volumeGet(bass));
-					renderSignalUpdate(bass->vp);
-				//}
+				overlaySetOverlay(bass->vp);
+				setVolumeDisplay(bass->vp, bass_volumeGet(bass));
+				renderSignalUpdate(bass->vp);
 			}
 		}
 	}
@@ -451,7 +374,8 @@ __stdcall unsigned int bassThreadVolChangeFunc (void *ptr)
 	CloseHandle(bass->volumeChangeEvent);
 	_endthreadex(1);
 	return 1;
-}*/
+}
+#endif
 
 int bass_start (TBASSLIB *bass, const int visuals, const int vwidth, const int vheight, TVLCPLAYER *vp)
 {
@@ -463,13 +387,10 @@ int bass_start (TBASSLIB *bass, const int visuals, const int vwidth, const int v
 	bass->vheight = vheight;
 	bass->vp = vp;
 
-	
-
-	if (0 && visuals){		
+	if (1 && visuals){		
 		for (int i = 0; i < 8; i++)
-			bass->visData[i] = my_calloc(sizeof(int), vwidth);
-	
-	
+			bass->visData[i] = my_calloc(vwidth, sizeof(int));
+
 		for (int i = 0; i < BASS_VISUAL_TOTAL; i++){
 			bass->vis[i].bufferLen = sizeof(int) * vwidth;
 			bass->vis[i].buffer = my_calloc(1, bass->vis[i].bufferLen);
@@ -477,35 +398,26 @@ int bass_start (TBASSLIB *bass, const int visuals, const int vwidth, const int v
 			bass->vis[i].height = vheight;
 		}
 
-
 		bass->hThreadInput = _beginthreadex(NULL, 0, bassThreadInputFunc, bass, CREATE_SUSPENDED, &bass->threadId);
 		ResumeThread((HANDLE)bass->hThreadInput);
 
-		bass->changeEventAudioLevel = CreateEvent(NULL, 0, 0, NULL);
-		bass->hThreadAudioLevel = _beginthreadex(NULL, 0, sbRenderLevelFunc, bass, CREATE_SUSPENDED, &bass->threadIdAudioLevel);
-		ResumeThread((HANDLE)bass->hThreadAudioLevel);
+		//bass->changeEventAudioLevel = CreateEvent(NULL, 0, 0, NULL);
+		//bass->hThreadAudioLevel = _beginthreadex(NULL, 0, sbRenderLevelFunc, bass, CREATE_SUSPENDED, &bass->threadIdAudioLevel);
+		//ResumeThread((HANDLE)bass->hThreadAudioLevel);
 	}
 
-	//bass->hThreadVolChange = _beginthreadex(NULL, 0, bassThreadVolChangeFunc, bass, CREATE_SUSPENDED, &bass->threadVolChangeId);
-	//ResumeThread((HANDLE)bass->hThreadVolChange);
-
+#if 0
+	bass->hThreadVolChange = _beginthreadex(NULL, 0, bassThreadVolChangeFunc, bass, CREATE_SUSPENDED, &bass->threadVolChangeId);
+	ResumeThread((HANDLE)bass->hThreadVolChange);
+#endif
 	return 1;
 }
 
 void bass_close (TBASSLIB *bass)
 {
-	/*
-	for (int i = 0; i < 5; i++)
-		SetEvent(bass->volumeChangeEvent);
-
-	WaitForSingleObject((HANDLE)bass->hThreadVolChange, INFINITE);
-	CloseHandle((HANDLE)bass->hThreadVolChange);
-	*/
-	
-		
 	if (bass->visuals){
-		for (int i = 0; i < 5; i++)
-			SetEvent(bass->changeEventAudioLevel);
+		//for (int i = 0; i < 5; i++)
+			//SetEvent(bass->changeEventAudioLevel);
 
 		WaitForSingleObject((HANDLE)bass->hThreadAudioLevel, INFINITE);
 		CloseHandle((HANDLE)bass->hThreadAudioLevel);
@@ -525,9 +437,6 @@ void bass_close (TBASSLIB *bass)
 		BASS_WASAPI_Free();
 	}
 }
-
-
-
 
 
 #endif

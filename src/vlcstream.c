@@ -32,12 +32,10 @@ Start with: 'vlcstream.exe "path/to/mediafile.ext"' or use the built-in explorer
 */
 
 
-
 #include "common.h"
 #if !RELEASEBUILD
 #include <conio.h>
 #endif
-
 
 
 
