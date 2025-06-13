@@ -70,6 +70,6 @@
 #include "page_antplus.h"
 #endif
 
-
+#include "page_video.h"
 
 #endif

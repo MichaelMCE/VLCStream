@@ -87,7 +87,7 @@ LIBS = -static -static-libstdc++ -static-libgcc $(BUILDM32M64) -Llibs/$(SYSARCH)
 BASEOBJS =  tcx.o fileext.o process.o fileal.o hdtouch.o bass.o imagec.o settings.o\
 			winm.o tags.o playlistc.o drawvolume.o stringcache.o vlceventcb.o list.o\
 			playlistsort.o playlistmanager.o stack.o m3u.o libmylcd.o ext.o fileio.o\
-			cmdparser.o vaudio.o common.o funstuff.o hotkeys.o vlcstream.o marquee.o\
+			cmdparser.o vaudio.o common.o funstuff.o vlcstream.o marquee.o\
 			vlc.o cpu.o lock.o transform.o libvlceq.o crc.o input.o editbox.o\
 			config.o timer.o swatch.o memory.o artc.o picqueue.o page.o playlist.o\
 			filebrowser.o tree.o shelf.o sbui.o\
@@ -108,7 +108,7 @@ BASEOBJS =  tcx.o fileext.o process.o fileal.o hdtouch.o bass.o imagec.o setting
 			pages/page_plypanel.o     pages/page_plytree.o   pages/page_search.o        \
 			pages/page_sub.o          pages/page_taskman.o   pages/page_tetris.o        \
 			pages/page_textoverlay.o  pages/page_cfg.o       pages/page_videotransform.o\
-			pages/page_plm.o
+			pages/page_plm.o          pages/page_hotkeys.o   pages/page_video.o
 
 
 BASEOBJS2 = $(BASEOBJS:%=$(TEMPDIR)/%)

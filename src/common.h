@@ -38,7 +38,7 @@
 
 
 
-#define RELEASEBUILD			1				// disables console input when set
+#define RELEASEBUILD			0				// disables console input when set
 #define MOUSEHOOKCAP			1				// enable mouse hooking capability. keys: shift+control+A or Q, L or P (creates a new thread and hidden window)
 #define ASYNCHRONOUSREFRESH 	1
 #define USEEXTMEMFUNC			0				// define to 1 to use libmylcd's memory alloc and trace routines
