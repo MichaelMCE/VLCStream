@@ -497,11 +497,6 @@ void setPlaybackMode (TVLCPLAYER *vp, const int mode)
 	1:audio with visuals enabled
 	*/
 	vp->currentFType = mode;
-	
-#if 0
-	vp->currentFType = PLAYBACKMODE_AUDIO;
-	vp->gui.visual = 1;
-#endif
 }
 
 int getPlaybackMode (TVLCPLAYER *vp)
@@ -799,23 +794,16 @@ void trackStop (TVLCPLAYER *vp)
 	player_stop(vp, vp->vlc);
 }
 
-
 // TIMER_VOL_MASTER_UP
 void volumeWinUp (TVLCPLAYER *vp)
 {
-	//printf("volumeWinUp %i\n", getVolume(vp, VOLUME_MASTER));
-	
   	setVolume(vp, getVolume(vp, VOLUME_MASTER) + 5, VOLUME_MASTER);
-	//overlaySetOverlay(vp);
 }
 
 // TIMER_VOL_MASTER_DN
 void volumeWinDown (TVLCPLAYER *vp)
 {
-	//printf("volumeWinDown %i\n", getVolume(vp, VOLUME_MASTER));
-	
 	setVolume(vp, getVolume(vp, VOLUME_MASTER) - 5, VOLUME_MASTER);
-	//overlaySetOverlay(vp);
 }
 
 
@@ -871,7 +859,7 @@ static inline int isVideoFrameAvailable (TVLCPLAYER *vp)
 			(getPlayState(vp) != 2) &&
 			 getApplState(vp)		&&
 			 vp->renderState		&&
-			(getPlaybackMode(vp) == PLAYBACKMODE_VIDEO/* || (getPlaybackMode(vp) == PLAYBACKMODE_AUDIO && vp->gui.visual)*/));
+			(getPlaybackMode(vp) == PLAYBACKMODE_VIDEO));
 }
 
 void *vmem_lock (void *data, void **pp_ret)
@@ -1704,7 +1692,6 @@ void vlc_configure (TVLCPLAYER *vp, TVLCCONFIG *vlc, const int width, const int 
 
 #if 0
 	vlc_addOption(vlc, "dshow-chroma="DSCHROMA);
-
 #else
 
 #ifdef DSVIDEO_SIZE
@@ -2440,11 +2427,8 @@ int playerLoadDefaultPlaylist (TVLCPLAYER *vp, const wchar_t *playlist)
 	return ret;
 }
 
-
-static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
+static inline TFRAME *selectRandomVideoBackground (TVLCPLAYER *vp)
 {
-	//printf("displayGetRandomBackground\n");
-	
 	// load and select a random background image
 	vp->gui.skin.bgPathTotal = 0;
 	
@@ -2454,14 +2438,13 @@ static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
 		if (!(vp->gui.skin.bgPathTotal=strList->total)){
 			cfg_configStrListFreeStrings(strList);
 			cfg_configStrListFree(strList);
-			//my_free(strList);
 			return NULL;
 		}
 
-		if (1 || vp->gui.runCount)
+		//if (vp->gui.runCount)
 			vp->gui.skin.currentIdx = rand()%vp->gui.skin.bgPathTotal;
-		else
-			vp->gui.skin.currentIdx = 0;
+		//else
+		//	vp->gui.skin.currentIdx = 0;
 
 		wchar_t *path = (wchar_t*)cfg_configStrListItem(strList, vp->gui.skin.currentIdx);
 		if (path){
@@ -2472,14 +2455,10 @@ static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
 			}else{
 				vp->gui.image[IMGC_BGIMAGE] = imageManagerImageAdd(vp->im, path);
 			}
-			//vp->gui.image[IMGC_BGIMAGE] = imageManagerImageAdd(vp->im, path);
-			//if (oldId && oldId != vp->gui.image[IMGC_BGIMAGE])
-			//	imageManagerImageDelete(vp->im, oldId);
 		}
 
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 
 	int width = 0, height = 0;
@@ -2496,9 +2475,6 @@ static inline TFRAME *displayBackgroundLoadRandom (TVLCPLAYER *vp)
 
 static inline int displaySetStartupScreen (TVLCPLAYER *vp, THWD *hw, TFRAME *frame)
 {
-	TFRAME *bg = displayBackgroundLoadRandom(vp);
-	if (!bg) return 0;
-		
 	lSetForegroundColour(hw, 0xFFE0E0E0);
 	const int blurOp = LTR_BLUR4;
 	lSetRenderEffect(hw, blurOp);
@@ -2509,7 +2485,7 @@ static inline int displaySetStartupScreen (TVLCPLAYER *vp, THWD *hw, TFRAME *fra
 	lSetFilterAttribute(hw, blurOp, LTRA_BLUR_Y, 0);
 	lSetFilterAttribute(hw, blurOp, LTRA_BLUR_ALPHA, 850);
 
-	fastFrameCopy(bg, frame, 0, 0);
+	fastFrameCopy(vp->gui.skin.bg, frame, 0, 0);
 	lPrintf(frame, 10, 10, STARTUP_LOADING_FONT, 0, "%s", "Loading...");
 	libmylcd_Render(frame);
 	lSetRenderEffect(hw, LTR_DEFAULT);
@@ -2633,6 +2609,9 @@ int playerSetup (TVLCPLAYER *vp, const int startPage)
 		imageManagerSetPathPrefix(vp->im, buffer);
 		my_free(skin);
 	}
+	
+	TFRAME *bg = selectRandomVideoBackground(vp);
+	if (!bg) return 0;
 	
 	if (!displaySetStartupScreen(vp, vp->ml->hw, getFrontBuffer(vp)))
 		return 0;
