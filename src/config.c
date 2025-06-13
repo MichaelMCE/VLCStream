@@ -47,7 +47,6 @@ int configSave (TVLCPLAYER *vp, const wchar_t *name)
 	__mingw_wprintf(L"configSave '%ls'\n", name);
 	
 
-	//settingsSet(vp, "general.visual", &vp->gui.visual);
 	settingsSet(vp, "general.showStats", &vp->gui.drawStats);
 	int valuei = (vp->gui.idleTime/1000);
 	settingsSet(vp, "general.idleTimeout", &valuei);
@@ -112,7 +111,6 @@ int configSave (TVLCPLAYER *vp, const wchar_t *name)
 	}
 
 	settingsSet(vp, "meta.drawTrackbar", &vp->gui.drawMetaTrackbar);
-	//settingsSet(vp, "device.virtual.onScreenCtrlIcons", &vp->gui.drawControlIcons);
 	
 	int var = vp->ml->killRzDKManagerOnConnectFailRetry;
 	settingsSet(vp, "device.sbui.killRzDKManagerOnConnectFailRetry", &var);
@@ -194,42 +192,22 @@ int configSave (TVLCPLAYER *vp, const wchar_t *name)
 		}
 	}
 
-	//const double t0 = getTime(vp);
 	int ret = settingsSave(&vp->settings, name);
-	//const double t1 = getTime(vp);
-	
-	//printf("configSave: time %.3fms, size: %i\n", t1-t0, ret);
 	return ret;
 }
 
 int configLoad (TVLCPLAYER *vp, const wchar_t *name, const int writeDefault)
 {
-	//const double t0 = getTime(vp);
 	int ret = settingsLoad(&vp->settings, name, writeDefault);
-	//const double t1 = getTime(vp);
-	
-	//printf("configLoad: time %.3fms, entries: %i\n", t1-t0, ret);
 	return ret;
 }
 
 void configApply (TVLCPLAYER *vp)
 {
 
-/*
-	settingsGet(vp, "general.visual", &vp->gui.visual);	
-	
-#if (LIBVLC_VERSION_MAJOR < 2)
-	settingsGet(vp, "general.visual", &vp->gui.visual);	
-	cfgButton(NULL, NULL, (vp->gui.visual+CFGBUTTON_VIS_DISABLED)-1, 0, vp);
-#else
-	vp->gui.visual = 0;//BTN_CFG_VIS_DISABLED;
-#endif
-*/
-
 	settingsGet(vp, "general.runCount", &vp->gui.runCount);
 	settingsGet(vp, "general.showStats", &vp->gui.drawStats);
 	setShowStats(vp, vp->gui.drawStats);
-
 
 #if ENABLE_BRIGHTNESS
 	vp->gui.brightness *= 10;
@@ -253,26 +231,8 @@ void configApply (TVLCPLAYER *vp)
 	vp->tagc->maxArtWidth = vp->gui.artMaxWidth;
 	settingsGet(vp, "artwork.maxHeight", &vp->gui.artMaxHeight);
 	vp->tagc->maxArtHeight = vp->gui.artMaxHeight;
-	
-#if 0
-	int total = 0;
-	settingsGet(vp, "artwork.threads", &total);
-	total = MIN(MAX(total, 0), 8);
-	if (total){
-		if (!vp->jc)
-			vp->jc = jobControllerNew(vp, jobThreadWorkerFunc);
-		while (total--)
-			jobThreadAdd(vp->jc);
-	}
-#endif
 
-	/*TPLYPANEL *plypan = pageGetPtr(vp, PAGE_PLY_PANEL);
-	settingsGet(vp, "artwork.panelImgSize", &plypan->imgArtSize);
-	if (plypan->imgArtSize < 10) plypan->imgArtSize = 110;*/
-	
-	/*TPLYTV *plytv = pageGetPtr(vp, PAGE_PLY_TV);
-	*(plytv->imgArtSize) = plypan->imgArtSize;*/
-	
+
 	int displayPlaylist = playlistManagerGetIndexByUID(vp->plm, vp->playlist.display);
 	settingsGet(vp, "lasttrack.playlist", &displayPlaylist);
 
@@ -280,32 +240,14 @@ void configApply (TVLCPLAYER *vp)
 		//vp->queuedPlaylist = vp->displayPlaylist = displayPlaylist;
 		vp->playlist.queued = playlistManagerGetUIDByIndex(vp->plm, displayPlaylist);
 		vp->playlist.display = vp->playlist.queued;
-		//printf("idx:%i, uid:%i\n", displayPlaylist, vp->playlist.queued);
 	}
 	
 
 	uint64_t hash = 0;
 	settingsGet(vp, "lasttrack.hash", &hash);
 	if (hash) settingsGet(vp, "lasttrack.track", &vp->gui.lastTrack);
-	
-#if 0
-	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
-	if (plc){
-		TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
 
-		if (overlayPlaylistListboxFill(vp, plyctrl->lbPlaylist, plc)){
-			//vp->queuedPlaylist = playlistManagerGetPlaylistIndex(vp->plm, plc);
-			setQueuedPlaylist(vp, plc);
-			if (plc->parent)
-				plc->parent->pr->selectedItem = playlistManagerGetPlaylistIndex(vp->plm, plc);
-		}
-#ifndef _DEBUG_
-		playlistChangeEvent(vp, plc, 0);
-#endif
-	}
-#endif
 
-#if 1
 	TFILEPANE *filepane = pageGetPtr(vp, PAGE_FILE_PANE);
 	char *values = NULL;
 	settingsGet(vp, "browser.filterBy", &values);
@@ -322,8 +264,6 @@ void configApply (TVLCPLAYER *vp)
 		filepaneSetSortMode(filepane, sortMode);
 		my_free(values);
 	}
-#endif
-
 	
 	TEQ *eq = pageGetPtr(vp, PAGE_EQ);
 	settingsGet(vp, "equalizer.preset", &eq->preset);
@@ -344,7 +284,6 @@ void configApply (TVLCPLAYER *vp)
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 
 	settingsGet(vp, "meta.drawTrackbar", &vp->gui.drawMetaTrackbar);
@@ -366,6 +305,7 @@ void configApply (TVLCPLAYER *vp)
 	settingsGet(vp, "video.aspect.custom.width", &vp->ctx.aspect.width);
 	settingsGet(vp, "video.aspect.custom.height", &vp->ctx.aspect.height);
 	settingsGet(vp, "video.aspect.custom.cleanSurface", &vp->ctx.aspect.clean);
+
 	if (vp->ctx.aspect.ratio < 0.01) vp->ctx.aspect.ratio = 0.0;
 	if (vp->ctx.aspect.x < 0) vp->ctx.aspect.x = 0;
 	if (vp->ctx.aspect.y < 0) vp->ctx.aspect.y = 0;
@@ -383,6 +323,7 @@ void configApply (TVLCPLAYER *vp)
 	settingsGet(vp, "video.filter.gamma", &vp->vlc->gamma);
 	settingsGet(vp, "video.filter.rotateOp", &vp->vlc->rotateOp);
 	settingsGet(vp, "video.filter.scaleOp", &vp->vlc->scaleOp);
+
 	if (vp->vlc->rotateOp < ROTATE_BILINEAR || vp->vlc->rotateOp > ROTATE_NEIGHBOUR)
 		vp->vlc->rotateOp = ROTATE_BILINEAR;
 	if (vp->vlc->scaleOp < SCALE_BILINEAR || vp->vlc->scaleOp > SCALE_NEIGHBOUR)
@@ -398,7 +339,6 @@ void configApply (TVLCPLAYER *vp)
 	else
 		setBaseUpdateRate(UPDATERATE_BASE_DEFAULT);
 
-
 	
 	TGUI *ui = &vp->gui;
 	settingsGet(vp, "home.hotkeys.alwaysAccessible", &ui->hotkeys.alwaysAccessible);
@@ -409,7 +349,6 @@ void configApply (TVLCPLAYER *vp)
 
 	TGLOBALHOTKEYS *ghk = pageGetPtr(vp, PAGE_HOTKEYS);
 	settingsGet(vp, "hotkeys.global.showLabels", &ghk->showNames);
-
 
 	values = NULL;
 	settingsGet(vp, "clock.type", &values);
@@ -428,7 +367,6 @@ int settingsLoad (TSETTINGS *cfg, const wchar_t *filename, const int writeDefaul
 
 	if (!entries && writeDefault){
 		//printf("config read failed. generating fresh config\n");
-		
 		cfg_configWrite(cfg->config, filename);
 		entries = cfg_configRead(cfg->config, filename);
 

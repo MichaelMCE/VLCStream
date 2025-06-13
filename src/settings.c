@@ -578,7 +578,6 @@ int settingsWriteKeys (FILE *fp, TCFGENTRY **config)
 
 		  case CFG_DOUBLE: 
 		  	slen = __mingw_snprintf(buffer, sizeof(buffer), "%s"CFG_SEPARATOR" %f", entry->key, *(double*)entry->ptr);
-		  	//printf("writeDouble: %s: %f '%s' #%s#\n", entry->key, *(double*)entry->ptr, buffer, CFG_SEPARATOR);
 		  	settingsWriteLine(fp, buffer, slen, entry->comment);
 			break;
 
@@ -850,11 +849,8 @@ void cfg_commentsSetDefault (TCFGENTRY **config)
 
 	cfg_commentSet(config, "skin.folder", "Skin location");
 	
-	
 	cfg_commentSet(config, "search.metaDepth", "Preload depth. Derfault is 2 branches deep");
 	cfg_commentSet(config, "search.ignorecase", "String matching should be case [in]sensitive. Default is 1");
-	
-	
 
 #if ENABLE_ANTPLUS
 	cfg_commentSet(config, "hrm.device.vid", "USB vender Id of device. Default: 4047 (decimal)");
@@ -919,7 +915,6 @@ void cfg_commentsSetDefault (TCFGENTRY **config)
 	cfg_commentSet(config, "alarm.action.flash.colour2", "ARGB");
 	cfg_commentSet(config, "alarm.action.flash.period", "Display/show each colour for this length of time (ms)");
 	cfg_commentSet(config, "alarm.action.flash.repeat", "Loop flash n times (eg; repeat:25/period:200 = 10Second flash)");
-
 }
 
 TCFGENTRY **cfg_configCreate (TSETTINGS *cfg)
@@ -1231,7 +1226,7 @@ TCFGENTRY **cfg_configCreate (TSETTINGS *cfg)
 		{"alarm.enabled",				V_INT32(0),				&cfg->alarm.status},
 		{"alarm.time",					V_STR("06:55"),			&cfg->alarm.time},
 		{"alarm.period",				V_STR("Weekly"),		&cfg->alarm.period},
-		{"alarm.weekly.",	V_SLIST7("Sun","Mon","Tue","Wed","Thr","Fri","Sat"), (void*)&cfg->alarm.days},
+		{"alarm.weekly.",				V_SLIST7("Sun","Mon","Tue","Wed","Thr","Fri","Sat"), (void*)&cfg->alarm.days},
 		{"alarm.action.mode",			V_STR("Playtrack"),		&cfg->alarm.action.mode},
 		
 		{"alarm.action.playtrack.title", V_STR(" "),				&cfg->alarm.action.track.title},
@@ -1267,11 +1262,11 @@ TCFGENTRY **cfg_configCreate (TSETTINGS *cfg)
 		{" ", V_BRK(0), NULL},
 		
 		{"tcx.file",					V_STR("a .tcx file"),			&cfg->tcx.file},
-		{"tcx.scale.initial",		V_DBL(TCX_RENDER_SCALE_DEFAULT),	&cfg->tcx.scaleInitial},
-		{"tcx.scale.multiplier",	V_DBL(TCX_RENDER_SCALE_MULTIPLIER),	&cfg->tcx.scaleMultiplier},
+		{"tcx.scale.initial",			V_DBL(TCX_RENDER_SCALE_DEFAULT),	&cfg->tcx.scaleInitial},
+		{"tcx.scale.multiplier",		V_DBL(TCX_RENDER_SCALE_MULTIPLIER),	&cfg->tcx.scaleMultiplier},
 		{"tcx.background.colour",		V_HEX(0xFF3C6A94),		&cfg->tcx.backgroundColour},
-		{"tcx.route.colour.",   V_SLIST9("0xFFD4CAC8","0xFFFF7F11","0xFF00FF00","0xFFFFFF00",\
-								"0xFFFF00FF","0xFF00B7EB","0xFFFF0000","0xFF0000FF", "0xFF000000"),
+		{"tcx.route.colour.",   		V_SLIST9("0xFFD4CAC8","0xFFFF7F11","0xFF00FF00","0xFFFFFF00",\
+										"0xFFFF00FF","0xFF00B7EB","0xFFFF0000","0xFF0000FF", "0xFF000000"),
 																(void*)&cfg->tcx.colourList},
 #endif
 
