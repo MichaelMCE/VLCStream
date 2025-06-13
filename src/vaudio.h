@@ -1,5 +1,9 @@
 
 
+#ifndef _VAUDIO_H_
+#define _VAUDIO_H_
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,10 +26,9 @@ void master_muteSet (const int mute);
 int master_muteGet ();
 
 
-
-
-
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif
+
