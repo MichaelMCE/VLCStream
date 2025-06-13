@@ -61,12 +61,8 @@ static inline PLAYLISTCACHE *_playlistManagerGetPlaylistByName (TPLAYLISTMANAGER
 
 PLAYLISTCACHE *playlistManagerGetPlaylistByName (TPLAYLISTMANAGER *plm, const char *name)
 {
-	//if (_playlistManagerLock(plm)){
-		PLAYLISTCACHE *ret = _playlistManagerGetPlaylistByName(plm, name);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return NULL;
+	PLAYLISTCACHE *ret = _playlistManagerGetPlaylistByName(plm, name);
+	return ret;
 }
 
 static inline int _playlistManagerGetUIDByName (TPLAYLISTMANAGER *plm, const char *name)
@@ -83,12 +79,8 @@ static inline int _playlistManagerGetUIDByName (TPLAYLISTMANAGER *plm, const cha
 int playlistManagerGetUIDByName (TPLAYLISTMANAGER *plm, const char *name)
 {
 	if (!name) return 0;
-	//if (_playlistManagerLock(plm)){
-		int uid = _playlistManagerGetUIDByName(plm, name);
-	//	_playlistManagerUnlock(plm);
+	int uid = _playlistManagerGetUIDByName(plm, name);
 		return uid;
-	//}
-	//return 0;
 }
 
 static inline char *_playlistManagerGetName (TPLAYLISTMANAGER *plm, const int uid)
@@ -106,15 +98,10 @@ static inline char *_playlistManagerGetName (TPLAYLISTMANAGER *plm, const int ui
 char *playlistManagerGetName (TPLAYLISTMANAGER *plm, const int uid)
 {
 	if (uid <= PLAYLIST_UID_BASE) return NULL;
-	char *name = NULL;
-	
-	//if (_playlistManagerLock(plm)){
-		name = _playlistManagerGetName(plm, uid);
-	//	_playlistManagerUnlock(plm);
-	//}
+
+	char *name = _playlistManagerGetName(plm, uid);
 	return name;
 }
-
 
 static inline int _playlistManagerGetTotal (TPLAYLISTMANAGER *plm)
 {
@@ -127,11 +114,7 @@ static inline int _playlistManagerGetTotal (TPLAYLISTMANAGER *plm)
 // return number of playlists'
 int playlistManagerGetTotal (TPLAYLISTMANAGER *plm)
 {
-	int ret = 0;
-	//if (_playlistManagerLock(plm)){
-		ret = _playlistManagerGetTotal(plm);
-	//	_playlistManagerUnlock(plm);
-	//}
+	int ret = _playlistManagerGetTotal(plm);
 	return ret;
 }
 
@@ -144,12 +127,8 @@ static inline int _playlistManagerGetPlaylistPrev (TPLAYLISTMANAGER *plm, const 
 
 int playlistManagerGetPlaylistPrev (TPLAYLISTMANAGER *plm, const int plIdx)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistPrev(plm, plIdx);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return -1;
+	int ret = _playlistManagerGetPlaylistPrev(plm, plIdx);
+	return ret;
 }
 
 static inline int _playlistManagerGetPlaylistNext (TPLAYLISTMANAGER *plm, const int plIdx)
@@ -161,12 +140,8 @@ static inline int _playlistManagerGetPlaylistNext (TPLAYLISTMANAGER *plm, const 
 
 int playlistManagerGetPlaylistNext (TPLAYLISTMANAGER *plm, const int plIdx)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistNext(plm, plIdx);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return -1;
+	int ret = _playlistManagerGetPlaylistNext(plm, plIdx);
+	return ret;
 }
 
 int playlistManagerGetPlaylistFirst (TPLAYLISTMANAGER *plm)
@@ -184,16 +159,8 @@ static inline PLAYLISTCACHE *_playlistManagerGetPlaylist (TPLAYLISTMANAGER *plm,
 
 PLAYLISTCACHE *playlistManagerGetPlaylist (TPLAYLISTMANAGER *plm, const int plIdx)
 {
-	//if (_playlistManagerLock(plm)){
-		PLAYLISTCACHE *ret = _playlistManagerGetPlaylist(plm, plIdx);
-		/*if (ret)
-			printf("%s:%i: playlistManagerGetPlaylist: %i -> '%s'\n", func, line, plIdx, ret->title);
-		else
-			printf("%s:%i: playlistManagerGetPlaylist: %i -> %p\n", func, line, plIdx, ret);*/
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return NULL;
+	PLAYLISTCACHE *ret = _playlistManagerGetPlaylist(plm, plIdx);
+	return ret;
 }
 
 static inline PLAYLISTCACHE *_playlistManagerGetPlaylistBaseByUID (TPLAYLISTMANAGER *plm, const int uid)
@@ -206,7 +173,6 @@ static inline PLAYLISTCACHE *_playlistManagerGetPlaylistBaseByUID (TPLAYLISTMANA
 	}
 	return NULL;
 }
-
 
 static inline int _playlistManagerGetPlaylistParentByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
@@ -224,45 +190,28 @@ static inline int _playlistManagerGetPlaylistParentByUID (TPLAYLISTMANAGER *plm,
 
 int playlistManagerGetPlaylistParentByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistParentByUID(plm, uid);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetPlaylistParentByUID(plm, uid);
+	return ret;
 }
 
 static inline PLAYLISTCACHE *_playlistManagerGetPlaylistByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	if (uid <= PLAYLIST_UID_BASE){
-		//printf("%s:%i: ", func, line);
-		//printf("playlistManagerGetPlaylistByUID: invalid UID supplied %i\n", uid);
+	if (uid <= PLAYLIST_UID_BASE)
 		return NULL;
-	}
-	
+
 	for (int i = 0; i < plm->p_total; i++){
 		if (plm->plc[i]){
 			if (plm->plc[i]->uid == uid)
 				return plm->plc[i];
 		}
 	}
-
-	//printf("%s:%i: ", func, line);
-	//printf("playlistManagerGetPlaylistByUID: no playlist found for UID %i\n", uid);
-
 	return NULL;
 }
 
 PLAYLISTCACHE *playlistManagerGetPlaylistByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	//printf("playlistManagerGetPlaylistByUID: %i\n", (int)GetCurrentThreadId());
-	
-	//if (_playlistManagerLock(plm)){
-		PLAYLISTCACHE *ret = _playlistManagerGetPlaylistByUID(plm, uid/*, func, line*/);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return NULL;
+	PLAYLISTCACHE *ret = _playlistManagerGetPlaylistByUID(plm, uid/*, func, line*/);
+	return ret;
 }
 
 static inline int _playlistManagerGetPlaylistArtIdByUID (TPLAYLISTMANAGER *plm, const int uid)
@@ -275,52 +224,34 @@ static inline int _playlistManagerGetPlaylistArtIdByUID (TPLAYLISTMANAGER *plm, 
 				return plm->plc[i]->artId;
 		}
 	}
-
 	return 0;
 }
 
 int playlistManagerGetPlaylistArtIdByUID (TPLAYLISTMANAGER *plm, const int uid)
 
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistArtIdByUID(plm, uid);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetPlaylistArtIdByUID(plm, uid);
+	return ret;
 }
 
 static inline int _playlistManagerGetPlaylistUID (TPLAYLISTMANAGER *plm, const PLAYLISTCACHE *plc)
 {
-	if (plc){
+	if (plc)
 		return plc->uid;
-		/*
-		for (int i = 0; i < plm->p_total; i++){
-			if (plm->plc[i] == plc)
-				return plm->plc[i]->uid;
-		}*/
-	}
+
 	return 0;
 }
 
 int playlistManagerGetPlaylistUID (TPLAYLISTMANAGER *plm, const PLAYLISTCACHE *plc)
 {
-	//printf("playlistManagerGetPlaylistUID: %i\n", (int)GetCurrentThreadId());
-	
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistUID(plm, plc);
-		//_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetPlaylistUID(plm, plc);
+	return ret;
 }
 
 static inline int _playlistManagerGetIndexByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	if (uid <= PLAYLIST_UID_BASE){
-		//printf("playlistManagerGetIndexByUID: invalid UID supplied %i\n", uid);
+	if (uid <= PLAYLIST_UID_BASE)
 		return 0;
-	}
 	
 	for (int i = 0; i < plm->p_total; i++){
 		if (plm->plc[i]){
@@ -333,12 +264,8 @@ static inline int _playlistManagerGetIndexByUID (TPLAYLISTMANAGER *plm, const in
 
 int playlistManagerGetIndexByUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetIndexByUID(plm, uid);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetIndexByUID(plm, uid);
+	return ret;
 }
 
 static inline int _playlistManagerFindPathUID (TPLAYLISTMANAGER *plm, plm_search *plms, const char *searchFor, const int uid)
@@ -347,8 +274,6 @@ static inline int _playlistManagerFindPathUID (TPLAYLISTMANAGER *plm, plm_search
 	
 	PLAYLISTCACHE *plc = _playlistManagerGetPlaylistByUID(plm, uid);
 	if (plc){
-		//printf("_playlistManagerFindPathUID %X '%s'\n", uid, plc->title);
-		
 		if (playlistLock(plc)){
 			const int total = plc->total;
 			for (int rec = 0; *plms->activeState && rec < total; rec++){
@@ -401,9 +326,7 @@ static inline int _playlistManagerSearchComputed (TPLAYLISTMANAGER *plm, plm_sea
 		int quit = 1;
 		const int imgId = plms->data;
 		const int plmTotal = plm->p_total;
-		
-		//printf("playlistManagerSearchComputed imgId %X\n", imgId);
-		
+
 		for (int i = 0; *plms->activeState && i < plmTotal; i++){
 			PLAYLISTCACHE *plc = plm->plc[i];
 			if (!plc) continue;
@@ -413,8 +336,6 @@ static inline int _playlistManagerSearchComputed (TPLAYLISTMANAGER *plm, plm_sea
 				for (int rec = 0; *plms->activeState && rec < plcTotal; rec++){
 					TPLAYLISTITEM *item = g_playlistGetItem(plc, rec);
 
-					//printf("item->obj.track.artId %X %i %i 0x%X,\n", plc->uid, rec, item->objType, item->obj.track.artId);
-					
 					if (item->objType == PLAYLIST_OBJTYPE_TRACK){
 						if (item->obj.track.artId == imgId){
 							ct++;
@@ -432,7 +353,6 @@ static inline int _playlistManagerSearchComputed (TPLAYLISTMANAGER *plm, plm_sea
 				
 				playlistUnlock(plc);
 			}
-			//if (!quit) printf("!quit for %X\n", imgId);
 			if (!quit) return ct;
 		}	
 	
@@ -531,7 +451,7 @@ static inline int _playlistManagerSearchComputed (TPLAYLISTMANAGER *plm, plm_sea
 		if (total){
 			for (int i = 0; i < total; i++){
 				int uid = vals[i];
-				//printf("hexToInts %i %X\n", i, uid);
+
 				if (uid > PLAYLIST_UID_BASE)
 					ct += _playlistManagerFindPathUID(plm, plms, searchFor, uid);
 			}
@@ -555,8 +475,6 @@ static inline int _playlistManagerSearchPostResult (plm_search *plms, const char
 
 static inline int _playlistManagerSearch (TPLAYLISTMANAGER *plm, plm_search *plms, const char *searchFor, const int from, const int to, const int searchHow)
 {
-	//printf("_playlistManagerSearch '%s' %i %i\n", searchFor, from, to);
-
 	if (searchFor[0] == '#' && strlen(searchFor) >= 2)
 		return _playlistManagerSearchComputed(plm, plms, searchFor);
 
@@ -598,21 +516,14 @@ int playlistManagerSearchEx (TPLAYLISTMANAGER *plm, plm_search *plms, int from, 
 	if (to == -2) to = plm->p_total/2;
 	if (from > to) return 0;
 
-	//if (_playlistManagerLock(plm)){
-		found = _playlistManagerSearch(plm, plms, plms->string, from, to, plms->searchHow);
-	//	_playlistManagerUnlock(plm);
-	//}
+	found = _playlistManagerSearch(plm, plms, plms->string, from, to, plms->searchHow);
 	return found;
 }
 
 int playlistManagerSearch (TPLAYLISTMANAGER *plm, plm_search *plms)
 {
-	//if (_playlistManagerLock(plm)){		
-		int ret = _playlistManagerSearch(plm, plms, plms->string, 0, plm->p_total, plms->searchHow);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerSearch(plm, plms, plms->string, 0, plm->p_total, plms->searchHow);
+	return ret;
 }
 
 int _playlistManagerGetPlaylistByTrackHash (TPLAYLISTMANAGER *plm, const unsigned int hash)
@@ -629,12 +540,8 @@ int _playlistManagerGetPlaylistByTrackHash (TPLAYLISTMANAGER *plm, const unsigne
 
 int playlistManagerGetPlaylistByTrackHash (TPLAYLISTMANAGER *plm, const unsigned int hash)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistByTrackHash(plm, hash);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetPlaylistByTrackHash(plm, hash);
+	return ret;
 }
 
 static inline int _playlistManagerIsValidUID (TPLAYLISTMANAGER *plm, const int uid)
@@ -650,12 +557,8 @@ static inline int _playlistManagerIsValidUID (TPLAYLISTMANAGER *plm, const int u
 
 int playlistManagerIsValidUID (TPLAYLISTMANAGER *plm, const int uid)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerIsValidUID(plm, uid);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerIsValidUID(plm, uid);
+	return ret;
 }
 
 static inline int _playlistManagerGetUIDByIndex (TPLAYLISTMANAGER *plm, const int index)
@@ -669,12 +572,8 @@ static inline int _playlistManagerGetUIDByIndex (TPLAYLISTMANAGER *plm, const in
 
 int playlistManagerGetUIDByIndex (TPLAYLISTMANAGER *plm, const int index)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetUIDByIndex(plm, index);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return 0;
+	int ret = _playlistManagerGetUIDByIndex(plm, index);
+	return ret;
 }
 
 int playlistManagerCreateUID (TPLAYLISTMANAGER *plm)
@@ -700,12 +599,8 @@ static inline int _playlistManagerGetPlaylistIndex (TPLAYLISTMANAGER *plm, const
 
 int playlistManagerGetPlaylistIndex (TPLAYLISTMANAGER *plm, const PLAYLISTCACHE *plc)
 {
-	//if (_playlistManagerLock(plm)){
-		int ret = _playlistManagerGetPlaylistIndex(plm, plc);
-	//	_playlistManagerUnlock(plm);
-		return ret;
-	//}
-	//return -1;
+	int ret = _playlistManagerGetPlaylistIndex(plm, plc);
+	return ret;
 }
 
 static inline PLAYLISTCACHE *_playlistManagerAlloc (TPLAYLISTMANAGER *plm, const char *name)
@@ -762,11 +657,7 @@ static inline int _playlistManagerCreatePlaylistUID (TPLAYLISTMANAGER *plm, cons
 
 int playlistManagerCreatePlaylistUID (TPLAYLISTMANAGER *plm, const char *name, const int single)
 {
-	int ret = 0;
-	//if (_playlistManagerLock(plm)){
-		ret = _playlistManagerCreatePlaylistUID(plm, name, single);
-	//	_playlistManagerUnlock(plm);
-	//}
+	int ret = _playlistManagerCreatePlaylistUID(plm, name, single);
 	return ret;
 }
 
@@ -793,11 +684,7 @@ static inline int _playlistManagerAddPlaylistUID (TPLAYLISTMANAGER *plm, const i
 
 int playlistManagerAddPlaylistUID (TPLAYLISTMANAGER *plm, const int parentUID, const int childUID)
 {
-	int pos = -1;
-	//if (_playlistManagerLock(plm)){
-		pos = _playlistManagerAddPlaylistUID(plm, parentUID, childUID);
-	//	_playlistManagerUnlock(plm);
-	//}
+	int pos = _playlistManagerAddPlaylistUID(plm, parentUID, childUID);
 	return pos;
 }
 
@@ -881,9 +768,6 @@ static inline int _playlistManagerMovePlaylistInto (TPLAYLISTMANAGER *plm, const
 	PLAYLISTCACHE *plcFrom = _playlistManagerGetPlaylistByUID(plm, from);
 	PLAYLISTCACHE *plcTo = _playlistManagerGetPlaylistByUID(plm, to);
 	if (!plcFrom || !plcTo) return 0;
-
-	//printf("plyManagerMvInto %X %X %i %i\n", plcFrom->uid, plcTo->uid, plcFrom->total, plcTo->total);
-	
 	int ret = 0;
 	
 	if (playlistLock(plcFrom)){
@@ -1005,7 +889,6 @@ int playlistManagerDeletePlaylist (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, co
 {
 	if (_playlistManagerLock(plm)){
 		int ret = _playlistManagerDeletePlaylist(plm, plc, doFreePlaylist);
-		//if (ret) plm->p_total--;
 		_playlistManagerUnlock(plm);
 		return ret;
 	}
