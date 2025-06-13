@@ -168,7 +168,6 @@ char *getUrl (const char *url, size_t *totalRead)
 
 	InternetCloseHandle(hOpenUrl);
 	InternetCloseHandle(hSession);
-	
 	return buffer;
 }
 
@@ -243,7 +242,6 @@ void workstationLogoff ()
 	ExitWindowsEx(Logoff|ForceIfHung, PlannedShutdown);
 }
 
-#if 0
 int getBatteryLevel ()
 {
   SYSTEM_POWER_STATUS SystemPowerStatus;
@@ -252,24 +250,6 @@ int getBatteryLevel ()
       return SystemPowerStatus.BatteryLifePercent;
 
   return 0;
-}
-
-int match (const char *str, const char *pat)
-{
-    for (;;){
-		char s = *str, p = *pat;
-		if ('*' == p){
-			if (s && match(str+1, pat))
-                return 1;
-            ++pat;
-            continue;
-        }
-        if (0==s) return 0==p;
-        if (s>='A' && s<='Z') s+=32;
-        if (p>='A' && p<='Z') p+=32;
-        if (p != s && p != '?') return 0;
-        ++str, ++pat;
-    }
 }
 
   /* case-independent string matching, similar to strstr but matching */
@@ -325,9 +305,6 @@ void cropSource (TLPOINTEX *src, TLPOINTEX *dst, TLPOINTEX *target)
 	dst->x2 = ceil(dst->x2);
 	dst->y2 = ceil(dst->y2);
 }
-#endif
-
-
 
 TFRAME *newImage (TVLCPLAYER *vp, const wchar_t *filename, const int bpp)
 {
@@ -723,9 +700,8 @@ wchar_t *buildSkinDEx (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *dir, wchar_t *f
 wchar_t *buildSkinD (TVLCPLAYER *vp, wchar_t *buffer, wchar_t *file)
 {
 	*buffer = 0;
-	//wchar_t *skin = vp->gui.skin.dir;
-	
 	wchar_t *skin = NULL;
+
 	if (!*vp->gui.skin.folder){
 		settingsGetW(vp, "skin.folder", &skin);
 		
@@ -747,14 +723,15 @@ void imageBestFit (const int bg_w, const int bg_h, int fg_w, int fg_h, int *w, i
 
 	if (fg_w < 1 || fg_w > 8191) fg_w = bg_w;
 	if (fg_h < 1 || fg_h > 8191) fg_h = bg_h;
+	
 	*w = bg_w;
 	*h = (bg_w * fg_h * fg_sar_den * bg_sar_num) / (float)(fg_w * fg_sar_num * bg_sar_den);
+	
 	if (*h > bg_h){
 		*w = (bg_h * fg_w * fg_sar_num * bg_sar_den) / (float)(fg_h * fg_sar_den * bg_sar_num);
 		*h = bg_h;
 	}
 }
-
 
 // replace char a with b
 void strchrreplace (char *str, const char a, const char b)
@@ -873,8 +850,6 @@ wchar_t *ellipsiizeStringPath (wchar_t *String, int DesiredCount)
 		return ellipsiizeString(String, DesiredCount);
 
 	const int slen = wcslen(String);
-	//printf("secondPartIndex %i %i\n", secondPartIndex, slen);
-	
     if (slen <= DesiredCount || DesiredCount < 3){
         return my_wcsdup(String);
         
@@ -991,13 +966,8 @@ wchar_t *converttow (const char *utf8)
 	if (utf8 && *utf8){
 		out = UTF8ToUTF16Alloc(utf8, strlen(utf8));
 		if (!out){
-			//out = my_wcsdup(L"-");
-			//if (!out){
-				printf("no memory, bailing\n");
-				abort();
-			//}
-		}else{
-			//wprintf(L"%p '%s'\n", out, out);
+			printf("no memory, bailing\n");
+			abort();
 		}
 	}
 	return out;
@@ -1009,11 +979,8 @@ char *convertto8 (const wchar_t *wide)
 	if (wide && *wide){
 		out = UTF16ToUTF8Alloc(wide, wcslen(wide));
 		if (!out){
-			//out = my_strdup("-");
-			//if (!out){
-				printf("no memory, bailing\n");
-				abort();
-			//}
+			printf("no memory, bailing\n");
+			abort();
 		}
 	}
 	return out;
@@ -1054,57 +1021,31 @@ TFRAME *newStringEx3 (THWD *hw, const TMETRICS *metrics, const int bpp, const in
 	if (!*text) return NULL;
 
 	TFRAME *str = lNewStringEx(hw, metrics, bpp, flags|/*PF_EXTRA|*/PF_IGNOREFORMATTING|PF_CLIPDRAW, font, text);
-	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	if (!str) return NULL;
-	
-#if 0
-	lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 255<<24|COL_YELLOW);
-#endif
 
 	int w = maxW;
 	int h = maxH;
-	
-	/*if (y < 0){
-		h += y;
-		y = abs(y);
-	}else{
-		y = 0;
-	}
-	if (x < 0){
-		w += x;
-		x = abs(x);
-	}else{
-		x = 0;
-	}*/
+
 		
-		if (/*y > 0 ||*/ w != str->width || h != str->height){
-			TFRAME *tmp = lNewFrame(str->hw, w, h, str->bpp);
-			if (tmp){
-				//if (nsex_flags&NSEX_LEFT)
-					copyAreaNoBlend(str, tmp, (abs(w-str->width)/2)+x, (abs(h-str->height)/2)+y, 0, 0, str->width-1, str->height-1);
-				//else if (nsex_flags&NSEX_RIGHT)
-				//	copyAreaNoBlend(str, tmp, 0, 0, str->width-w, 0, str->width-1, tmp->height-1);
-					
-				lDeleteFrame(str);
-				str = tmp;
-			}
+	if (/*y > 0 ||*/ w != str->width || h != str->height){
+		TFRAME *tmp = lNewFrame(str->hw, w, h, str->bpp);
+		if (tmp){
+			copyAreaNoBlend(str, tmp, (abs(w-str->width)/2)+x, (abs(h-str->height)/2)+y, 0, 0, str->width-1, str->height-1);
+			lDeleteFrame(str);
+			str = tmp;
 		}
-		//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
+	}
 	return str;
 }
 
 
 TFRAME *newStringList (THWD *hw, const TMETRICS *metrics, const int bpp, const int flags, const int font, const unsigned int *glist, const int gtotal, int x, int y, const int maxW, const int maxH, const int nsex_flags)
 {
-	if (!glist || !gtotal){
-		//printf("newStringEx: invalid string\n");
+	if (!glist || !gtotal)
 		return NULL;
-	}
 	
 	TFRAME *str = lNewStringListEx(hw, metrics, bpp, flags|PF_EXTRA|PF_IGNOREFORMATTING|PF_CLIPDRAW/*|PF_MIDDLEJUSTIFY|PF_WORDWRAP|PF_CLIPWRAP*/, font, glist, gtotal);
-	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	if (!str) return NULL;
-	//lSaveImage(str, L"tmp.png", IMG_PNG|IMG_KEEPALPHA, 0, 0);
 	
 	int w = MIN(str->width, maxW);
 	int h = MIN(str->height, maxH);
@@ -1134,23 +1075,17 @@ TFRAME *newStringList (THWD *hw, const TMETRICS *metrics, const int bpp, const i
 			str = tmp;
 		}
 	}
-	
-	//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
 	return str;
 }
 
 
 TFRAME *newStringEx2 (THWD *hw, const TMETRICS *metrics, const int bpp, const int flags, const int font, const char *text, int x, int y, const int maxW, const int maxH, const int nsex_flags)
 {
-	if (!*text){
-		//printf("newStringEx: invalid string\n");
-		return NULL;
-	}
+	if (!*text) return NULL;
+
 	
 	TFRAME *str = lNewStringEx(hw, metrics, bpp, flags|PF_EXTRA|PF_IGNOREFORMATTING|PF_CLIPDRAW/*|PF_MIDDLEJUSTIFY|PF_WORDWRAP|PF_CLIPWRAP*/, font, text);
-	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	if (!str) return NULL;
-	//lSaveImage(str, L"tmp.png", IMG_PNG|IMG_KEEPALPHA, 0, 0);
 	
 	int w = MIN(str->width, maxW);
 	int h = MIN(str->height, maxH);
@@ -1180,21 +1115,16 @@ TFRAME *newStringEx2 (THWD *hw, const TMETRICS *metrics, const int bpp, const in
 			str = tmp;
 		}
 	}
-	
-	//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
+
 	return str;
 }
 
 TFRAME *newStringEx (THWD *hw, TMETRICS *metrics, const int bpp, const int flags, const int font, const char *text, const int maxW, const int nsex_flags)
 {
-	if (!*text){
-		//printf("newStringEx: invalid string\n");
-		return NULL;
-	}
+	if (!*text) return NULL;
 
 	metrics->width = maxW;
 	TFRAME *str = lNewStringEx(hw, metrics, bpp, flags|PF_EXTRA|PF_IGNOREFORMATTING|PF_CLIPDRAW, font, text);
-	//printf("newStringEx %i,%i %i '%s'\n", str->width, str->height, maxW, text);
 	
 	if (str){
 		if (str->width > maxW){
@@ -1209,7 +1139,6 @@ TFRAME *newStringEx (THWD *hw, TMETRICS *metrics, const int bpp, const int flags
 				str = tmp;
 			}
 		}
-		//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
 	}
 	return str;
 }
@@ -1230,7 +1159,6 @@ TFRAME *newStringListEx (THWD *hw, const int bpp, const int flags, const int fon
 				str = tmp;
 			}
 		}
-		//lDrawRectangle(str, 0, 0, str->width-1, str->height-1, 0xFF0000FF);
 	}
 	return str;
 }
@@ -1316,7 +1244,6 @@ int drawIntStr (TFRAME *frame, const int x, const int y, const int font, const i
 {
 	TFRAME *img = lNewString(frame->hw, frame->bpp, PF_EXTRA|PF_CLIPDRAW, font, "%i %s", var, str);
 	if (img){
-		//lDrawRectangleFilled(frame, x, y+1, x+img->width, y+img->height-2, colour);
 		drawImage(img, frame, x, y, img->width-1, img->height-1);
 		const int w = img->width+1;
 		lDeleteFrame(img);
@@ -1324,72 +1251,6 @@ int drawIntStr (TFRAME *frame, const int x, const int y, const int font, const i
 	}
 	return 0;
 }
-#if 0
-int drawStrB (TFRAME *frame, const int x, const int y, const char *str, const int colour)
-{
-	int w = 0;
-	
-	TFRAME *img = lNewString(frame->hw, frame->bpp, PF_EXTRA|PF_CLIPDRAW|PF_IGNOREFORMATTING, MFONT, str);
-	if (img){
-		if (colour&0xFF000000)
-			lDrawRectangleFilled(frame, x, y+1, x+img->width, y+img->height-2, colour);
-		drawImage(img, frame, x, y, img->width-1, img->height-1);
-		w = img->width+1;
-		lDeleteFrame(img);
-	}
-	return w;	
-}
-
-int drawStrIntB (TFRAME *frame, const int x, const int y, const int font, const char *str, const int val)
-{
-	TLPRINTR rt;
-	
-	rt.bx1 = x;
-	rt.by1 = y;
-	rt.bx2 = (frame->width)-1;
-	rt.by2 = (frame->height)-1;
-	rt.ex = rt.sx = rt.bx1;
-	rt.ey = rt.sy = rt.by1;
-	
-	int flags = PF_EXTRA|PF_CLIPDRAW|PF_CLIPTEXTH|PF_CLIPTEXTV;
-	
-	/*if (nsex_justify == NSEX_RIGHT){
-		flags |= PF_CLIPWRAP|PF_RIGHTJUSTIFY;
-	}else if (nsex_justify == DS_MIDDLEJUSTIFY){
-		flags |= PF_CLIPWRAP|PF_MIDDLEJUSTIFY;
-		rt.bx1 = 0;
-		rt.ex = rt.sx = rt.bx1;
-	}*/
-
-	//lSetForegroundColour(frame->hw, colour);
-	return lPrintEx(frame, &rt, font, flags, LPRT_CPY, "%s%i", str, val);
-}
-
-int drawStrFltB (TFRAME *frame, const int x, const int y, const int font, const char *str, const double val)
-{
-	TLPRINTR rt;
-	
-	rt.bx1 = x;
-	rt.by1 = y;
-	rt.bx2 = (frame->width)-1;
-	rt.by2 = (frame->height)-1;
-	rt.ex = rt.sx = rt.bx1;
-	rt.ey = rt.sy = rt.by1;
-	
-	int flags = PF_EXTRA|PF_CLIPDRAW|PF_CLIPTEXTH|PF_CLIPTEXTV;
-	
-	/*if (nsex_justify == NSEX_RIGHT){
-		flags |= PF_CLIPWRAP|PF_RIGHTJUSTIFY;
-	}else if (nsex_justify == DS_MIDDLEJUSTIFY){
-		flags |= PF_CLIPWRAP|PF_MIDDLEJUSTIFY;
-		rt.bx1 = 0;
-		rt.ex = rt.sx = rt.bx1;
-	}*/
-
-	//lSetForegroundColour(frame->hw, colour);
-	return lPrintEx(frame, &rt, font, flags, LPRT_CPY, "%s%.1f", str, val);
-}
-#endif
 
 int drawStrFlt (TFRAME *frame, const int x, const int y, const char *str, const double var, const int colour)
 {
@@ -1497,38 +1358,10 @@ static inline int ablend (const unsigned int des, const unsigned int src)
 	const unsigned int oddRes = ((odds2-odds1)*alpha + (odds1<<8)) &0xFF00FF00;
 	return (evenRes + oddRes);
 }
-
 #endif
-
-
-/*
-void clearFrame (TFRAME *frame)
-{
-	memset(frame->pixels, 0, frame->frameSize);
-}
-
-void clearFrameColour (TFRAME *frame, const int colour)
-{
-	int *pixels = lGetPixelAddress(frame, 0, 0);
-	int tPixels = frame->frameSize>>2;
-	while(tPixels--) *pixels++ = colour;
-}
-*/
-void fillFrameColour (TFRAME *frame, const int colour)
-{
-	int *pixels = lGetPixelAddress(frame, 0, 0);
-	int tPixels = frame->frameSize>>2;
-	
-	while(tPixels--){
-		*pixels = colour;
-		pixels++;
-	}
-}
 
 void fillFrameAreaColour (TFRAME *frame, const int x1, const int y1, const int x2, const int y2, const int colour)
 {
-	//const int tPixels = ((x2 - x1)+1);
-	
 	for (int y = y1; y <= y2; y++){
 		int *pixels = lGetPixelAddress(frame, x1, y);
 
@@ -1536,6 +1369,17 @@ void fillFrameAreaColour (TFRAME *frame, const int x1, const int y1, const int x
 			*pixels = ablend(*pixels, colour);
 			pixels++;
 		}
+	}
+}
+
+void fillFrameColour (TFRAME *frame, const int colour)
+{
+	int *pixels = lGetPixelAddress(frame, 0, 0);
+	int tPixels = frame->frameSize>>2;
+	
+	while (tPixels--){
+		*pixels = colour;
+		pixels++;
 	}
 }
 
@@ -1660,8 +1504,7 @@ static inline int checkbounds (const TFRAME *const frm, const int x, const int y
 
 static inline void setPixel32 (const TFRAME *restrict frm, const int x, const int y, const int value)
 {
-	//if (!checkbounds(frm, x, y))
-		*(uint32_t*)(frm->pixels+((y*frm->pitch)+(x<<2))) = value;
+	*(uint32_t*)(frm->pixels+((y*frm->pitch)+(x<<2))) = value;
 }
 
 static inline void setPixel32a (const TFRAME *restrict frm, const int x, const int y, const int value)
@@ -1685,10 +1528,8 @@ static inline int getPixel32 (const TFRAME *frm, const int x, const int y)
 		return 0;
 }
 
-
 static inline void setPixel32a_addr (const TFRAME *frame, const int x, const uintptr_t addrRow, const int value)
 {
-
 	int *des = (int32_t*)(addrRow+(x<<2));
 	*des = ablend(*des, value);
 }
@@ -1720,12 +1561,6 @@ void copyArea (TFRAME *from, TFRAME *to, int dx, int dy, int x1, int y1, int x2,
 		int *pdes = (int*)getPixelAddress(to, 0, dy);
 		int xx = dx;
 
-		__asm__("prefetch 64(%0)" :: "r" (psrc) : "memory");
-		__asm__("prefetch 64(%0)" :: "wr" (pdes) : "memory");
-		//__builtin_prefetch(psrc, 0, 1);
-		//__builtin_prefetch(pdes, 1, 1);
-		
-
 		for (int x = x1; x <= x2; x++,xx++)
 			pdes[xx] = ablend(pdes[xx], psrc[x]);
 	}
@@ -1739,7 +1574,6 @@ void copyAreaScaled (TFRAME *from, TFRAME *to, const int src_x, const int src_y,
 	const double dy = 1.0 / scaley;
 	double y2 = src_y;
 	const int src_x2 = dest_x + dest_width;
-	
 	
 	for (int y = dest_y; y < dest_y + dest_height; y++){
 		y2 += dy;
@@ -1799,7 +1633,6 @@ void drawImageScaledCenter (TFRAME *img, TFRAME *dest, const double scale, const
 	double cy = (dest->height / 2.0) - (offsetY/scale);
 	double x = cx - (swidth/2.0);
 	double y = cy - (sheight/2.0);
-	//printf("drawISC %.2f %.2f %.5f, %.2f %.2f, %.2f %.2f\n", x, y, scale, swidth, sheight, offsetX, offsetY);
 		
 	drawImageScaledB(img, dest, x, y, 0, 0, dest->width-1, dest->height-1, scale);
 }
@@ -1833,7 +1666,6 @@ void rotate (TFRAME *src, TFRAME *des, const TMETRICS *metrics, double angle, co
     const double d_w = metrics->width;
    	const double d_h = metrics->height;
    	
-   	//angle -= 180.0;
  	double rx1 = rot_x(-angle, -d_w/2.0, -d_h/2.0) + (/*src->width*/(double)w/2.0);
     double ry1 = rot_y(-angle, -d_w/2.0, -d_h/2.0) + (src->height/1.0);
 
@@ -1846,7 +1678,6 @@ void rotate (TFRAME *src, TFRAME *des, const TMETRICS *metrics, double angle, co
 	for (int y = y1; y < y2; y++){
 		double rx2 = rx1;
 		double ry2 = ry1;
-		//const intptr_t *row = (intptr_t*)des->pixels + (y*pitch);
 		const int row = (intptr_t)des->pixels + (y*pitch);
 		
 		for (int x = x1; x < x2; x++){
@@ -1884,7 +1715,6 @@ void rotateAroundZ (TFRAME *src, TFRAME *des, const TMETRICS *metrics, double an
 	for (int y = y1; y < y2; y++){
 		double rx2 = rx1;
 		double ry2 = ry1;
-		//const intptr_t *row = (intptr_t*)des->pixels + (y*pitch);
 		const int row = (intptr_t)des->pixels + (y*pitch);
 		
 		for (int x = x1; x < x2; x++){
@@ -1899,39 +1729,8 @@ void rotateAroundZ (TFRAME *src, TFRAME *des, const TMETRICS *metrics, double an
 	}
 }
 
-
-#if 0
-
-void drawImageScaledOpacity (TFRAME *from, TFRAME *to, const int src_x, const int src_y, const int src_width, const int src_height, const int dest_x, const int dest_y, const int dest_width, const int dest_height, const double opacity)
-{
-
-	const float scalex = dest_width / (float)src_width;
-	const float scaley = dest_height / (float)src_height;
-	const float opacityf = (float)opacity;
-
-	float opacitya = opacityf * 1.30f;
-	if (opacitya > 1.0f) opacitya = 1.0f;
-		
-	for (int y = dest_y; y < dest_y + dest_height; y++){
-		float y2 = src_y + (y-dest_y) / scaley;
-		for (int x = dest_x; x < dest_x + dest_width; x++){
-			float x2 = src_x + (x-dest_x) / scalex;
-				
-			int col = getPixel32a_BL(from, x2, y2);
-			int a = (float)((col>>24)&0xFF)*opacitya;
-			int r = (float)((col>>16)&0xFF)*opacityf;
-			int g = (float)((col>>8)&0xFF)*opacityf;
-			int b = (float)(col&0xFF)*opacityf;
-			setPixel32a(to, x, y, (a<<24) | (r<<16) | (g<<8) | b);
-		}
-	}
-}
-
-#else
-
 void drawImageScaledOpacity (TFRAME *from, TFRAME *to, const int src_x, const int src_y, const int src_width, const int src_height, const int dest_x, const int dest_y, const int dest_width, const int dest_height, const float opacityAlpha, const float opacityRGB)
 {
-
 	const float scalex = dest_width / (float)src_width;
 	const float scaley = dest_height / (float)src_height;
 	
@@ -1945,7 +1744,6 @@ void drawImageScaledOpacity (TFRAME *from, TFRAME *to, const int src_x, const in
 			float y2 = src_y + (y-dest_y) / scaley;
 			float x2 = src_x;
 			for (int x = dest_x; x < dest_x + dest_width; x++){
-				//int col = getPixel32a_BL(from, x2, y2);
 				int col = getPixel32_NB(from, x2, y2);
 				int a = ((col>>24)&0xFF) * opacity;
 				int r = ((col>>16)&0xFF) * opacityRGB;
@@ -1982,8 +1780,6 @@ void drawImageScaledOpacity (TFRAME *from, TFRAME *to, const int src_x, const in
 #endif
 	}
 }
-#endif
-
 
 void drawImageOpacity (TFRAME *from, TFRAME *to, const int dest_x, const int dest_y, double opacity)
 {
@@ -2591,28 +2387,6 @@ void *decodeURI_noprefix (const char *arturl, const int len)
     return tmp;
 }
 
-#if 0
-int encodeURI (const char *in, char *out, const size_t len)
-{
-	static const char hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-	
-	int i = 0;
-	while(i < len){
-		if (*in&0x80){
-			*out++ = '%';
-			*out++ = hex[(in[0]&0xF0)>>4];
-			*out++ = hex[ in[0]&0x0F];
-			in++;
-		}else{
-			*out++ = *in++;
-		}
-		i++;
-	}
-	*out = '\0';
-	return i;
-}
-#endif
-
 int doesFileExistW (const wchar_t *path)
 {
 	if (!*path) return 0;
@@ -2654,25 +2428,7 @@ int isDirectory (const char *path8)
 	}
 	return ret;
 }
-/*
-int isPlaylistW (const wchar_t *path)
-{
-	static unsigned int hash;
-	static int extlen;
-	
-	if (!hash){
-		hash = getHashW(VLCSPLAYLISTEXTW);
-		extlen = wcslen(VLCSPLAYLISTEXTW);
-	}
 
-	if (path){
-		const int len = wcslen(path);
-		if (len > extlen)
-			return (getHashW(&path[(len-extlen)]) == hash);
-	}
-	return 0;
-}
-*/
 int isPlaylist (const char *path)
 {
 	static unsigned int hash;
@@ -2758,40 +2514,19 @@ static inline int addConsolelineW (TVLCPLAYER *vp, const wchar_t *str)
 	return ret;
 }
 
-/*
-int vasprintf (char **sptr, const char *fmt, va_list argv)
-{
-	int wanted = vsnprintf(*sptr = NULL, 0, fmt, argv);
-	if ((wanted < 0) || ((*sptr = my_malloc(2 + wanted)) == NULL))
-		return -1;
-
-	return vsprintf(*sptr, fmt, argv);
-}
-
-int _asprintf (char **sptr, const char *fmt, ...)
-{
-	int retval;
-	va_list argv;
-	va_start(argv, fmt);
-	retval = vasprintf(sptr, fmt, argv);
-	va_end(argv);
-	return retval;
-}*/
-
 void dbprintf (TVLCPLAYER *vp, const char *fmt, ...)
 {
 	if (SHUTDOWN) return;
 	
 	char buffer[MAX_PATH_UTF8+1];
 	int ret = 0;
+	
 	VA_OPEN(ap, fmt);
 	ret = __mingw_vsnprintf(buffer, MAX_PATH_UTF8, fmt, ap);
 	VA_CLOSE(ap);
 	
 	if (ret > 0)
 		addConsoleline(vp, buffer);
-	//if (buffer)
-	//	my_free(buffer);
 }
 
 void dbprintfEx (TVLCPLAYER *vp, const int flags, const char *fmt, ...)
@@ -2800,6 +2535,7 @@ void dbprintfEx (TVLCPLAYER *vp, const int flags, const char *fmt, ...)
 	
 	char buffer[MAX_PATH_UTF8+1];
 	int ret = 0;
+	
 	VA_OPEN(ap, fmt);
 	ret = __mingw_vsnprintf(buffer, MAX_PATH_UTF8, fmt, ap);
 	VA_CLOSE(ap);
@@ -2811,20 +2547,7 @@ void dbprintfEx (TVLCPLAYER *vp, const int flags, const char *fmt, ...)
 				marqueeStringFlags(vp, vp->gui.marquee, line, PF_WORDWRAP|PF_CLIPWRAP);
 		}
 	}
-	//if (buffer)
-		//my_free(buffer);
 }
-
-#if 0
-int vaswprintf (wchar_t **sptr, const wchar_t *fmt, va_list argv)
-{
-	int wanted = vsnwprintf(*sptr = NULL, 0, fmt, argv);
-	if ((wanted < 0) || ((*sptr = my_calloc((2 + wanted),  sizeof(wchar_t))) == NULL))
-		return -1;
-
-	return _vswprintf(*sptr, /*wanted,*/ fmt, argv);
-}
-#endif
 
 void dbwprintfEx (TVLCPLAYER *vp, const int flags, const wchar_t *fmt, ...)
 {
@@ -2832,6 +2555,7 @@ void dbwprintfEx (TVLCPLAYER *vp, const int flags, const wchar_t *fmt, ...)
 	
 	wchar_t buffer[MAX_PATH_UTF8+1];
 	int ret = 0;
+
 	VA_OPEN(ap, fmt);
 	ret = /*__mingw*/_vsnwprintf(buffer, MAX_PATH_UTF8, fmt, ap);
 	VA_CLOSE(ap);
@@ -2847,8 +2571,6 @@ void dbwprintfEx (TVLCPLAYER *vp, const int flags, const wchar_t *fmt, ...)
 			my_free(txt);
 		}
 	}
-	//if (buffer)
-	//	my_free(buffer);
 }
 
 void dbwprintf (TVLCPLAYER *vp, const wchar_t *fmt, ...)
@@ -2857,17 +2579,13 @@ void dbwprintf (TVLCPLAYER *vp, const wchar_t *fmt, ...)
 	
 	wchar_t buffer[MAX_PATH_UTF8+1];
 	int ret = 0;
+
 	VA_OPEN(ap, fmt);
 	ret = _vswprintf(buffer, fmt, ap);
-	//ret = _vswprintf(buffer, sizeof(buffer), fmt, ap);
 	VA_CLOSE(ap);
-	
-	//wprintf(L"dbwprintf '%s'\n", buffer);
-	
+
 	if (ret > 0)
 		addConsolelineW(vp, buffer);
-	//if (buffer)
-	//	my_free(buffer);
 }
 
 wchar_t *getDirectoryW (const wchar_t *indir)
@@ -2943,9 +2661,7 @@ int isCurrentUserLocalAdministrator ()
 #if ENABLE_CMDFUNSTUFF
 void botQuoteRandom (TVLCPLAYER *vp, TCMDREPLY *sheets, const int bot)
 {
-
 	static int botsLoaded[5] = {0,0,0,0,0};
-	
 	
 	switch (bot){
 	  case BOT_BOFH:
@@ -3000,77 +2716,3 @@ void botQuoteRandom (TVLCPLAYER *vp, TCMDREPLY *sheets, const int bot)
 }
 #endif
 
-
-#if 0
-int my_vasprintf (char **result, const char *format, va_list *args)
-{
-	
-	const char *p = format;
-	int total_width = strlen(format) + sizeof(char);
-	va_list ap;
-	
-	my_memcpy(&ap, args, sizeof(va_list));
-	
-	while (*p != '\0'){
-		if (*p++ == '%'){
-			while (strchr("-+ #0", *p))
-				++p;
-				
-			if (*p == '*'){
-				++p;
-				total_width += abs(va_arg(ap, int));
-			}else{
-				total_width += strtoul(p, (char**)&p, 10);
-			}
-	          
-			if (*p == '.'){
-				++p;
-				if (*p == '*'){
-					++p;
-					total_width += abs(va_arg(ap, int));
-				}else{
-					total_width += strtoul(p, (char**)&p, 10);
-				}
-			}
-
-			while (strchr ("hlL", *p))
-				++p;
-	          
-			/* Should be big enough for any format specifier except %s.  */
-			total_width += 30;
-			switch (*p){
-			  case 'd':
-			  case 'i':
-			  case 'o':
-			  case 'u':
-			  case 'x':
-			  case 'X':
-			  case 'c':
-			    (void)va_arg(ap, int);
-			    break;
-			  case 'f':
-			  case 'e':
-			  case 'E':
-			  case 'g':
-			  case 'G':
-			    (void)va_arg(ap, double);
-			    break;
-			  case 's':
-			    total_width += strlen(va_arg(ap, char *));
-			    break;
-			  case 'p':
-			  case 'n':
-			    (void)va_arg(ap, void*);
-			    break;
-			}
-		}
-	}
-	if (!total_width) return 0;
-	
-	*result = my_calloc(sizeof(char), total_width+1);
-	if (*result != NULL)
-		return vsnprintf(*result, total_width, format, *args);
-	else
-		return 0;
-}
-#endif
