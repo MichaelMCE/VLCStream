@@ -28,12 +28,6 @@
 
 #define PAGES_STACKSIZE					4
 
-#if 0
-#define PAGE_FLAGMASK_UPDATERATE		0x3F	/*	000000111111		*/
-#define PAGE_FLAGMASK_OPAQUE			0x40	/*	000001000000		*/
-#endif
-
-
 
 
 enum _page2Ctrl {
@@ -186,8 +180,6 @@ void page2Disable (TPAGES2 *pages, const int id);
 int page2IsInitialized (TPAGES2 *pages, const int id);
 
 
-/*void *ptr = page2PageStructGet(vp->pages, pageRenderGetTop(vp->pages));
-if (ptr) page2SetPrevious(ptr);*/
 int page2SetPrevious (void *pageStruct);
 
 void pageUpdate (void *pageStruct);
@@ -232,107 +224,6 @@ int pageSendMessage (TPAGES2 *pages, const int pageId, const int msg, const int6
 #define pageGetSurface(x)			(((TPAGE2COMOBJ*)(x))->com->vp->ml->front)
 #define pageGetSurfaceWidth(x)		(((TPAGE2COMOBJ*)(x))->com->vp->ml->front->width)
 #define pageGetSurfaceHeight(x)		(((TPAGE2COMOBJ*)(x))->com->vp->ml->front->height)
-
-
-
-
-
-
-
-// new page template
-#if 0
-
-
-static inline int page_Render (void *pageStruct, TVLCPLAYER *vp, TFRAME *frame)
-{
-	return 1;
-}
-
-static inline int page_RenderInit (void *pageStruct, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
-{
-	return 1;
-}
-
-static inline int page_RenderBegin (void *pageStruct, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
-{
-	return 1;
-}
-
-static inline int page_RenderEnd (void *pageStruct, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, void *opaquePtr)
-{
-	return 1;
-}
-
-static inline int page_Startup (void *pageStruct, TVLCPLAYER *vp, const int width, const int height)
-{
-	return 1;
-}
-
-static inline int page_Initalize (void *pageStruct, TVLCPLAYER *vp, const int width, const int height)
-{
-	return 1;
-}
-
-static inline int page_Shutdown (void *pageStruct, TVLCPLAYER *vp)
-{
-	return 1;
-}
-
-static inline int page_Input (void *pageStruct, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
-{
-	switch(msg){
-	  case PAGE_IN_TOUCH_DOWN:
-	  case PAGE_IN_TOUCH_SLIDE:
-	  case PAGE_IN_TOUCH_UP:
-	  case PAGE_IN_WHEEL_FORWARD:
-	  case PAGE_IN_WHEEL_BACK:
-	  case PAGE_IN_WHEEL_LEFT:
-	  case PAGE_IN_WHEEL_RIGHT:
-	}
-	return 1;
-}
-
-int page_Callback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
-{
-	TPAGE2COMOBJ *page = (TPAGE2COMOBJ*)pageStruct;
-	
-	// printf("# page_Callback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
-	if (msg == PAGE_CTL_RENDER){
-		return page_Render(pageStruct, page->com->vp, dataPtr);
-
-	}else if (msg == PAGE_CTL_INPUT){
-		return page_Input(pageStruct, page->com->vp, dataInt1, dataInt2, dataPtr);
-		
-	}else if (msg == PAGE_CTL_RENDER_START){
-		return page_RenderBegin(pageStruct, page->com->vp, dataInt1, dataInt2, dataPtr, opaquePtr);
-		
-	}else if (msg == PAGE_CTL_RENDER_END){
-		return page_RenderEnd(pageStruct, page->com->vp, dataInt1, dataInt2, opaquePtr);
-		
-	}else if (msg == PAGE_CTL_RENDER_INIT){
-		return page_RenderInit(pageStruct, page->com->vp, dataInt1, dataInt2, dataPtr, opaquePtr);
-		
-	}else if (msg == PAGE_CTL_STARTUP){
-		return page_Startup(pageStruct, page->com->vp, dataInt1, dataInt2);
-		
-	}else if (msg == PAGE_CTL_INITIALIZE){
-		return page_Initalize(pageStruct, page->com->vp, dataInt1, dataInt2);
-		
-	}else if (msg == PAGE_CTL_SHUTDOWN){
-		return page_Shutdown(pageStruct, page->com->vp);
-		
-	}
-	
-	return 1;
-}
-
-#endif
-
-
-
-
-
 
 
 

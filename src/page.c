@@ -30,30 +30,16 @@ extern volatile double UPDATERATE_BASE;
 
 static inline void page2StackPush (TPAGE2 *page, const int id)
 {
-#if 1
 	stackPush(page->stack, id);
-#else
-	my_memcpy(&page->stack[0], &page->stack[1], sizeof(TPAG2EHISTORY)*(PAGES_STACKSIZE-1));
-	page->stack[PAGES_STACKSIZE-1].id = id;
-#endif
 }
 
 static inline int page2StackPop (TPAGE2 *page)
 {
-
-#if 1
 	intptr_t id = 0;
 	stackPop(page->stack, &id);
 	if (!id) id = PAGE_NONE;
 	
 	return id;
-#else
-	const int previous = page->stack[PAGES_STACKSIZE-1].id;
-	for (int i = PAGES_STACKSIZE-1; i > 0; i--)
-		my_memcpy(&page->stack[i], &page->stack[i-1], sizeof(TPAG2EHISTORY));
-		
-	return previous;
-#endif
 }
 
 static inline TPAGE2COM *page2ComAlloc (void *pageStruct)
@@ -63,7 +49,6 @@ static inline TPAGE2COM *page2ComAlloc (void *pageStruct)
 
 static inline TPAGE2COM *page2ComGet (void *pageStruct)
 {
-	//printf("page2ComGet pageStruct:%p, com:%p\n", pageStruct, (TPAGE2COM*)*(void**)pageStruct);
 	return (TPAGE2COM*)*(void**)pageStruct;
 }
 
@@ -116,18 +101,7 @@ static inline TPAGE2 *page2Get (TPAGES2 *pages, int id)
 
 static inline int page2SendMessage (TPAGE2 *page, const int msg, const int64_t dataInt1, const int64_t dataInt2, void *dataPtr)
 {
-	/*if (msg == PAGE_CTL_RENDER_START)
-		printf("renderStart %s\n", page->title);
-	else if (msg == PAGE_CTL_RENDER_END)
-		printf("renderEnd %s\n", page->title);	
-	else if (msg == PAGE_CTL_RENDER)
-		printf("render %s\n", page->title);
-	*/
-	
-	
-	//printf("pageSendMessage() id:%i, msg:%i, d1:%I64d, d2:%I64d, dp:%p, op:%p\n", page->id, msg, dataInt1, dataInt2, dataPtr, page->opaquePtr);
 	int ret = page->callback(page->pageStruct, msg, dataInt1, dataInt2, dataPtr, page->opaquePtr);
-	//printf("pageSendMessage() ret:%i, id:%i, msg:%i, d1:%I64d, d2:%I64d, dp:%p, op:%p\n", ret, page->id, msg, dataInt1, dataInt2, dataPtr, page->opaquePtr);
 	return ret;
 }
 
@@ -140,7 +114,6 @@ int pageDispatchMessage (TPAGES2 *pages, const int msg, const int64_t dataInt1, 
 		TPAGE2 *page = pages->page[i];
 		if (page && page->isEnabled){
 			int status = page2SendMessage(page, msg, dataInt1, dataInt2, dataPtr);
-			//printf("status %i %i %i\n", i, page->id, status);
 			if (!status) break;
 			ret += status;
 		}
@@ -169,7 +142,6 @@ int page2OpaqueSet (TPAGES2 *pages, const int id, void *opaquePtr)
 void *page2OpaqueGet (TPAGES2 *pages, const int id)
 {
 	if (id < PAGE_BASEID){
-		//printf("page2OpaqueGet. invalid page %i\n", id);
 		return 0;
 	}
 	
@@ -178,22 +150,9 @@ void *page2OpaqueGet (TPAGES2 *pages, const int id)
 	TPAGE2 *page = page2Get(pages, id);
 	if (page){
 		opaquePtr = page->opaquePtr;
-		//if (!opaquePtr)
-		//	printf("pages2: ::opaquePtr requested but not set for page %i:'%s'\n", id, page->title);
 	}
 	return opaquePtr;
 }
-
-// shouldn't be needed
-/*static inline int page2PageStructSet (TPAGES2 *pages, const int id, void *pageStruct)
-{
-	TPAGE2 *page = page2Get(pages, id);
-	if (page){
-		page->pageStruct = pageStruct;
-		return 1;
-	}
-	return 0;
-}*/
 
 int page2InputDragGetState (TPAGES2 *pages, const int id)
 {
@@ -246,8 +205,6 @@ static inline int page2StateSet (TPAGES2 *pages, const int id, const int stateFl
 
 static inline int page2Startup (TPAGES2 *pages, const int id)
 {
-	//printf("page2Startup id:%i state:%i\n", id, page2StateGet(pages, id, PAGE_CTL_STARTUP));
-	
 	TPAGE2 *page = page2Get(pages, id);
 
 	if (!page2StateGet(pages, id, PAGE_CTL_STARTUP)){
@@ -255,14 +212,10 @@ static inline int page2Startup (TPAGES2 *pages, const int id)
 		
 		TPAGE2COM *com = page2ComGet(page->pageStruct);
 		TFRAME *front = getFrontBuffer(com->vp);
-		
-		//printf("page2Startup '%s'\n", page->title);
-		
+
 		int startupOk = page2SendMessage(page, PAGE_CTL_STARTUP, front->width, front->height, NULL);
 		if (!startupOk)
 			page->isEnabled = 0;
-
-		//printf("page2Startup b startOK:%i\n", startupOk);
 
 		page2StateSet(pages, id, PAGE_CTL_STARTUP, startupOk);
 		return startupOk;
@@ -282,8 +235,6 @@ static inline int page2Initialize (TPAGES2 *pages, const int id)
 		TPAGE2COM *com = page2ComGet(page->pageStruct);
 		TFRAME *front = getFrontBuffer(com->vp);
 
-		//printf("page2Initialize %i, '%s'\n", page->id, page->title);
-		
 		int initializeOk = page2SendMessage(page, PAGE_CTL_INITIALIZE, front->width, front->height, front);
 		if (!initializeOk)
 			page->isEnabled = 0;
@@ -297,47 +248,30 @@ static inline int page2Initialize (TPAGES2 *pages, const int id)
 
 int page2Enable (TPAGES2 *pages, const int id)
 {
-	//printf("page2Enable %i\n", id);
-	
+
 	int ret = 0;
-	//double t0 = getTime(pages->vp);
 
 	if (page2Startup(pages, id))
 		ret = page2Initialize(pages, id);
-	//double t1 = getTime(pages->vp);
-	
-	//TPAGE2 *page = page2Get(pages, id);
-	//printf("  page2Enable %.2f '%s'\n" ,t1-t0, page->title);
-	
+
 	return ret;
 }
 
 void *page2PageStructGet (TPAGES2 *pages, const int id)
 {
-	//printf("page2PageStructGet %i\n", id);
-	
-	if (id < PAGE_BASEID){
-		//printf("page2PageStructGet. invalid page %i\n", id);
+	if (id < PAGE_BASEID)
 		return 0;
-	}
 	
 	void *pageStruct = NULL;
 	
 	TPAGE2 *page = page2Get(pages, id);
 	if (page){
 		pageStruct = page->pageStruct;
-		//if (!pageStruct)
-		//	printf("pages2: ::pageStruct requested but not set for page %i:'%s'\n", id, page->title);
-
 		if (!page2StateGet(pages, page->id, PAGE_CTL_STARTUP)){
 			if (!page2Enable(pages, id))
 				pageStruct = NULL;
 		}
 	}
-	
-	//if (!pageStruct)
-	//	printf("page2PageStructGet failed %i\n", id);
-	
 	return pageStruct;
 }
 
@@ -464,8 +398,6 @@ static inline int page2InputTouchCall (TPAGE2 *page, TTOUCHCOORD *pos, const int
 		inType = PAGE_IN_TOUCH_SLIDE;
 	else if (pos->pen && flags == 3)
 		inType = PAGE_IN_TOUCH_UP;
-	//else
-	//	printf("page2InputTouchCall input unhandled page:%i pen:%i flags:%X\n", page->id, pos->pen, flags);
 			
 	return page2SendMessage(page, PAGE_CTL_INPUT, inType, flags, pos);
 }
@@ -477,16 +409,12 @@ static inline int page2InputMouseCall (TPAGE2 *page, const unsigned int *mpos, c
 
 static inline int pageInputGetTopMostId (TPAGES2 *pages)
 {
-	//printf("pageInputGetTopMostId tPages %i\n", pages->tPages);
-
 	int id = 0;
 	int zDepth = 0;
 	
 	for (int i = 0; i < pages->tPages; i++){
 		TPAGE2 *page = pages->page[i];
 		if (!page/* || page->isConcurrent*/) continue;
-
-		//printf("pageInputGetTopMostId %i %i %p, %i %i\n", i, page->id, page, page->readyToRender, page->inputEnabled);
 
 		if (page->readyToRender && page->inputEnabled){
 			if (page->zDepthId > zDepth){
@@ -500,16 +428,12 @@ static inline int pageInputGetTopMostId (TPAGES2 *pages)
 
 static inline int pageRenderGetTopMostId (TPAGES2 *pages)
 {
-	//printf("pageRenderGetTopMostId tPages %i\n", pages->tPages);
-
 	int id = 0;
 	int zDepth = 0;
 	
 	for (int i = 0; i < pages->tPages; i++){
 		TPAGE2 *page = pages->page[i];
 		if (!page) continue;
-
-		//printf("pageRenderGetTopMostId %i %p\n", i, page);
 
 		if (page->readyToRender){
 			if (page->zDepthId > zDepth){
@@ -588,10 +512,7 @@ int page2Render (TPAGES2 *pages, TFRAME *frame, const int id)
 	// render anything thats set to renderable, apart from id which will be top rendered
 	for (int i = 0; i < pages->tPages; i++){
 		TPAGE2 *page = pages->page[i];
-		
-		//if (page->isConcurrent)
-		//	printf("@@ %i %i '%s'\n", page->isConcurrent, page->readyToRender, page->title);
-		
+
 		if ((page->readyToRender || page->isConcurrent) && page->id != id)
 			pageZList[zTotal++] = page;
 	}
@@ -622,9 +543,7 @@ int page2Render (TPAGES2 *pages, TFRAME *frame, const int id)
 			concurrentTotal++;
 		}
 	}
-	
-	//printf("concurrentTotal %i\n", concurrentTotal);
-	
+
 	// now render whatever is set as concurrent	
 	if (concurrentTotal){
 		total = zTotal;
@@ -671,11 +590,8 @@ int page2Render (TPAGES2 *pages, TFRAME *frame, const int id)
 
 int page2Set (TPAGES2 *pages, const int id, const int setStack)
 {
-	//printf("\n# page2Set id:%i, modStack:%i\n", id, setStack);
-	
+
 	if (id < PAGE_BASEID){
-		//printf("page2Set: invalid page %i\n", id);
-		//return 0;
 		return page2Set(pages, PAGE_DEFAULT, 1);
 	}
 
@@ -732,8 +648,6 @@ int page2SetPrevious (void *pageStruct)
 	TPAGE2 *pageCurrent = com->page;
 	
 	int id = page2StackPop(pageCurrent);
-	//printf("page2SetPrevious %i %i\n", id, pageCurrent->id);
-	
 	if (id == pageCurrent->id)
 		return 1;
 
