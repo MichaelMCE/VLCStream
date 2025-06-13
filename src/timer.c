@@ -23,12 +23,14 @@
 
 #include "common.h"
 
-static int timerLock (TVLCPLAYER *vp)
+
+
+static inline int timerLock (TVLCPLAYER *vp)
 {
 	return getApplState(vp);
 }
 
-static void timerUnlock (TVLCPLAYER *vp)
+static inline void timerUnlock (TVLCPLAYER *vp)
 {
 }
 
@@ -59,7 +61,6 @@ void timerSet (TVLCPLAYER *vp, const int id, const double ms)
 	}		
 	
 	if (ms < 0.1){
-		//printf("timerSet %i %.2f\n", id, ms);
 		SetEvent(vp->ctx.hEvent);
 		renderSignalUpdate(vp);
 	}
@@ -74,16 +75,12 @@ static void timerFire (TVLCPLAYER *vp, const int id)
 	}
 }
 
-//void timerCheckAndFire (TVLCPLAYER *vp, const unsigned int t0)
 void timerCheckAndFire (TVLCPLAYER *vp, const double t0)
 {
 	for (int i = 0; i < TIMER_TOTAL; i++){
 		if (vp->timers.queue[i].state > 0){
-			if (t0 >= vp->timers.queue[i].time){
-				//printf("firing timer %i [%i] %i\n", i, (int)(t0-vp->timers.queue[i].time), vp->timers.queue[i].state);
+			if (t0 >= vp->timers.queue[i].time)
 				timerFire(vp, i);
-				//printf("firing timer complete\n");
-			}
 		}
 	}
 }

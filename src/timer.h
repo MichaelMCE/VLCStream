@@ -30,8 +30,7 @@
 // defines a single shot timer
 typedef struct{
 	int state;			// ready to fire
-	//uint64_t time;		// delta time to fire in ms
-	double time;
+	double time;			// delta time to fire in ms
 	void (*func) (TVLCPLAYER *vp);
 	void *ptr;
 }TTIMER;
@@ -46,9 +45,6 @@ void timerCheckAndFire (TVLCPLAYER *vp, const double t0);
 
 #define timerClear timerReset
 
-/*
-void timerUnlock (TVLCPLAYER *vp);
-int timerLock (TVLCPLAYER *vp);*/
 
 #endif
 
