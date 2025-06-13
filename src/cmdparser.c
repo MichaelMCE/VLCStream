@@ -206,10 +206,6 @@ void playlistsForceRefresh (TVLCPLAYER *vp, const int when)
 
 static inline int searchPlaylist (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int mtag, const char *search, const int from)
 {
-	//if (mtag >= 0)
-		//dbprintf(vp, "searching for '%s = %s' in '%s'", getTag(mtag), search, plc->name);
-	//else
-	//	dbprintf(vp, "searching for '%s' in '%s'", search, plc->name);
 
 	int trk = -1;
 	if (mtag == -1){
@@ -279,8 +275,6 @@ static inline int editBoxDoSearchPlaylist (TVLCPLAYER *vp, PLAYLISTCACHE *plc, c
 
 static inline int editBoxDoSearch (TVLCPLAYER *vp, const int mtag, const wchar_t *searchFor, const int searchType)
 {
-	//printf("editBoxDoSearch\n");
-	
 	int searchFrom = searchType;
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	
@@ -1305,8 +1299,6 @@ void cmd_import (wchar_t *var, int vlen, void *uptr, int play, int dontResetRetr
 			
 	int total = playlistGetTotal(plc);
 	if (total){
-		//printf("plc %i %s\n", total, plc->title);
-				
 		if (total > 1)
 			playlistSort(plc, vp->tagc, MTAG_PATH, SORT_ASCENDING);
 
@@ -1421,7 +1413,6 @@ static inline int playlistExcludeRecordsByFilter (TVLCPLAYER *vp, PLAYLISTCACHE 
 	int newTotal = 0;
 	int total = playlistGetTotal(src);
 	if (!total){
-		//printf("empty '%s'\n", src->title);
 		return 0;
 	}
 	
@@ -1478,111 +1469,17 @@ static inline int playlistExcludeRecordsByFilter (TVLCPLAYER *vp, PLAYLISTCACHE 
 	return newTotal;
 }
 
+#if 0
 static inline int playlistIncludeRecordsByFilter (TVLCPLAYER *vp, PLAYLISTCACHE *plc, PLAYLISTCACHE *to, const int tag, const char *filter)
 {
-	playlistLock(plc);
-	//playlistLock(to);
-	int itemsRemoved = 0;
-/*
-
-	TPLAYLISTITEM *item;
-	char buffer[MAX_PATH_UTF8+1];
-	int total = playlistGetTotal(plc);
-
-	for (int i = 0; i < total; i++){
-		item = playlistGetItem(plc, i);
-		if (item){
-			*buffer = 0;
-
-			if (tag == MTAG_PATH)
-				strncpy(buffer, item->path, MAX_PATH_UTF8);
-			else
-				tagRetrieveByHash(vp->tagc, item->hash, tag, buffer, MAX_PATH_UTF8);
-
-			if (*buffer){
-				if (stristr(buffer, filter)){
-					if (plc != to){
-						int pos = playlistAdd(to, item->path);
-						if (pos >= 0 && item->title)
-							playlistSetTitle(to, pos, item->title, 1);
-					}else{
-						playlistDeleteRecord(plc, i--);
-						total = playlistGetTotal(plc);
-					}
-					itemsRemoved++;
-				}
-			}
-		}
-	}
-
-	//playlistUnlock(to);
-	playlistUnlock(plc);
-*/
-	return itemsRemoved;
+	return 0;
 }
 
 static inline int playlistBuildSplitPlaylists (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int mtag)
 {
-
-		//if (!playlistLock(plc))
-		//	return 0;
-
-	int plcount = 1;
-/*
-
-	TPLAYLISTITEM *item;
-	PLAYLISTCACHE *to = NULL;
-	char buffer[MAX_PATH_UTF8+1];
-	const int total = playlistGetTotal(plc);
-
-	PLAYLISTCACHE *allothers = playlistManagerCreatePlaylist(vp->plm, "_unfiltered_");
-	//playlistDelete(allothers);
-
-	for (int i = 0; i < total; i++){
-		item = playlistGetItem(plc, i);
-		if (item){
-			buffer[0] = 0;
-
-			if (mtag == MTAG_PATH){
-				if (item->path)
-					strncpy(buffer, item->path, MAX_PATH_UTF8);
-			}else if (mtag == MTAG_Title){
-				if (item->title)
-					strncpy(buffer, item->title, MAX_PATH_UTF8);
-			}else{
-				tagRetrieveByHash(vp->tagc, item->hash, mtag, buffer, MAX_PATH_UTF8);
-			}
-
-			if (*buffer){
-				char *name = removeLeadingSpaces(buffer);
-				name = removeTrailingSpaces(name);
-
-				to = playlistManagerGetPlaylistByName(vp->plm, name);
-				if (!to){
-					to = playlistManagerCreatePlaylist(vp->plm, name);
-					if (!to) break;
-					plcount++;
-				}
-			}else{
-				to = allothers;
-				//printf("%i ##%s##\n", i, item->path);
-			}
-
-			int pos = playlistAdd(to, item->path);
-			if (pos >= 0 && item->title){
-				playlistSetTitle(to, pos, item->title, 1);
-			}
-		}
-	}
-
-	if (!playlistGetTotal(allothers)){
-		playlistManagerDeletePlaylist(vp->plm, allothers);
-		plcount--;
-	}
-	playlistUnlock(plc);
-*/
-	return plcount;
+	return 0;
 }
+#endif
 
 static inline int deletePlaylistEntry (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plc, const int idx)
 {
@@ -1639,7 +1536,6 @@ static inline void cmd_shelf (wchar_t *var, int vlen, void *uptr, int unused1, i
 	PLAYLISTCACHE *plcD = getDisplayPlaylist(vp);
 
 	if (!var || !vlen){
-		//if (pageGet(vp) != PAGE_PLY_SHELF) pageSet(vp, PAGE_PLY_SHELF);
 		if (!page2RenderGetState(vp->pages, PAGE_PLY_SHELF))
 			page2Set(vp->pages, PAGE_PLY_SHELF, 1);
 		return;
@@ -1649,10 +1545,7 @@ static inline void cmd_shelf (wchar_t *var, int vlen, void *uptr, int unused1, i
 	if (!state) return;
 
 	if (!wcscmp(state, L"openart") || !wcscmp(state, L"art")){
-		//TSPL *alb = pageGetPtr(vp, PAGE_PLY_SHELF);
 		TSPL *spl = pageGetPtr(vp, PAGE_PLY_FLAT);
-		
-		//printf("cmd_shelf %i %i\n", alb->from, spl->from);
 		openArtwork(vp, plcD, spl->from);
 		
 	}else if (!wcscmp(state, L"setname") || !wcscmp(state, L"name")){
@@ -1950,7 +1843,6 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 			const int plcDtotal = playlistGetTotal(plcD);
 
 			if (plc && from > 0 && to > 0 && from <= plcDtotal && to <= plcDtotal){
-				//printf("copying %i %i '%s' '%s'\n", from-1, to-1, plcD->name, plc->name);
 				int tCopied = copyPlaylistTracks(vp->plm, plcD, --from, --to, plc, 0);
 				dbprintf(vp, "%i items copied to '%s'", tCopied, plc->title);	
 				
@@ -2018,9 +1910,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 		wchar_t *cmd = strGetStringNext(L" ");
 		wchar_t *trk = strGetStringNext(L" ");
 		wchar_t *opt = strGetStringNext(L"\0");
-		
-		//wprintf(L"'%s' '%s' '%s'\n", cmd, trk, opt);
-		
+
 		if (!cmd || !trk){
 			//printf("invalid input for option\n");
 			return;
@@ -2046,11 +1936,9 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 				my_free(opt8);
 			}
 		}else if (!wcscmp(cmd, L"del") || !wcscmp(cmd, L"delete")){
-			//wprintf(L"pl option del %i\n", pos);
 			playlistSetOptions(plcD, pos, NULL, 1);
 
 		}else if (!wcscmp(cmd, L"get")){
-			//wprintf(L"pl option get #%s# #%s# #%s#, %i\n", var, state, cmd, pos+1);
 			char opt8[MAX_PATH_UTF8+1];
 
 			playlistGetOptions(plcD, pos, opt8, MAX_PATH_UTF8);
@@ -2170,6 +2058,8 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 		dbwprintf(vp, L"%i records written to %ls\n", written, VLCSPLAYLIST);
 
 	}else if (!wcscmp(state, L"remove")){
+		dbwprintf(vp, L"Not implemented");
+#if 0
 		wchar_t *filter = strGetStringNext(L" ");
 		if (filter && *filter){
 			int mtag = tagLookupW(filter);
@@ -2186,7 +2076,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 				playlistsForceRefresh(vp, 0);
 			}
 		}
-
+#endif
 	// filter this only
 	}else if (!wcscmp(state, L"exclude")){
 		wchar_t *filter = strGetStringNext(L" ");
@@ -2218,6 +2108,8 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 
 	// filter everything which is not this (everything but this)
 	}else if (!wcscmp(state, L"extract")){
+		dbwprintf(vp, L"Not implemented");
+#if 0
 		wchar_t *filter = strGetStringNext(L" ");
 		if (filter && *filter){
 			int mtag = tagLookupW(filter);
@@ -2244,18 +2136,20 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 				dbprintf(vp, "%i tracks extracted to '%s' from '%s'", newTotal, to->title, plcD->title);
 			}
 		}
-
+#endif
 	}else if (!wcscmp(state, L"decompose") || !wcscmp(state, L"decom") || !wcscmp(state, L"split")){
+		dbwprintf(vp, L"Not implemented");
+#if 0
 		wchar_t *filter = strGetStringNext(L" ");
 		if (filter && *filter){
 			int mtag = tagLookupW(filter);
-			//wprintf(L"filter split #%s# (%i)\n", filter, mtag);
 			int total = playlistBuildSplitPlaylists(vp, plcD, mtag);
 			if (total){
 				dbwprintf(vp, L"%i playlists created from '%ls'", total, filter);
 				playlistsForceRefresh(vp, 0);
 			}
 		}
+#endif
 	}
 	//invalidateShelfAlbum(vp, pageGetPtr(vp, PAGE_PLY_SHELF), -1);
 }
