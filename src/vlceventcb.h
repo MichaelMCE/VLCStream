@@ -43,8 +43,7 @@ typedef struct {
 	int eventClass;
 	
 	TMETACOMPLETIONCB *mccb;
-	
-	//PLAYLISTCACHE *plc;
+
 	int pid;			// playlist id
 	int position;
 	int hash;

@@ -86,7 +86,7 @@ typedef struct {
 
 
 
-# define  libvlcTrackDescriptionRelease libvlc_track_description_list_release
+#define libvlcTrackDescriptionRelease libvlc_track_description_list_release
 
 
 

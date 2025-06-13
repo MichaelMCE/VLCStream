@@ -120,17 +120,16 @@ void vlcEvent_MediaMetaParseChanged (TVLCEVENTCB_OPAQUE *vlc, const int data)
 		if (!hash) hash = getHash(vlc->path);
 
 		if (i == MTAG_Title){
-			//if (!tagRetrieveByHash(meta->vp->tagc, meta->hash, i)){
-				strchrreplace(tag, '_', ' ');
+			strchrreplace(tag, '_', ' ');
 #if 1
-				char *ay = stristr(tag, ".ay");
-				if (ay) *ay = 0;
+			char *ay = stristr(tag, ".ay");
+			if (ay) *ay = 0;
 #endif
-				tagAddByHash(tagc, hash, i, tag, 1);
-				PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vlc->vp->plm, vlc->pid);
-				if (plc)
-					playlistSetTitle(plc, vlc->position, tag, (*tag != 0));
-			//}
+			tagAddByHash(tagc, hash, i, tag, 1);
+			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vlc->vp->plm, vlc->pid);
+			if (plc)
+				playlistSetTitle(plc, vlc->position, tag, (*tag != 0));
+
 			if (vlc->mccb && vlc->mccb->cb){
 				if (vlc->status == 1)
 					vlc->mccb->cb(vlc->vp, vlc->mccb->itemId, vlc->mccb->dataInt1, vlc->mccb->dataInt2, vlc->mccb->dataPtr1, vlc->mccb->dataPtr2);
@@ -138,9 +137,6 @@ void vlcEvent_MediaMetaParseChanged (TVLCEVENTCB_OPAQUE *vlc, const int data)
 			}
 		}else if (i == MTAG_ArtworkPath){
 #if 1
-
-			//printf("MTAG_ArtworkPath: #%s#\n", tag);
-			
 			char *out;
 			if (!strncmp(tag, "file:///", 8))
 				out = decodeURI(tag, strlen(tag));
@@ -169,7 +165,7 @@ void vlcEvent_MediaMetaParseChanged (TVLCEVENTCB_OPAQUE *vlc, const int data)
 			}
 #endif
 		}else{
-			tagAddByHash(tagc,/*vlc->path,*/ hash, i, tag, 1);
+			tagAddByHash(tagc, hash, i, tag, 1);
 		}
 
 		vlibvlc_free(tag);
@@ -185,10 +181,8 @@ void vlcEvent_MediaMetaChanged (TVLCEVENTCB_OPAQUE *vlc, const int metaType)
 	char *tag = NULL;
 	if (vlc->m)
 		tag = libvlc_media_get_meta(vlc->m, metaType);
-	//printf("vlcEvent_MediaMetaChanged %i %p\n", metaType, tag);
 
 	if (tag){
-		//printf("%i, '%s' '%s'\n", metaType, tag, vlc->path);
 		vlibvlc_free(tag);
 	}
 }
@@ -201,23 +195,6 @@ static inline void vlcEventSetTrackLength (TMETATAGCACHE *tagc, const char *path
 	if (*buffer)
 		tagAdd(tagc, path, MTAG_LENGTH, buffer, 1);
 }
-/*
-static inline void freeItem (TLISTITEM *item)
-{
-	listRemove(item);
-	listDestroy(item);
-	if (item == eventlist.root) eventlist.root = item->next;
-	else if (item == eventlist.last) eventlist.last = item->prev;
-}*/
-
-/*
-void freeHandleLocked (TVLCEVENTCB_OPAQUE *opaque, TLISTITEM *item)
-{
-	if (vlcEventsLock(opaque->vp->vlc)){
-		freeHandle(opaque, 1);
-		vlcEventsUnlock(opaque->vp->vlc);
-	}
-}*/
 
 static inline int freeHandle (TVLCEVENTCB_OPAQUE *vlc/*, TLISTITEM *item*/, const int freeMode)
 {
@@ -277,8 +254,6 @@ static inline void freeHandles (const int freeMode)
 
 void vlcEventFreeHandles (TVLCPLAYER *vp, const int mode)
 {
-	//printf("vlcEventFreeHandles %i, list size %i\n", mode, listCount(eventlist.root));
-	
 	if (vlcEventsLock(vp->vlc)){
 		freeHandles(mode);
 		if (mode){
@@ -286,8 +261,6 @@ void vlcEventFreeHandles (TVLCPLAYER *vp, const int mode)
 			eventlist.root = NULL;
 			eventlist.last = NULL;
 		}
-		
-		//printf("vlcEventFreeHandles list size %i\n", listCount(eventlist.root));
 		vlcEventsUnlock(vp->vlc);
 	}
 }
@@ -385,10 +358,6 @@ static inline int vlcEventIsAdded (TVLCPLAYER *vp, const int hash)
 		ret = vlcEventIsInList(eventlist.root, hash);
 		//vlcEventsUnlock(vp->vlc);
 	//}
-	//if (ret){
-	//	printf("%i %x\n", listCount(item), hash);
-	//}
-
 	return ret;
 }
 
@@ -414,22 +383,19 @@ static inline TVLCEVENTCB_OPAQUE *vlcCreateEventsInstance (libvlc_instance_t *hL
 		libvlc_media_add_option(vlc->m, "album-art=2");
 		libvlc_media_add_option(vlc->m, "ignore-config");
 
-		//if (vlcEventsLock(vp->vlc)){
-			TLISTITEM *item = listNewItem(vlc);
-			if (eventlist.root)				//insert first
-				listInsert(item, NULL, eventlist.root);
-			else
-				eventlist.last = item;
-			eventlist.root = item;
+		TLISTITEM *item = listNewItem(vlc);
+		if (eventlist.root)				//insert first
+			listInsert(item, NULL, eventlist.root);
+		else
+			eventlist.last = item;
 
-			vlc->mccb = mccbDup(mccb);
-			vlc->item = item;
-			vlc->status = 1;				// in use, do not free
+		eventlist.root = item;
+		vlc->mccb = mccbDup(mccb);
+		vlc->item = item;
+		vlc->status = 1;				// in use, do not free
 
-			//vlcEventsUnlock(vp->vlc);
-			return vlc;
-		//}
-		//libvlc_media_release(vlc->m);
+		//vlcEventsUnlock(vp->vlc);
+		return vlc;
 	}
 	my_free(vlc->path);
 	my_free(vlc);
@@ -438,9 +404,6 @@ static inline TVLCEVENTCB_OPAQUE *vlcCreateEventsInstance (libvlc_instance_t *hL
 
 void vlcEventGetLength (libvlc_instance_t *hLib, TVLCPLAYER *vp, TMETATAGCACHE *tagc, const char *path, const int hash, TMETACOMPLETIONCB *mccb)
 {
-	//if (vlcEventIsAdded(vp, hash))
-	//	return;
-
 	if (vlcEventsLock(vp->vlc)){
 		TVLCEVENTCB_OPAQUE *vlc = vlcCreateEventsInstance(hLib, vp, tagc, path, mccb);
 		if (vlc){
@@ -471,7 +434,6 @@ void vlcEventGetMeta (libvlc_instance_t *hLib, TVLCPLAYER *vp, TMETATAGCACHE *ta
 		libvlc_media_parse_async(vlc->m);
 		
 		char *tag = libvlc_media_get_meta(vlc->m, (libvlc_meta_t)MTAG_ArtworkPath);
-		//if (tag) printf("vlcEventGetMeta: #%s#\n", tag);
 		if (tag) libvlc_free(tag);
 	}
 	vlcEventsUnlock(vp->vlc);
