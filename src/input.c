@@ -174,12 +174,8 @@ void touchDispatcherStart (TVLCPLAYER *vp, const void *fn, const void *ptr)
 		if (!did){
 			did = lDriverNameToID(vp->ml->hw, "HidDisplay", LDRV_DISPLAY);
 			if (did){
-				//printf("hidDisplay found\n");
-				
 				//lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCB, (intptr_t*)fn);
 				//lSetDisplayOption(vp->ml->hw, did, lOPT_USBD480_TOUCHCBUSERPTR, (intptr_t*)ptr);
-			}else{
-				//printf("hidDisplay not found\n");
 			}
 		}
 	}
@@ -226,8 +222,6 @@ static inline void dispatchUnlock (TVLCPLAYER *vp)
 
 unsigned int __stdcall inputDispatchThread (void *ptr)
 {
-	//printf("mouseDispatchThread %i\n", (int)GetCurrentThreadId());
-	
 	TVLCPLAYER *vp = (TVLCPLAYER*)ptr;
 	TMBCLICK *mbroot = my_calloc(MBCLICKD_TOTAL+1, sizeof(TMBCLICK));
 	if (mbroot == NULL){
@@ -301,8 +295,6 @@ unsigned int __stdcall inputDispatchThread (void *ptr)
 void touchSimulate (const TTOUCHCOORD *pos, const int flags, TVLCPLAYER *vp)
 {
 	if (dispatchLock(vp)){
-		//printf("touchSimulate lock\n");
-		
 		if (vp->applState){
 			TMBCLICK *mb = mDispatch.mbclick;
 
@@ -316,15 +308,13 @@ void touchSimulate (const TTOUCHCOORD *pos, const int flags, TVLCPLAYER *vp)
 					my_memcpy(&mb->pos, pos, sizeof(TTOUCHCOORD));
 					
 					if (i > mDispatch.listUpper) mDispatch.listUpper = i+1;
-					
-					//printf("touchSimulate unlock a\n");
 					dispatchUnlock(vp);
 					SetEvent(vp->gui.hDispatchEvent);
 					return;
 				}
 			}
 		}
-		//printf("touchSimulate unlock b\n");
+
 		dispatchUnlock(vp);
 	}
 }

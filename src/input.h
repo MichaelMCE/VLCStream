@@ -32,7 +32,7 @@
 
 
 typedef struct{
-	int isHooked;				// is mouse hooked
+	int isHooked;		// is mouse hooked
 	int slideHoverEnabled;		// hover detection without being hooked (mouse/pad)
 	int draw;
 	int x;				// Windows mouse co-ord X
