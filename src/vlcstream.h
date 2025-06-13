@@ -91,18 +91,7 @@ typedef struct{
 		char bitBuff[sizeof(BITMAPINFO)+16];
 		BITMAPINFO *bitHdr;
 		HWND wnd;
-		//int copyMode;		// 1=1:1 src copy, 2=best fit
-		/*int cxScreen;
-		int cyScreen;
-		int wStretched;
-		int hStretched;*/
-		
 		int enable;
-		//HDC window_dc;
-		//HBITMAP off_bitmap;
-		//HDC off_dc;
-		//void *p_pic_buffer;
-		//BITMAPINFOHEADER bmiHeader;
 	}winRender;
 }TCTX;
 
