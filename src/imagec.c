@@ -41,8 +41,6 @@ static inline int imgLoaderWaitForNewImageLoadSignal (TASYNCIMGLOAD *imgLoader)
 
 static inline unsigned int __stdcall imgLoaderThread (void *ptr)
 {
-	//printf("@@ imgLoaderThread start %i\n", (int)GetCurrentThreadId());
-
 	TASYNCIMGLOAD *imgLoader = (TASYNCIMGLOAD*)ptr;
 
 	do{
@@ -51,11 +49,8 @@ static inline unsigned int __stdcall imgLoaderThread (void *ptr)
 				intptr_t data;
 				while(stackPop(imgLoader->stack, &data)){
 					int imgId = data;
-					if (imgId){
-						//printf("artManagerImagePreload preLoad: %X\n", imgId);
-						/*int ret =*/ artManagerImagePreload(imgLoader->am, imgId);
-						//printf("artManagerImagePreload done: %X = %i\n", imgId, ret);
-					}
+					if (imgId)
+						artManagerImagePreload(imgLoader->am, imgId);
 				}
 			}
 		}else{
@@ -63,17 +58,12 @@ static inline unsigned int __stdcall imgLoaderThread (void *ptr)
 		}
 	}while(!SHUTDOWN);
 
-
-	//printf("@@ imgLoaderThread end %i\n", (int)GetCurrentThreadId());
-
 	_endthreadex(1);
 	return 1;
 }
 
 int imgLoaderAddImage (TASYNCIMGLOAD *imgLoader, const int imgId)
 {
-	//printf("imgLoaderAddImage imgId %X\n", imgId);
-	
 	if (stackPush(imgLoader->stack, imgId)){
 		imgLoaderNewImgSetSignal(imgLoader);
 		return 1;
@@ -129,11 +119,7 @@ void timer_cacheFlush (TVLCPLAYER *vp)
 		return;
 	}
 	
-	//int flushed = ccLabelFlushAll(vp->cc);
-	//printf("ccLabelFlushAll: flushed %i images\n", flushed);
-		
-	/*flushed =*/ imageManagerFlush(vp->im);
-	//printf("im Flush: flushed %i images\n", flushed);
+	imageManagerFlush(vp->im);
 	artManagerFlush(vp->am);
 	
 	//invalidateShadows(vp->gui.shadow);
