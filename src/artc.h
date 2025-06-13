@@ -59,8 +59,6 @@ typedef struct{
 typedef struct {
 	int id;
 	unsigned int state;		// hasPath, hasSurface, hasMetrics, canNotRead
-	//unsigned int hash;
-	
 	int acquireRefCt;		// refCt inc'd per surface request, dec'd per release
 	int multiRefCt;
 	
