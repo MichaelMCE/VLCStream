@@ -1,5 +1,9 @@
 
-WIN64 := 0
+
+
+
+APP_TYPE = -mwindows
+#APP_TYPE = -mconsole
 
 CC=gcc
 GPP=g++
@@ -21,9 +25,6 @@ BUILDM32M64 =-m64 -DWIN64=1 -D__WIN64__=1 -DHAVE_STRUCT_TIMESPEC -D_CRT_NON_CONF
 CONTRIBS =../../contribs/$(SYSARCH)/
 CFLAGSARCH =-march=x86-64 -mtune=generic -m64
 
-# Graphite loop optimizations
-GLOP = 
-
 else
 
 SYSARCH=$(X32ARCH)
@@ -31,20 +32,14 @@ RESTARGET= --target=pe-i386
 BUILDM32M64 =-m32 -DWIN32=1 -D__WIN32__=1 
 CONTRIBS =../../contribs/$(SYSARCH)/
 
-# -DNDEBUG=1 -D_NDEBUG=1
-
 #CFLAGSARCH = -march=i686 -mtune=i686 -m32 -mthreads -fstack-check -fno-common  -Wl,--stack,8388608
 #CFLAGSARCH = -march=pentium3 -mtune=pentium3 -m32 -mthreads -Wl,--stack,8388608
 #CFLAGSARCH = -march=pentium4 -mtune=pentium4 -m32 -mthreads -Wl,--stack,8388608
 #CFLAGSARCH = -march=amdfam10 -mtune=amdfam10 -m32 -mthreads -fno-common -Wl,--stack,8388608
 #CFLAGSARCH = -march=i686 -mtune=i686 -m32
-#CFLAGSARCH = -march=native -mtune=native -fno-common
-CFLAGSARCH =  
+CFLAGSARCH = -march=native -mtune=native -fno-common
+#CFLAGSARCH =  
 
-#  -Wl,--stack,18388608
-
-#GLOP = -floop-interchange -floop-strip-mine -floop-block
-GLOP = 
 endif
 
 ############################################################################
@@ -52,36 +47,19 @@ endif
 
 
 
-# -Wimplicit-fallthrough=0
-# -fstack-protector-all  -fdiagnostics-color=always -funsafe-loop-optimizations -Wno-enum-conversion
-#PFLAGS = -Wimplicit-fallthrough=0 -ftree-vectorize -falign-functions=1 -falign-jumps=1 -falign-loops=1 -falign-labels=1 -falign-functions=16 -falign-loops=16 -fno-signed-zeros -minline-all-stringops -Wlarger-than=524288 -Wno-cpp -Wextra -Wno-error=unused-parameter -Wno-error=sign-compare -Wno-unused-parameter -Wno-sign-compare 
 PFLAGS = -Wno-bool-compare
-#PFLAGS = -Wfatal-errors   
-
-OPFLAGS = 
-#OPFLAGS = -mfpmath=387 -DHAVE_MMX -DUSE_MMX -mmmx
+#OPFLAGS = 
+OPFLAGS = -mfpmath=387 -DHAVE_MMX -DUSE_MMX -mmmx
 #OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -mmmx -DUSE_SSE -DHAVE_SSE -msse 
-#OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -mmmx -DUSE_SSE -DHAVE_SSE -msse -DHAVE_SSE2 -DUSE_SSE2 -msse2 
-#OPFLAGS = -mfpmath=sse,387 -DHAVE_SSE2 -DUSE_SSE2 -msse2 -DUSE_MMX2 -DHAVE_MMX2 -DUSE_SSE -DHAVE_SSE -msse -DHAVE_MMX -DUSE_MMX -mmmx 
-#OPFLAGS = -mfpmath=sse,387 -DUSE_3DNOW -DHAVE_3DNOW -m3dnow -DHAVE_SSE2 -DUSE_SSE2 -msse2 -DUSE_MMX2 -DHAVE_MMX2 -DUSE_SSE -DHAVE_SSE -msse -DHAVE_MMX -DUSE_MMX -mmmx 
-#OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -mmmx -DUSE_SSE -DHAVE_SSE -msse -DHAVE_SSE2 -DUSE_SSE2 -msse2 -DUSE_MMX2
 
+CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -O3 -std=c23 
+CPPFLAGS = $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -DINITGUID -DUSE___UUIDOF=0 -O3 -std=c++23 
 
-#CFLAGS = -static -static-libstdc++ -static-libgcc $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(GLOP) $(CFLAGSARCH) -minline-all-stringops -fno-strict-aliasing -fno-exceptions -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -D_M_IX86 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0801 -D__WIN32__=1 -funroll-loops -finline-functions -ftree-vectorizer-verbose=0 -fvariable-expansion-in-unroller -ftree-loop-distribution -fno-signed-zeros -fno-trapping-math -fno-math-errno -ffast-math -s -pipe -fgcse-las -fgcse-sm -fgcse-lm -fmodulo-sched -fmodulo-sched-allow-regmoves -O2 -Wno-error=format
-CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(GLOP) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -pipe -O3
+LIBSOWN    = -lmylcddll -lhook -lusb -lvlc.dll -lvlccore.dll -lbasswasapi -lbass 
+LIBSSYSTEM = -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet
+LIBDEPEND  = $(LIBSOWN) $(LIBSSYSTEM) 
 
-# -fstack-protector -mwindows -fomit-frame-pointer
-LIBDEPEND = -lmylcddll -lhook -lusb -lvlc.dll -lvlccore.dll -lbasswasapi -lbass 
 LIBS = -static -static-libstdc++ -static-libgcc $(BUILDM32M64) -Llibs/$(SYSARCH)/ -L"lib" -L../../lib/$(SYSARCH)/ -Lsdk/lib/ -L$(CONTRIBS)lib/ $(BUILDM32M64)
-# -Wl,--stack,8388608  -static -static-libstdc++ -static-libgcc
-# -flto -pg -lgmon -lgcc_S  -mthreads 
-
-# opengl/matrix.o opengl/defrc.o opengl/mylcdgl.o 
-# distort.o opengl/distort/gl_distort.o opengl/distort/ripple.o 
-# opengl/gl_lorenz.o opengl/gl_particles.o opengl/gl_rc.o opengl/gl_mandelbrot.o\
-# -lm -lopengl32 -lglu32 
-
-
 
 
 BASEOBJS =  tcx.o fileext.o process.o fileal.o hdtouch.o bass.o imagec.o settings.o\
@@ -112,7 +90,6 @@ BASEOBJS =  tcx.o fileext.o process.o fileal.o hdtouch.o bass.o imagec.o setting
 
 
 BASEOBJS2 = $(BASEOBJS:%=$(TEMPDIR)/%)
-# BASEOBJS2 = $(BASEOBJS)
 
 
 test: 
@@ -133,11 +110,9 @@ xcpy:
 	@xcopy pages "$(TEMPDIR)\pages" /y /d /q /I > NUL
 	@xcopy cleanobjs.bat $(TEMPDIR)\ /y /d /q /I > NUL
 
-# -mwindows -mconsole
-
 vlcstream.exe: $(BASEOBJS2)
 	windres --output-format=coff $(RESTARGET) -i vlcstream.rc -o $(TEMPDIR)/res.o
-	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet -mwindows 
+	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) $(APP_TYPE)
 	strip.exe $@
 
 
@@ -146,16 +121,16 @@ ifeq (,$(wildcard $@))
 	del /F $@ 
 endif
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsCtrl.rc -o $(TEMPDIR)/resc.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 -mwindows -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 $(APP_TYPE) -m32
 
 vlcsAddto.exe: $(TEMPDIR)/extra/vlcsAddto.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsAddto.rc -o $(TEMPDIR)/resa.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 -mwindows -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 $(APP_TYPE) -m32
 	strip.exe $@
 
 vlcsStart.exe: $(TEMPDIR)/extra/vlcsStart.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsStart.rc -o $(TEMPDIR)/ress.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 -mwindows -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 $(APP_TYPE) -m32
 	strip.exe $@
 
 
@@ -164,17 +139,18 @@ vlcsCtrl: vlcsCtrl.exe
 vlcscmd: vlcsCtrl.exe
 
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS) -std=gnu18
+	$(CC) -c -o $@ $< $(CFLAGS)
 	@echo ##
 
 %.o: %.cpp $(DEPS)
-	$(GPP) -c -o $@ $< $(CFLAGS) -DINITGUID -DUSE___UUIDOF=0
+	$(GPP) -c -o $@ $< $(CPPFLAGS)
 	
 all : $(PROGRAMS)
 
 vlcstream: vlcstream.exe
 
 utils : vlcsStart.exe vlcsAddto.exe vlcsCtrl.exe
+extra : utils
 
 clean:
 	del *.exe *.o *.bak
