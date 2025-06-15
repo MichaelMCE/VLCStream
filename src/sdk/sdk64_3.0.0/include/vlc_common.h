@@ -77,7 +77,9 @@
  #define PRIx64 "llx"
  #define snprintf __mingw_snprintf
  #define vsnprintf __mingw_vsnprintf
- #define swprintf _snwprintf
+ 
+// disabled for win64
+// #define swprintf _snwprintf
 #endif
 
 /* Function attributes for compiler warnings */
