@@ -72,15 +72,12 @@ int vlcEventCount ()
 
 int vlcEventsLock (TVLCCONFIG *vlc)
 {
-	//printf("events lock waiting %i\n", (int)GetCurrentThreadId());
 	int ret = lockWait(vlc->hLockLengths, INFINITE);
-	//printf("events lock got %i\n", (int)GetCurrentThreadId());
 	return ret;
 }
 
 void vlcEventsUnlock (TVLCCONFIG *vlc)
 {
-	//printf("events lock release %i, %i\n", (int)GetCurrentThreadId(), vlc->hLockLengths->lockCount);
 	lockRelease(vlc->hLockLengths);
 }
 
@@ -149,7 +146,6 @@ void vlcEvent_MediaMetaParseChanged (TVLCEVENTCB_OPAQUE *vlc, const int data)
 					wchar_t *tagw = converttow(out);
 					if (tagw){
 						int artId = artManagerImageAddEx(vlc->vp->am, tagw, tagc->maxArtWidth, tagc->maxArtHeight);
-						//printf("vlcEvent: %i %i '%s'\n", artId>>16, artId&0xFFFF, out);
 						if (artId){
 #if (RELEASEBUILD)							
 							playlistSetArtId(plc, vlc->position, artId, 1);
@@ -209,11 +205,9 @@ static inline int freeHandle (TVLCEVENTCB_OPAQUE *vlc/*, TLISTITEM *item*/, cons
 		my_free(vlc);
 		return 1;
 
-	}else if (vlc->status == 2){	// only free whats been signalled as ready to free
+	}else if (vlc->status == 2){	// free whats been signalled as ready to free
 		vlc->status = 0;
-		//printf("detach %p '%s'\n", vlc, vlc->path);
 		vlcEventsDetach(vlc, vlc);
-		//printf("release %p\n", vlc);
 		if (vlc->m) libvlc_media_release(vlc->m);
 		if (vlc->mccb) my_free(vlc->mccb);
 		my_free(vlc->path);
@@ -222,7 +216,6 @@ static inline int freeHandle (TVLCEVENTCB_OPAQUE *vlc/*, TLISTITEM *item*/, cons
 	}
 	return 0;
 }
-
 
 // we need to free the handles from outside the callback thread otherwise libVLC throws a whobbler
 static inline void freeHandles (const int freeMode)
@@ -268,7 +261,6 @@ void vlcEventFreeHandles (TVLCPLAYER *vp, const int mode)
 // TIMER_VLCEVENTS_CLEANUP
 void vlcEventsCleanup (TVLCPLAYER *vp)
 {
-	//printf("## vlcEventsCleanup ##\n");
 	vlcEventListInvalidate(vp->vlc);
 	vlcEventFreeHandles(vp, 0);
 }
@@ -300,7 +292,6 @@ void vlcEventCB (const libvlc_event_t *event, void *udata)
 	  	vlc->length = (int)(event->u.media_duration_changed.new_duration / 1000);
 	  	if (vlc->length && vlc->path){
 	  		vlcEventSetTrackLength(vlc->tagc, vlc->path, vlc->length);
-	  		//dbprintf(vlc->vp, "%is - %s", vlc->length, vlc->path);
 	  	}
 		break;
 
