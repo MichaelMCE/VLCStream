@@ -149,21 +149,28 @@ vlcstream.exe: $(BASEOBJS2)
 	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) $(APP_TYPE)
 	strip.exe $@
 
+
+cleanextra:
+	del /F "$(TEMPDIR)/crc.o"
+	del /F "$(TEMPDIR)/resa.o"
+	del /F "$(TEMPDIR)/ress.o"
+	del /F "$(TEMPDIR)/resc.o"
+	
 vlcsCtrl.exe: $(TEMPDIR)/extra/vlcsCtrl.o $(TEMPDIR)/crc.o
 ifeq (,$(wildcard $@))
 	del /F $@ 
 endif
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsCtrl.rc -o $(TEMPDIR)/resc.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 $(APP_TYPE) -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
 
 vlcsAddto.exe: $(TEMPDIR)/extra/vlcsAddto.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsAddto.rc -o $(TEMPDIR)/resa.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 $(APP_TYPE) -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
 	strip.exe $@
 
 vlcsStart.exe: $(TEMPDIR)/extra/vlcsStart.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsStart.rc -o $(TEMPDIR)/ress.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 $(APP_TYPE) -m32
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
 	strip.exe $@
 
 
