@@ -50,7 +50,7 @@ enum _tags_meta {
     MTAG_ArtworkPath,
     MTAG_TrackID,	// end of libvlcs' tags
     
-#if (0 || LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2)
+#if (0 && (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2))
     MTAG_TrackTotal,
     MTAG_Director,
     MTAG_Season,

@@ -48,7 +48,7 @@ static const char *tagStrLookup[] = {
     "Path",
     "TrackID",
     
-#if (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2)
+#if (0 && (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2))
     "TrackTotal",
     "Director",
     "Season",
@@ -376,7 +376,7 @@ char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, con
 		libvlc_media_stats_t stats;
 		
 		if (vlc_getStats(vp->vlc, &stats)){
-			__mingw_snprintf(buffer, 127, "%.0f kb/s", stats.f_demux_bitrate*1000.0*8.0);
+			__mingw_snprintf(buffer, 127, "%.0f kb/s", stats.f_demux_bitrate*1000.0f*8.0f);
 			strncat(meta, "Bitrate: ", len);
 			strncat(meta, buffer, len);
 			strncat(meta, lineBreak, len);
@@ -574,7 +574,7 @@ int metaRender (TVLCPLAYER *vp, TFRAME *frame, TMETA *meta, TMETADESC *desc, con
 			lSetForegroundColour(vp->ml->hw, 0xFF<<24 | col[SWH_META_METAVALUE]);
 			lSetFilterAttribute(vp->ml->hw, blurOp, LTRA_BLUR_COLOUR, COL_CYAN);
 			
-			lPrintEx(frame, &rt, font, PF_FORCEAUTOWIDTH|PF_USELASTX|PF_CLIPWRAP|PF_CLIPDRAW, LPRT_CPY, "%.0f kb/s", stats.f_demux_bitrate*1000.0*8.0);
+			lPrintEx(frame, &rt, font, PF_FORCEAUTOWIDTH|PF_USELASTX|PF_CLIPWRAP|PF_CLIPDRAW, LPRT_CPY, "%.0f kb/s", stats.f_demux_bitrate*1000.0f*8.0f);
 				rt.sy += desc->textHeight;
 		}
 		

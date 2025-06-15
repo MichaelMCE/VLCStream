@@ -46,7 +46,7 @@ static const char *tagStrTable[] = {
     "artpath",
     "trackid",
 
-#if (0 || LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2)
+#if (0 && (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 2))
     "tracktotal",
     "director",
     "season",
