@@ -66,25 +66,8 @@ static const libvlc_event_type_t mp_events[] = {
 
 
 #define vlibvlc_free	libvlc_free
-//#define vlibvlc_free	free
 
 
-
-
-
-
-
-
-/*
-static inline void lock_input (libvlc_media_player_t *mp)
-{
-    vlc_mutex_lock(&mp->input.lock);
-}
-
-static inline void unlock_input (libvlc_media_player_t *mp)
-{
-    vlc_mutex_unlock(&mp->input.lock);
-}*/
 
 
 static inline void vlcMutexLock (void *mutex)
@@ -145,8 +128,6 @@ static inline vout_thread_t **GetVouts (libvlc_media_player_t *p_mi, size_t *n)
 }
 
 #if 0
-int _vout_OSDEpg(vout_thread_t *vout, input_item_t *input, const int timePeriod);
-
 int epg_displayOSD (libvlc_media_player_t *p_mi, const int timePeriod)
 {
 	if (!p_mi) return 0;
@@ -161,58 +142,16 @@ int epg_displayOSD (libvlc_media_player_t *p_mi, const int timePeriod)
 		vout_thread_t *vout = pp_vouts[i];
 		if (!vout) continue;
 
-		//printf("epg_displayOSD: vout %p\n", vout);
-
 		input_thread_t *p_input = libvlc_get_input_thread(p_mi);
 		if (p_input){
 			input_item_t *p_item = input_GetItem(p_input);
-			ret = _vout_OSDEpg(vout, p_item, timePeriod) == VLC_SUCCESS;
+			ret = vout_OSDEpg(vout, p_item) == VLC_SUCCESS;
 			vlc_object_release(p_input);
-		//}else{
-			//printf("epg_displayOSD: no input\n");
 		}
 		vlc_object_release(vout);
     }
     vlibvlc_free(pp_vouts);
     return ret;
-}
-#endif
-
-#if 0
-int vlc_setFilter (libvlc_media_player_t *p_mi, const char *filter, const int add, const int setconfig)
-{
-	int ret = 0;
-	if (!p_mi) return ret;
-
-	size_t n;
-	vout_thread_t **pp_vouts = GetVouts(p_mi, &n);
-	if (!pp_vouts) return ret;
-	
-	for (size_t i = 0; i < n; i++){
-		vout_thread_t *vout = pp_vouts[i];
-		if (!vout) continue;
-		
-		//vout_thread_sys_t *p_sys = vout->p;
-		//printf("vlc_setFilter, %u: vd:%p, input:%p\n", i, p_sys->display.vd, p_sys->input);
-
-		//vout_EnableFilter(vout, filter, add, setconfig);
-		
-		//osd_MenuShow(vout);
-		//vout_OSDText(vout, 3, 1, 1000000, "position test");
-		//vout_OSDSlider(vout, 0, setconfig, OSD_HOR_SLIDER);
-		//vout_OSDSlider(vout, 4, setconfig, OSD_VERT_SLIDER);
- 		
- 		//OSD_PLAY_ICON, OSD_PAUSE_ICON, OSD_SPEAKER_ICON, OSD_MUTE_ICON
-		//vout_OSDIcon(vout, 1, OSD_PAUSE_ICON);
-		//vout_OSDMessage(vout, 2, "testing 123");
-
-		vlc_object_release(p_input);
-
-		ret += 1;
-		vlc_object_release(vout);
-    }
-    /vlibvlc_free(pp_vouts);
-    return 1;
 }
 #endif
 
@@ -272,7 +211,6 @@ static inline unsigned int vlc_getSize (libvlc_media_player_t *p_mi, int *width,
 #else
     	if (width) *width = p_sys->filter.format.i_width * (p_sys->filter.format.i_sar_num / (double)p_sys->filter.format.i_sar_den);
     	if (height) *height = p_sys->filter.format.i_height;
-    	//printf("### %i,%i -%i,%i-\n", *width, *height, p_sys->filter.format.i_sar_num, p_sys->filter.format.i_sar_den);
 #endif
         vlc_object_release(vout);
 	}
@@ -376,8 +314,6 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 	switch (event){
 	  case INPUT_EVENT_STATE:
 	  	//printf("INPUT_EVENT_STATE\n");
-		//printf("INPUT_EVENT_STATE %i\n", vlc_getState(vlc));
-		//printf("INPUT_EVENT_STATE volume:%i\n", getVolume(vp));
 		//if (getVolume(vp) == -1 /*&& vp->vlc->volume != -1*/)
 		//	setVolume(vp, vp->vlc->volume);
 #if (ENABLE_SBUI)
@@ -419,23 +355,19 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 
       /* "length" has changed */
 	  //case INPUT_EVENT_LENGTH:
-	  	//	printf("INPUT_EVENT_LENGTH\n");
-			//printf("INPUT_EVENT_LENGTH %I64d \n", vlc_getLength(vp->vlc));
-			//printf("INPUT_EVENT_LENGTH volume:%i\n", getVolume(vp));
+	  	//printf("INPUT_EVENT_LENGTH\n");
 		//setVolume(vp, vp->vlc->volume);
 		//break;
 
 	  /* A title has been added or removed or selected.
 	  * It imply that chapter has changed (not chapter event is sent) */
 	  case INPUT_EVENT_TITLE: 
-		//printf("INPUT_EVENT_TITLE %i/%i\n", vlc_getTitle(vlc), vlc_getTitleCount(vlc));
 		//printf("INPUT_EVENT_TITLE\n");
 		timerSet(vp, TIMER_CHAPTER_UPDATE, 100);
 		break;
 	  
       /* A chapter has been added or removed or selected. */
 	  case INPUT_EVENT_CHAPTER: 
-		//printf("INPUT_EVENT_CHAPTER %i/%i\n", vlc_getChapter(vlc), vlc_getChapterCount(vlc));
 		//printf("INPUT_EVENT_CHAPTER\n");
 		timerSet(vp, TIMER_CHAPTER_UPDATE, 100);
 		break;
@@ -443,23 +375,11 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
       /* A program ("program") has been added or removed or selected:
        * or "program-scrambled" has changed.*/
 	  //case INPUT_EVENT_PROGRAM: 
-		//printf("INPUT_EVENT_PROGRAM %i \n", vlc_getProgram(vlc));
 		//printf("INPUT_EVENT_PROGRAM\n");
 		//break;
 		
       /* A ES has been added or removed or selected */
 	  //case INPUT_EVENT_ES:
-	  	/*
-		int i_categories = -1;
-		void *pp_categories = NULL;
-
-		input_item_t *p_item = input_GetItem(p_input);
-		if (p_item){
-			i_categories = p_item->i_categories;
-			pp_categories = p_item->pp_categories;
-		}
-		printf("INPUT_EVENT_ES %i %p\n", i_categories, pp_categories);*/
-
 	  	//printf("INPUT_EVENT_ES\n");
 		//break;
 	  
@@ -474,13 +394,9 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 		//break;
 
       /* input_item_t media has changed */
-	  case INPUT_EVENT_ITEM_META:/*{
-		input_item_t *p_item = input_GetItem(p_input);
-		const int textra = vlc_meta_GetExtraCount(p_item->p_meta);
-	  	printf("INPUT_EVENT_ITEM_META extra %i\n", textra);*/
+	  case INPUT_EVENT_ITEM_META:
 	  	//printf("INPUT_EVENT_ITEM_META\n");
 	  	timerSet(vp, TIMER_META_UPDATE, 10);
-	  //}
 		break;
 
       /* input_item_t info has changed */
@@ -498,17 +414,6 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 	   
       /* input_item_t epg has changed */
 	  //case INPUT_EVENT_ITEM_EPG:
-	  /*{
-		int i_epg = -1;
-		void *pp_epg = NULL;
-
-		input_item_t *p_item = input_GetItem(p_input);
-		if (p_item){
-			i_epg = p_item->i_epg;
-			pp_epg = p_item->pp_epg;
-		}
-		printf("INPUT_EVENT_ITEM_EPG %i %p\n", i_epg, pp_epg);
-		}*/
 		//break;
 
       /* Input statistics have been updated */
@@ -539,9 +444,6 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
       /* cache" has changed */
 	  //case INPUT_EVENT_CACHE:
 	  	//printf("INPUT_EVENT_CACHE volume\n");
-	   //printf("INPUT_EVENT_CACHE volume %i\n", getVolume(vp));
-		//if (getVolume(vp) == -1 /*&& vp->vlc->volume != -1*/)
-		//	setVolume(vp, vp->vlc->volume, VOLUME_APP);
 		//break;
 
       /* A audio_output_t object has been created/deleted by *the input* */
@@ -554,7 +456,6 @@ int input_event_changed (vlc_object_t *p_this, char const * psz_cmd, vlc_value_t
 	    //printf("INPUT_EVENT_VOUT\n");
 	  	timerSet(vp, TIMER_NEWTRACKVARS3, 0);
 		break;
-
 	//default:
 		//printf("UNKNOWN %i\n", event);
     }
@@ -681,10 +582,6 @@ TTITLE *getTitles (TVLCCONFIG *vlc, int *tTitles)
 				titles = dupTitles(p->title, p->i_title, tTitles);
 				vlcMutexUnlock(&p->p_item->lock);
 				vlcMutexUnlock(&p->lock_control);
-				/*if (titles)
-					printf("titles out %i %p\n", *tTitles, titles->seekPoints);
-				else
-					printf("titles out %i\n", *tTitles);*/
 			}
 			vlc_object_release(p_input);
 		}
@@ -953,18 +850,7 @@ TVLCEPG **epg_dupEpg (TVLCCONFIG *vlc, int *tepg)
 	if (vlc->mp){
 		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
 		if (p_input){
-		
-			/*input_thread_private_t *p = p_input->p;
-			printf("dubepg: a %p %p %p %p %p %p %p %p\n", p->slave, p->p_resource, p->p_resource_private, p->p_item, p->attachment, p->pp_bookmark, p->title, p->p_sout);
-			printf("dubepg: b %p %p %p %p\n", p->input.title, p->input.p_demux, p->input.p_stream, p->input.p_access);
-			printf("dubepg: c %p %p '%s' '%s' '%s' '%s'\n", p->input.p_demux->out, p->input.p_demux->s,
-			 p->input.p_demux->psz_access, p->input.p_demux->psz_demux, p->input.p_demux->psz_location, p->input.p_demux->psz_file);
-			
-			printf("dubepg: d %p %p '%s' '%s'\n", p->input.p_stream->p_text, p->input.p_stream->p_module, p->input.p_stream->psz_path, p->input.p_stream->psz_access);
-			*/
 			input_item_t *p_item = input_GetItem(p_input);	
-			//printf("dubepg: %p\n", p_item);
-						
 			if (p_item){
 				vlcMutexLock(&p_item->lock);
 				
@@ -1180,7 +1066,6 @@ int vlc_getState (TVLCCONFIG *vlc)
 
 libvlc_media_t *vlc_new_mrl (TVLCCONFIG *vlc, const char *mediaPath)
 {
-	//printf("vlc_new_mrl '%s'\n", mediaPath);
 	if (vlc->hLib)
 		return libvlc_media_new_location(vlc->hLib, mediaPath);
 	else
@@ -1189,7 +1074,6 @@ libvlc_media_t *vlc_new_mrl (TVLCCONFIG *vlc, const char *mediaPath)
 
 libvlc_media_t *vlc_new_path (TVLCCONFIG *vlc, const char *mediaPath)
 {
-	//printf("vlc_new_path '%s'\n", mediaPath);
 	if (vlc->hLib && mediaPath && *mediaPath)
 		return libvlc_media_new_path(vlc->hLib, mediaPath);
 	else
@@ -1198,7 +1082,6 @@ libvlc_media_t *vlc_new_path (TVLCCONFIG *vlc, const char *mediaPath)
 
 libvlc_media_t *vlc_new_node (TVLCCONFIG *vlc, const char *mediaPath)
 {
-	//printf("vlc_new_node '%s'\n", mediaPath);
 	if (vlc->hLib)
 		return libvlc_media_new_as_node(vlc->hLib, mediaPath);
 	else
@@ -1225,9 +1108,6 @@ void vlc_mp_release (TVLCCONFIG *vlc)
 {
 	if (vlc->mp){
 		vlc->isMediaLoaded = 0;
-		//libvlc_media_player_release(vlc->mp);
-		//vlc->mp = NULL;
-		//Sleep(10);
 	}
 	vlc_mediaRelease(vlc);
 }
@@ -1320,34 +1200,14 @@ char *vlc_getMeta (TVLCCONFIG *vlc, libvlc_meta_t e_meta)
 	char *cpy = NULL;
 	if (vlc->m){
 		char *tag = libvlc_media_get_meta(vlc->m, e_meta);
-		//printf("libvlc_media_get_meta tag %p\n", tag);
 		if (tag){
 			if (*tag)
 				cpy = my_strdup(tag);
-				
-			//printf("libvlc_media_get_meta tag free %p\n", tag);
 			vlibvlc_free(tag);
 		}
 	}
 	return cpy;
 }
-/*
-int vlc_metaExtraGetCount (TVLCCONFIG *vlc)
-{
-	int ct = 0;
-
-	if (vlc->mp){
-		input_thread_t *p_input = libvlc_get_input_thread(vlc->mp);
-		if (p_input){
-			input_item_t *p_item = input_GetItem(p_input);
-			if (p_item && p_item->p_meta)
-				ct = vlc_meta_GetExtraCount(p_item->p_meta);
-			vlc_object_release(p_input);
-		}
-	}
-	return ct;
-}
-*/
 
 vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 {
@@ -1378,7 +1238,6 @@ vlc_meta_extra_t *vlc_metaExtraGet (TVLCCONFIG *vlc)
 
 									extra->meta[i]->name = my_strdup(pp_extra[i]);
 									extra->meta[i]->value = my_strdup(meta);
-									//printf("extra %i, '%s' '%s'\n", i, extra->meta[i]->name, extra->meta[i]->value);
 									vlibvlc_free(pp_extra[i]);
 								}
 							}
@@ -1429,12 +1288,10 @@ int vlc_getVideoSize (TVLCCONFIG *vlc, int *w, int *h)
 		
 		int ret = 0;
 		int total = libvlc_video_get_track_count(vlc->mp);
-		//printf("total video tracks %i\n", total);
 
 		for (int i = 0; i < total; i++){
 			*w = 0; *h = 0;
 			ret = libvlc_video_get_size(vlc->mp, i, (unsigned int*)w, (unsigned int*)h);
-			//printf("libvlc_video_get_size %i %i: %i %i\n", ret, i, *w, *h);
 			if (*w && *h) return 1;
 		}
 		
@@ -1641,7 +1498,6 @@ void vlc_setTitle (TVLCCONFIG *vlc, int title)
 {
 	if (vlc->mp){
 		libvlc_media_player_set_title(vlc->mp, title);
-		//lSleep(10);		// let VLC change/load/process the media
 	}
 }
 
@@ -1762,7 +1618,6 @@ void vlc_setVideoFormat (TVLCCONFIG *vlc, const char *chroma,
 void vlc_addOption (TVLCCONFIG *vlc, const char *ppsz_options)
 {
 	if (vlc->m){
-		//printf("vlc_addOption '%s'\n",ppsz_options);
 		libvlc_media_add_option(vlc->m, ppsz_options);
 	}
 }
@@ -1808,7 +1663,6 @@ int vlc_getStats (TVLCCONFIG *vlc, libvlc_media_stats_t *stats)
 		return 0;
 	}
 }
-
 
 //#if (LIBVLC_VERSION_MAJOR >= 2 && LIBVLC_VERSION_MINOR >= 1)
 unsigned int vlc_equalizerPresetGetTotal ()
