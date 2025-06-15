@@ -1,0 +1,12 @@
+Builds cleanly with MingGW/GCC 14.2.0 from:
+https://sourceforge.net/projects/gcc-win64/files/14.2.0/gcc-14.2.0-no-debug.7z/download
+
+This contains both 32bit and 64bit compilers in a single distro enabling -m32/64 flags.
+
+GNU tool 'make' is not included within the above distro but rquired to build outside of Code:Blocks.
+Included in CodeBlocks/ is make-4.4.7z. Copy its contents to the compiler's bin/ directory.
+
+
+
+
+
