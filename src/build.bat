@@ -2,10 +2,9 @@
 
 rem call gccpath
 
-call make xcpy
-call make -j12 vlcstream.exe
+call make xcpy SDK=0
+call make -j12 SDK=3222 vlcstream.exe
 
-rem call copy vlcstream.exe "C:\Program Files (x86)\VLC\vlcstream.exe" /y
-rem call copy vlcstream.exe "M:\RamDiskTemp\vlc\vlcstream.exe" /y
 
+rem call copy vlcstream.exe "C:\Program Files (x86)\vlc-2.2.0\vlcstream.exe" /y
 

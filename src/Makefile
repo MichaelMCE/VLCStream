@@ -37,8 +37,8 @@ CONTRIBS =../../contribs/$(SYSARCH)/
 #CFLAGSARCH = -march=pentium4 -mtune=pentium4 -m32 -mthreads -Wl,--stack,8388608
 #CFLAGSARCH = -march=amdfam10 -mtune=amdfam10 -m32 -mthreads -fno-common -Wl,--stack,8388608
 #CFLAGSARCH = -march=i686 -mtune=i686 -m32
-CFLAGSARCH = -march=native -mtune=native -fno-common
-#CFLAGSARCH =  
+#CFLAGSARCH = -march=native -mtune=native -fno-common
+CFLAGSARCH =  
 
 endif
 
@@ -47,19 +47,52 @@ endif
 
 
 
+SDK3220 = sdk32_2.0
+SDK3222 = sdk32_2.2
+SDK6430 = sdk64_3.0.0
+SDK6419 = sdk64_3.0.19
+
+
+ifeq ($(SDK),0)
+# be silent
+
+else ifeq ($(SDK),3220)
+VLCSDK = sdk/$(SDK3220)
+$(info VLC SDK: x32 v2.0.0)
+
+else ifeq ($(SDK),3222)
+VLCSDK = sdk/$(SDK3222)
+$(info VLC SDK: x32 v2.2.0)
+
+else ifeq ($(SDK),6430)
+VLCSDK = sdk/$(SDK6430)
+$(info VLC SDK: x64 v3.0.0)
+
+else ifeq ($(SDK),6419)
+VLCSDK = sdk/$(SDK6419)
+$(info VLC SDK: x64 v3.0.19)
+
+else 
+# set default
+VLCSDK = sdk/$(SDK3222)
+$(info VLC SDK: x32 v2.2.0)
+
+endif
+
+
 PFLAGS = -Wno-bool-compare
-#OPFLAGS = 
-OPFLAGS = -mfpmath=387 -DHAVE_MMX -DUSE_MMX -mmmx
+OPFLAGS = 
+#OPFLAGS = -mfpmath=387 -DHAVE_MMX -DUSE_MMX -mmmx
 #OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -mmmx -DUSE_SSE -DHAVE_SSE -msse 
 
-CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -O3 -std=c23 
-CPPFLAGS = $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -Isdk/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -DINITGUID -DUSE___UUIDOF=0 -O3 -std=c++23 
+CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -I$(VLCSDK)/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -O3 -std=gnu18
+CPPFLAGS = $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -I$(VLCSDK)/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -DINITGUID -DUSE___UUIDOF=0 -O3 -std=c++17
 
 LIBSOWN    = -lmylcddll -lhook -lusb -lvlc.dll -lvlccore.dll -lbasswasapi -lbass 
 LIBSSYSTEM = -lntdll -lstdc++ -lpthread -lsetupapi -lpdh -lgdi32 -lwinmm -lpsapi -lshlwapi -ldxguid -ldinput -lole32 -lcomctl32 -loleaut32 -luuid -lgdiplus -lwininet
 LIBDEPEND  = $(LIBSOWN) $(LIBSSYSTEM) 
 
-LIBS = -static -static-libstdc++ -static-libgcc $(BUILDM32M64) -Llibs/$(SYSARCH)/ -L"lib" -L../../lib/$(SYSARCH)/ -Lsdk/lib/ -L$(CONTRIBS)lib/ $(BUILDM32M64)
+LIBS = -static -static-libstdc++ -static-libgcc $(BUILDM32M64) -Llibs/$(SYSARCH)/ -L"lib" -L../../lib/$(SYSARCH)/ -L$(VLCSDK)/lib/ -L$(CONTRIBS)lib/ $(BUILDM32M64)
 
 
 BASEOBJS =  tcx.o fileext.o process.o fileal.o hdtouch.o bass.o imagec.o settings.o\
@@ -111,10 +144,10 @@ xcpy:
 	@xcopy cleanobjs.bat $(TEMPDIR)\ /y /d /q /I > NUL
 
 vlcstream.exe: $(BASEOBJS2)
+	$(info   )
 	windres --output-format=coff $(RESTARGET) -i vlcstream.rc -o $(TEMPDIR)/res.o
 	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) $(APP_TYPE)
 	strip.exe $@
-
 
 vlcsCtrl.exe: $(TEMPDIR)/extra/vlcsCtrl.o $(TEMPDIR)/crc.o
 ifeq (,$(wildcard $@))
@@ -140,11 +173,12 @@ vlcscmd: vlcsCtrl.exe
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
-	@echo ##
+	$(info   )
 
 %.o: %.cpp $(DEPS)
 	$(GPP) -c -o $@ $< $(CPPFLAGS)
-	
+	$(info   )
+
 all : $(PROGRAMS)
 
 vlcstream: vlcstream.exe
