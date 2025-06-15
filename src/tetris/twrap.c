@@ -71,13 +71,12 @@ int platformInit (StcGame *game)
 void platformEnd (StcGame *game)
 {
 	my_free(game->tetris);
-	//printf("platformEnd\n");
 }
 
 /* Read input device and notify game */
 void platformReadInput (StcGame *game)
 {
-	//printf("platformReadInput\n");
+
 }
 
 int tetrisGameInput (TVLCPLAYER *vp, TTETRIS *tetris, const int key)
@@ -155,18 +154,16 @@ static void drawCell (TGAMEBLOCK *gb, const int blockx, const int blocky, const 
 void platformOnFilledRow (StcGame *game, int y)
 {
 	//drawCell(game->tetris->frame, 0, y, 8);
-	//printf("row filled: %i\n", y);
 }
 
 void platformOnFilledRows (StcGame *game, int rowsFilled)
 {
-	//printf("total rows filled: %i\n", rowsFilled);
+
 }
 
 /* Render the state of the game */
 void platformRenderGame (StcGame *game, const int posX, const int posY, const int blockWidth, const int blockHeight)
 {
-	//printf("platformRenderGame\n");
 
 	TGAMEBLOCK gb;
 	gb.frame = game->tetris->frame;
@@ -288,7 +285,6 @@ int tetrisGameInit (TTETRIS *tetris, TFRAME *frame)
 	tetris->game = my_calloc(1, sizeof(StcGame));
 	if (!tetris->game) return 0;
 
-	
 	int err = gameInit(tetris->game);
 	if (err != ERROR_NONE){
 		//printf("stc init failed: %i\n", err);
@@ -301,7 +297,6 @@ int tetrisGameInit (TTETRIS *tetris, TFRAME *frame)
 void tetrisGameDraw (TTETRIS *tetris, TFRAME *frame, const int x, const int y)
 {
 	gameUpdate(tetris->game, x, y, tetris->blockWidth, tetris->blockHeight);
-	//tetris->game->stateChanged = 0;
 }
 
 void tetrisGameClose (TTETRIS *tetris)
