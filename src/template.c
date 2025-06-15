@@ -5,7 +5,7 @@
 // okio@users.sourceforge.net
 
 //  Copyright (c) 2005-2009  Michael McElligott
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
 //  as published by the Free Software Foundation; either version 2
@@ -29,18 +29,18 @@
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER/* || msg == CC_MSG_INPUT*/) return 1;
-	
-	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
+
+//	TCCOBJECT *obj = (TCCOBJECT*)object;
+
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
-		
+
 	}else if (msg == CC_MSG_HOVER){		// hover begun
-		
+
 	}else if (msg == CC_MSG_HOVER){		// hover ended
-		
+
 	}
 
 	return 1;
-}  
+}
 
 
