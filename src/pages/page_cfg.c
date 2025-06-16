@@ -161,11 +161,7 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 
 	TLABEL *label = (TLABEL*)object;
 	
-	//printf("exp_label_cb: %i, %i %i\n", msg, (int)data1, (int)data2);
-	
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS || msg == LABEL_MSG_BASE_SELECTED_PRESS){
-		//TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		//printf("exp_label_cb: %i, %i %.3f\n", msg, pos->pen, pos->dt);
 		
 		if (1/*!pos->pen && pos->dt > 100*/){		// press down
 			TCFG *cfg = ccGetUserData(label);
@@ -173,7 +169,6 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 			if (label->id == cfg->aspectLabelId){
 				if (++cfg->aspectRatio >= BTN_CFG_AR_TOTAL)
 					cfg->aspectRatio = BTN_CFG_AR_AUTO;
-				//printf("cfg_label_cb: aspect %i\n", cfg->aspectRatio);
 				
 				cfgSetAspectLabel(cfg, cfg->aspectRatio);
 				setAR(cfg->com->vp, cfg->aspectRatio);
@@ -182,7 +177,6 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 			}else if (label->id == cfg->clockLabelId){
 				if (++cfg->clockType >= BTN_CFG_CLK_TOTAL)
 					cfg->clockType = BTN_CFG_CLK_ANALOGUE;
-				//printf("cfg_label_cb: clock %i\n", cfg->clockType);
 				
 				cfgSetClockLabel(cfg, cfg->clockType);
 				setClockType(label->cc->vp, cfg->clockType);
@@ -191,7 +185,6 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 			}else if (label->id == cfg->statsLabelId){
 				if (++cfg->statsMode >= BTN_CFG_STATS_TOTAL)
 					cfg->statsMode = BTN_CFG_STATS_ON;
-				//printf("cfg_label_cb: stats %i\n", cfg->statsMode);
 				
 				cfgSetStatsLabel(cfg, cfg->statsMode);
 				setShowStats(label->cc->vp, cfg->statsMode);
@@ -200,7 +193,6 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 			}else if (label->id == cfg->swaprbLabelId){
 				if (++cfg->swaprbMode >= BTN_CFG_SWAPRB_TOTAL)
 					cfg->swaprbMode = BTN_CFG_SWAPRB_ON;
-				//printf("cfg_label_cb: swaprb %i\n", cfg->swaprbMode);
 				
 				cfgSetSwapRBLabel(cfg, cfg->swaprbMode);
 				setRBSwap(label->cc->vp, cfg->swaprbMode);
@@ -209,7 +201,7 @@ static inline int64_t cfg_label_cb (const void *object, const int msg, const int
 			}else if (label->id == cfg->padctrlLabelId){
 				if (++cfg->com->vp->gui.padctrlMode >= BTN_CFG_PADCTRL_TOTAL)
 					cfg->com->vp->gui.padctrlMode = BTN_CFG_PADCTRL_OFF;
-			//	printf("cfg_label_cb: padctrl %i\n", vp->gui.padctrlMode);
+
 #if (ENABLE_SBUI)				
 				cfgSetPadCtrlLabel(cfg, cfg->com->vp->gui.padctrlMode);
 				setPadControl(label->cc->vp, cfg->com->vp->gui.padctrlMode);
@@ -230,7 +222,6 @@ static inline int64_t cfg_misc_cb (const void *object, const int msg, const int6
 	
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS || msg == LABEL_MSG_BASE_SELECTED_PRESS){
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		//printf("exp_label_cb: %i %i\n", pos->pen, pos->dt);
 		
 		if (!pos->pen && pos->dt > 100){		// press down
 			TCFG *cfg = ccGetUserData(label);
@@ -238,7 +229,7 @@ static inline int64_t cfg_misc_cb (const void *object, const int msg, const int6
 			
 			if (label->id == cfg->lbls[BTN_CFG_MISC_ABOUT].labelId){
 				dbprintf(vp, " ");
-	  			printAbout(vp);
+	  			cmdPrintAbout(vp);
 	  			
 			}else if (label->id == cfg->lbls[BTN_CFG_MISC_CLOSE].labelId){
 				page2SetPrevious(page2PageStructGet(vp->pages, PAGE_CFG));
@@ -264,7 +255,6 @@ static inline int64_t btn_misc_cb (const void *object, const int msg, const int6
 		
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	int idx = ccGetUserDataInt(btn);
-	//printf("cfg btn_misc_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p, %i\n", btn->id, btn->type, msg, (int)data1, (int)data2, dataPtr, idx);
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
 		//TCCBUTTONS *btns = (TCCBUTTONS*)ccGetUserData(btn);
@@ -287,8 +277,6 @@ static inline int64_t btn_bl_cb (const void *object, const int msg, const int64_
 		
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	int idx = ccGetUserDataInt(btn);
-	//printf("cfg btn_bl_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p, %i\n", btn->id, btn->type, msg, (int)data1, (int)data2, dataPtr, idx);
-
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
 		TCCBUTTONS *btns = (TCCBUTTONS*)ccGetUserData(btn);
@@ -372,15 +360,13 @@ static int skinReloadBackground (TVLCPLAYER *vp, TGUI *gui, const int randBack)
 
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	return ret;	
 }
 
 void reloadSkin (TVLCPLAYER *vp, const int randBack)
 {
-	//printf("reloadSkin\n");
-	
+
 	if (renderLock(vp)){
 		if (vp->applState){
 			imageManagerFlush(vp->im);
@@ -409,11 +395,6 @@ void reloadSkin (TVLCPLAYER *vp, const int randBack)
 		renderUnlock(vp);
 	}
 }
-
-/*void setVis (TVLCPLAYER *vp, int visButton)
-{
-	vp->gui.visual = visButton - BTN_CFG_VIS_DISABLED;
-}*/
 
 #if ENABLE_BRIGHTNESS
 void setBrightness (TVLCPLAYER *vp, int arButton)
@@ -446,8 +427,6 @@ void cfgAttachmentsSetCount (TVLCPLAYER *vp, const int count)
 {
 	TCFG *cfg = pageGetPtr(vp, PAGE_CFG);
 	vp->vlc->hasAttachments = count;
-
-	//printf("cfgAttachmentsSetCount %i, %p %i\n", count, cfg->lbls[BTN_CFG_MISC_WRITEATTACH].label, cfg->lbls[BTN_CFG_MISC_WRITEATTACH].strId);
 
 	if (count > 0)
 		labelItemEnable(cfg->lbls[BTN_CFG_MISC_WRITEATTACH].label, cfg->lbls[BTN_CFG_MISC_WRITEATTACH].strId);
@@ -610,8 +589,7 @@ int cfgInit (TVLCPLAYER *vp, TFRAME *frame, TCFG *cfg)
 		
 		ccEnable(label);
 	}
-	
-	
+
 	/*yOffset += dy;
 	btns = cfg->btns[CFG_BTNS_VISUALS];
 	buttonsCreateButton(btns, L"config/vdisabled.png", NULL, BTN_CFG_VIS_OFF, 0, 1, xOffset, yOffset);
@@ -638,7 +616,6 @@ int cfgInit (TVLCPLAYER *vp, TFRAME *frame, TCFG *cfg)
 	}
 #endif
 
-
 	// todo; sync these with actual read config settings
 #if ENABLE_BRIGHTNESS
 	setBrightness(vp, BTN_CFG_BRN_60);
@@ -658,7 +635,6 @@ int cfgInit (TVLCPLAYER *vp, TFRAME *frame, TCFG *cfg)
 		my_free(values);
 	}
 	
-	//setVis(vp, vp->gui.visual + BTN_CFG_VIS_DISABLED);
 	setShowStats(vp, vp->gui.drawStats);
 	setRBSwap(vp, vp->vlc->swapColourBits);
 	
@@ -796,10 +772,7 @@ static inline int page_cfgRenderEnd (TCFG *cfg, TVLCPLAYER *vp, int64_t time0, i
 int page_cfgCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TCFG *cfg = (TCFG*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_cfgCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_cfgRender(cfg, cfg->com->vp, dataPtr);
 
@@ -822,7 +795,6 @@ int page_cfgCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t
 		return page_cfgShutdown(cfg, cfg->com->vp);
 		
 	}
-	
 	return 1;
 }
 

@@ -2858,16 +2858,13 @@ static inline void cmd_flushMeta (wchar_t *var, int vlen, void *uptr, int unused
 	//countItems(vp, vp->metac);
 }
 */
-void printAbout (TVLCPLAYER *vp)
+void cmdPrintAbout (TVLCPLAYER *vp)
 {
 	char buffer[256] = {0};
-	dbprintf(vp, " VlcStream, by %s", mySELF);
-	dbprintf(vp, " web: mylcd.sourceforge.net");
-	dbprintf(vp, " email: okio@users.sourceforge.net");
-	dbprintf(vp, " %s-%s", PLAYER_VERSION, libmylcdVERSION);
+	dbprintf(vp, " VLCStream %s", PLAYER_DATE);
+	dbprintf(vp, " https://github.com/MichaelMCE/VLCStream");
 	dbprintf(vp, " libvlc v%s", libvlc_get_version());
-	//dbprintf(vp, " Compiler: %s", libvlc_get_compiler());
-	dbprintf(vp, " Compiler: gcc version %i.%i (GCC)", __GNUC__, __GNUC_MINOR__);
+	dbprintf(vp, " Compiled by MinGW/GCC version %i.%i.%i", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #ifdef DISABLE_ME_SBUISDK_VERSION
 	dbprintf(vp, " SBUI SDK v%s", SBUISDK_VERSION);
 #endif
@@ -2906,13 +2903,24 @@ void printAbout (TVLCPLAYER *vp)
 	if (len) dbprintf(vp, " Enabled: %s", buffer);
 		
 	dbprintf(vp, " CPU supports: %s", cpu_getCapabilityString(buffer, sizeof(buffer)-1));	
+	
+	char *name = settingsGetStr(vp, "display.device");
+	if (name){
+		int width, height;
+
+		settingsGet(vp, "display.width", &width);
+		settingsGet(vp, "display.height", &height);
+		dbprintf(vp, " Device: %s, %ix%i", name, width, height);
+		my_free(name);
+	}
+	
 	dbprintf(vp, " &#169; %s", mySELF);
 }
 
 static inline void cmd_about (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 {
 	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
-	printAbout(vp);
+	cmdPrintAbout(vp);
 }
 
 static inline void cmd_trackpad (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)

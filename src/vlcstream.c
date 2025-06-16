@@ -225,19 +225,17 @@ void timer_stopplay (TVLCPLAYER *vp)
 	timer_play(vp);
 }
 
+// TIMER_PATHREGWRITE
 void updateModuleRegPathEntry (TVLCPLAYER *vp)
 {
 	wchar_t szPath[MAX_PATH+1];
 	GetModuleFileNameW(NULL, szPath, MAX_PATH);
-	//wprintf(L"#%s#\n", szPath);
 	setInstallPath(szPath, wcslen(szPath)*sizeof(wchar_t));
 }
 
 // TIMER_SETIDLEA
 void timer_setIdleA (TVLCPLAYER *vp)
 {
-	//printf("timer_setIdleA\n");
-	
 	vp->gui.awake = 0;
 	vp->gui.idleDisabled = 0;
 	page2Set(vp->pages, PAGE_CLOCK, 1);
@@ -264,8 +262,6 @@ void timer_setIdleA (TVLCPLAYER *vp)
 // TIMER_SETIDLEB
 void timer_setIdleB (TVLCPLAYER *vp)
 {
-	//printf("timer_setIdleB\n");
-	
 	vp->gui.idleDisabled = 0;
 	vp->gui.awake = 0;
 	vp->gui.frameCt = 0;
@@ -279,8 +275,6 @@ void timer_setIdleB (TVLCPLAYER *vp)
 // TIMER_SETIDLEC
 void timer_setIdleC (TVLCPLAYER *vp)
 {
-	//printf("timer_setIdleC %i\n", vp->gui.awake);
-	
 	if (vp->gui.awake) return;
 
 	strcFlush(vp->strc);
@@ -349,8 +343,6 @@ void stateHelper (TVLCPLAYER *vp)
 // TIMER_FLUSH
 void timer_flushcaches (TVLCPLAYER *vp)
 {
-	//printf("timer_flushcaches\n");
-	
 	int page = pageGet(vp);
 	if (page == PAGE_SEARCH){
 		//artManagerFlush(vp->am);
@@ -743,8 +735,6 @@ void trackRewind (TVLCPLAYER *vp)
 // TIMER_FASTFORWARD
 void trackFastforward (TVLCPLAYER *vp)
 {
-	//printf("trackFastforward\n");
-	
 	if (getPlayState(vp) && getPlayState(vp) != 8){
 		const double tskip = 3.00;
 		if (tskip > 0.00000){
@@ -996,7 +986,6 @@ void renderSignalUpdateNow (TVLCPLAYER *vp)
 	vp->lastRenderTime = getTime(vp);
 }
 
-//void _renderSignalUpdate (TVLCPLAYER *vp, const char *func, const int line)
 void renderSignalUpdate (TVLCPLAYER *vp)
 {
 	vp->gui.updateSignaled = 1;
@@ -1011,7 +1000,6 @@ void (CALLBACK updateTickerCB)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD
 		double lastRenderPeriod = (t1 - vp->lastRenderTime)/* - vp->rTime*/;
 		double currentFps = (1.0/lastRenderPeriod)*1000.0;
 
-		//printf("set event a %i %f\n", vp->gui.updateSignaled, currentFps);
 		if (vp->gui.updateSignaled || currentFps - (currentFps*0.195) < vp->gui.targetRate){
 			SetEvent(vp->gui.hUpdateEvent);
 			//vp->gui.cursorMoved = 0;
@@ -1129,19 +1117,11 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	  case libvlc_MediaMetaChanged:{
 	  	const int tagid = event->u.media_meta_changed.meta_type;
 	  	char *meta = vlc_getMeta(vlc, tagid);
-	  	//printf("libvlc_MediaMetaChanged: meta %p\n", meta);
 	  	if (!meta) break;
 
-		/*if (tagid == libvlc_meta_ArtworkURL){
-			if (doesArtworkExistUtf8(meta)){
-				char *path = getPlayingPath(vp);
-				if (path){
-					forceGetArtwork(vp, path, meta);
-					my_free(path);
-				}
-			}
-		}else*/
-		if (tagid == libvlc_meta_Publisher){
+		if (tagid == libvlc_meta_ArtworkURL){
+			// do something
+		}else if (tagid == libvlc_meta_Publisher){
 			char *path = getPlayingPath(vp);
 			if (path){
 				tagAdd(vp->tagc, path, tagid, meta, 1);
@@ -1154,8 +1134,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 		// together when both are available, but once only per programme.
 		// as this information is live, it should not be stored beyond current programme run time of programme
 		}else if (tagid == libvlc_meta_NowPlaying){
-			//printf("MTAG_NowPlaying '%s'\n", meta);
-
 			char *path = getPlayingPath(vp);
 			if (path){
 				char tag[MAX_PATH_UTF8+1];
@@ -1166,9 +1144,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 					different = strcmp(meta, tag) != 0;
 
 				if (different){
-					/*int displayed = epg_displayOSD(vlc->mp, 6000);
-					if (displayed == -1)
-						timerSet(vp, TIMER_EPG_DISPLAYOSD, 1000);*/
 					int displayed = 0;
 					if (displayed != 1){
 						TVIDEOOVERLAY *pctrl = pageGetPtr(vp, PAGE_OVERLAY);
@@ -1187,7 +1162,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 				//-timerSet(vp, TIMER_NEWTRACKVARS3, 1000);
 			}
 		}
-		//printf("libvlc_MediaMetaChanged: meta free %p\n", meta);
 		my_free(meta);
 		break;
 	  }
@@ -1205,8 +1179,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 
 		char *path = getPlayingPath(vp);
 		if (path){
-			//char length[32];
-			//tagRetrieve(vp->tagc, path, MTAG_LENGTH, length, sizeof(length));
 			if (/**length &&*/ vlc->length){
 				char buffer[128];
 				timeToString(vlc->length, buffer, sizeof(buffer)-1);
@@ -1223,8 +1195,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	  }
       case libvlc_MediaStateChanged:
 		vlc->vlcPlayState = event->u.media_state_changed.new_state;
-      	//printf("libvlc_MediaStateChanged %i %i\n", state, libvlc_Stopped);
-		//vlc->vlcPlayState = vlc_getState(vlc);
     
       	if (MediaPlayerStopped_complete == -1 || vlc->vlcPlayState == libvlc_Ended){
       		timerReset(vp, TIMER_NEWTRACKVARS1);
@@ -1255,14 +1225,9 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 			taskbarPostMessage(vp, WM_TRACKPLAYNOTIFY, -1, 0);
       	break;
 
-	  //case libvlc_MediaPlayerOpening:{
-	  	//char *str = libvlc_media_get_mrl(libvlc_media_player_get_media(event->p_obj));
-	  	//printf(":: '%s'\n", str);
-	  	//break;
-	  //}
-      case libvlc_MediaPlayerPlaying:{
-     	 //printf("libvlc_MediaPlayerPlaying\n");
+	  //case libvlc_MediaPlayerOpening:
 
+      case libvlc_MediaPlayerPlaying:{
 		TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
 		ctrlPanCalcPositions(&plyctrl->ctrlpan, BTNPANEL_SET_PLAY);
 		if (hasPageBeenAccessed(vp, PAGE_PLY_SHELF)){
@@ -1313,7 +1278,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 	  case libvlc_MediaPlayerEncounteredError:{
 	  	char *path = getPlayingPath(vp);
 		if (path && *path){
-	  		//dbprintf(vp, "error playing %i:'%s'", getPlayingItem(vp)+1, path);
 	  		TVIDEOOVERLAY *pctrl = pageGetPtr(vp, PAGE_OVERLAY);
 	  		char buffer[MAX_PATH_UTF8+1];
 	  		__mingw_snprintf(buffer, MAX_PATH_UTF8, "can not play: '%s'", path);
@@ -1355,7 +1319,6 @@ void vlc_eventsCallback (const libvlc_event_t *event, void *udata)
 
 #if (LIBVLC_VERSION_MAJOR >= 2 /*&& LIBVLC_VERSION_MINOR >= 1*/)
 	  case libvlc_MediaPlayerBuffering:
-	  	//printf("buffering %%%.1f\n", event->u.media_player_buffering.new_cache);
 	  	vp->vlc->bufferPos = event->u.media_player_buffering.new_cache/100.0;
 	  	timerSet(vp, TIMER_NEWTRACKVARS3, 180);
 	  	renderSignalUpdate(vp);
@@ -2100,8 +2063,6 @@ int processCommandline (TVLCPLAYER *vp)
 
 		if (pathNoOpt[ilen-1] == L'\"') pathNoOpt[ilen-1] = L'\\';
 
-		//wprintf(L"media #%s#\n", out);
-
 		if (isMediaScreen(out)){
 			trkStart = playlistAdd(plc, out);
 			playlistSetTitle(plc, trkStart, "Desktop", 0);
@@ -2631,9 +2592,6 @@ int playerSetup (TVLCPLAYER *vp, const int startPage)
 	if (!vp->tagc || !vp->plm)
 		return 0;
 
-	//if (!vp->jc)
-	//	vp->jc = jobControllerNew(vp, jobThreadWorkerFunc);
-	
 	vp->renderState = 1;
 	vlcEventsInit();
 	vp->playlist.root = playlistManagerCreatePlaylist(vp->plm, PLAYLIST_PRIMARY, 0);
@@ -2804,8 +2762,6 @@ void playerClose (TVLCPLAYER *vp)
 	
 	vlcEventsClose();
 	vlcEventListInvalidate(vp->vlc);
-	//if (vp->jt) artQueueFlush(artThreadGetWork(vp->jt));
-
 
 	pageDispatchMessage(vp->pages, PAGE_MSG_CFG_WRITE, 0, 0, NULL);
 	configSave(vp, CFGFILE);
@@ -2815,7 +2771,6 @@ void playerClose (TVLCPLAYER *vp)
 #endif
 
 	deleteShadows(vp->gui.shadow);
-	//jobControllerDelete(vp->jc);
 	ccDestroy(vp->cc);
 	my_free(vp->cc);
 
@@ -2969,7 +2924,6 @@ int playerStartup (TVLCPLAYER *vp, const int argc, const char *argv[])
 				}
 
 				plc->pr->playingItem = plc->pr->selectedItem;
-				//printf("vp->gui.lastTrack %i %i %i\n", vp->gui.lastTrack, plc->pr->selectedItem, isTrack);
 			}
 		}
 
@@ -3076,6 +3030,9 @@ int main (const int argc, const char *argv[])
 			return EXIT_SUCCESS;
 
 		if (playerStartup(vp, argc, argv)){
+			
+			//updateModuleRegPathEntry(vp);
+			
 			playerRun(vp);
 			playerShutdown(vp);
 			playerClose(vp);
@@ -3084,9 +3041,8 @@ int main (const int argc, const char *argv[])
 		playerShowDeviceExitScreen(vp->ml);
 		playerDelete(vp);
 		
-		printf("\n:: Exited\n");
+		printf("\n:: Exited\n\r\n");
 	}
 	
 	return EXIT_SUCCESS;
 }
-
