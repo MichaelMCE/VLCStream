@@ -179,10 +179,8 @@ static inline int imageOverSetImageW (TIOVR *iovr, TVLCPLAYER *vp, const int dwi
 		int w, h;
 		imageBestFit(iovr->width, iovr->height, tmp->width, tmp->height, &w, &h);
 		lResizeFrame(iovr->img, w+2, h+2, 0);
-		//printf("frameSize %i %i  %i %i\n", w, h, iovr->img->width, iovr->img->height);
-		
+
 		copyAreaScaled(tmp, iovr->img, 0, 0, tmp->width-1, tmp->height-1, 1, 1, w, h);
-		//trans Scale(tmp, iovr->img, w, h, 0, 0, SCALE_BILINEAR);
 		
 		lDrawRectangle(iovr->img, 0, 0, iovr->img->width-1, iovr->img->height-1, swatchGetColour(vp, PAGE_IMGOVR, SWH_IOVR_IMGBORDER));
 		iovr->x = (dwidth - iovr->img->width)/2.0;
@@ -202,7 +200,6 @@ static inline int imageOverSetImageW (TIOVR *iovr, TVLCPLAYER *vp, const int dwi
 		lDeleteFrame(tmp);
 		return 1;
 	}else{
-		//wprintf(L"imageOvr: can not load '%s'\n", filename);
 		iovr->enabled = 0;
 		return 0;
 	}
@@ -235,8 +232,6 @@ void imageOverSetImage (TIOVR *iovr, const int dwidth, const int dheight, char *
 
 static inline unsigned int __stdcall imgOvrLoadThread (void *ptr)
 {
-	//printf("imgOvrLoadThread start %i\n", (int)GetCurrentThreadId());
-	
 	TVLCPLAYER *vp = (TVLCPLAYER*)ptr;
 	TIOVR *iovr = pageGetPtr(vp, PAGE_IMGOVR);
 	iovr->threadState = 1;
@@ -273,8 +268,7 @@ static inline unsigned int __stdcall imgOvrLoadThread (void *ptr)
 	}while(vp->applState && iovr->threadState);
 	
 	iovr->threadState = 0;
-	//printf("imgOvrLoadThread end %i\n", (int)GetCurrentThreadId());
-	
+
 	_endthreadex(1);
 	return 1;
 }
@@ -283,8 +277,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -353,9 +345,7 @@ static inline int page_imgOvrInput (TIOVR *iovr, TVLCPLAYER *vp, const int msg, 
 						playlistFree(iovr->plc);
 						iovr->plc = NULL;
 					}
-					//pageSetPrevious(vp);
 					page2SetPrevious(iovr);
-					//pageSetSec(vp, -1);
 					return 0;
 				//}
 			//}
@@ -529,10 +519,7 @@ static inline void page_imgOvrRenderEnd (TIOVR *iovr, TVLCPLAYER *vp, int64_t de
 int page_imgOvrCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TIOVR *iovr = (TIOVR*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_imgOvrCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_imgOvrRender(iovr, iovr->com->vp, dataPtr);
 

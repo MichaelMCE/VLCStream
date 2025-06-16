@@ -45,11 +45,8 @@ double eqSliderToAmp (const double sliderValue)
 int eqApply (TEQ *eq, TVLCCONFIG *vlc, const int force)
 {
 	if (vlc && vlc->mp && eq->eqObj){
-		//double t1 = getTime(eq->vp);
-		//printf("%f\n", t1 - eq->t0);
 		//if (force || t1 - eq->t0 > 5.0){
 			int ret = vlc_equalizerApply(vlc->mp, eq->eqObj);
-			//if (ret == 1) eq->t0 = t1;
 			return ret;
 		//}
 	}
@@ -99,9 +96,6 @@ int64_t eqobject_cb (const void *object, const int msg, const int64_t data1, con
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 
-	//printf("eqobject_cb. id:%i, objType:%i, msg:%i, data1:%I64d, data2:%I64d\n", obj->id, obj->type, msg, data1, data2);
-
-
 	if (obj->type == CC_SLIDER_VERTICAL){
 		TSLIDER *slider = (TSLIDER*)object;
 		TVLCPLAYER *vp = (TVLCPLAYER*)obj->cc->vp;
@@ -113,7 +107,6 @@ int64_t eqobject_cb (const void *object, const int msg, const int64_t data1, con
 			if (eq){
 				int index = ccGetUserDataInt(slider);	// band
 				double value = eqSliderToAmp(sliderGetValueFloat(slider));
-				//printf("eqobject_cb %i: value = %f, %i\n", index, value, eq->touched);
 
 				if (index == -1)
 					vlc_equalizerPreampSet(eq->eqObj, value);
@@ -181,8 +174,6 @@ int eqBuild (TEQ *eq, const int presetIdx)
 			eq->bands[i].index = i-1;
 			eq->bands[i].frequency = vlc_equalizerBandsGetFrequency(eq->bands[i].index);
 			_itoa((int)eq->bands[i].frequency, eq->bands[i].name, 10);
-			//printf(" %i: '%s' \t %.1f\n", i, eq->bands[i].name, eq->bands[i].frequency);			
-			
 			amp = vlc_equalizerAmpGetByIndex(eq->eqObj, eq->bands[i].index);
 		}
 		eq->bands[i].stringHash = getHash(eq->bands[i].name) ^ (EQ_SLIDER_FONT * (i+2));
@@ -243,9 +234,6 @@ static inline int eqButtonPress (TEQ *eq, TCCBUTTON *btn, const int id, const TT
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -464,9 +452,6 @@ static inline int page_eqShutdown (TEQ *eq, TVLCPLAYER *vp)
 int page_eqCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TEQ *eq = (TEQ*)pageStruct;
-
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_eqCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
 
 	if (msg == PAGE_CTL_RENDER){
 		return page_eqRender(eq, eq->com->vp, dataPtr);

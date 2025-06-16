@@ -59,7 +59,6 @@ static inline int esButtonPress (TSTREAMINFO *sinfo, TCCBUTTON *btn, const int i
 			if (id > 0){
 				const char *text = sinfo->vtracks->track[sinfo->currentVideoTrack].name;
 				marqueeAdd(vp, sinfo->marquee, text, getTime(vp)+5000);
-				//printf("v id %i\n", id);
 				vlc_setVideoTrack(vp->vlc, id);
 			}
 		}
@@ -71,25 +70,6 @@ static inline int esButtonPress (TSTREAMINFO *sinfo, TCCBUTTON *btn, const int i
 		ccEnable(sub->lb);
 	  	break;
 
-	  /*case SBUTTON_META:{
-		PLAYLISTCACHE *plc = NULL;
-
-	  	if (pageGet(vp) == PAGE_OVERLAY)
-	  		plc = getQueuedPlaylist(vp);
-	  	if (!plc)
-	  		plc = getDisplayPlaylist(vp);
-		if (!plc) break;	// this shouldn't happen
-
-		TMETA *meta = pageGetPtr(vp, PAGE_META);
-		if (plc->pr->playingItem >= 0)
-			meta->trackPosition = plc->pr->playingItem;
-		else
-			meta->trackPosition = 0;
-
-	  	pageSet(vp, PAGE_META);
-	  }
-		break;
-		*/
 	  case SBUTTON_NEXT:
 		if (++sinfo->selected > sinfo->tCategories-1)
 			sinfo->selected = 0;
@@ -174,16 +154,12 @@ void esGetUpdate (TVLCPLAYER *vp)
 		if (sinfo->vtracks->totalTracks > 1)
 			buttonsStateSet(sinfo->btns, SBUTTON_VTRACK, 1);
 			//buttonEnable(vp, PAGE_ES, SBUTTON_VTRACK);
-		//printf("sinfo->vtracks %p, %i %i\n", sinfo->vtracks, sinfo->vtracks->totalTracks, sinfo->currentVideoTrack);
 	}
 }
 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -203,10 +179,7 @@ int renderCategory (TVLCPLAYER *vp, TFRAME *frame, const int font, TCATEGORY *ca
 	memset(&rt, 0, sizeof(TLPRINTR));
 	const int flags = PF_CLIPWRAP|PF_DONTFORMATBUFFER|PF_MIDDLEJUSTIFY|PF_WORDWRAP|PF_FORCEAUTOWIDTH;
 	char *buffer = my_calloc(1, MAX_PATH_UTF8+1);
-	if (!buffer){
-		printf("renderCategory: error allocating memory %i\n", MAX_PATH_UTF8);
-		return 0;
-	}
+	if (!buffer) return 0;
 
 	int len;
 	if (cat->name)
@@ -313,7 +286,6 @@ static inline int page_esInput (TSTREAMINFO *sinfo, TVLCPLAYER *vp, const int ms
 	switch(msg){
 	  case PAGE_IN_TOUCH_DOWN:
 	  	page2SetPrevious(sinfo);
-		//pageSetSec(vp, -1);
 		break;
 
 	 /* case PAGE_IN_TOUCH_SLIDE:
@@ -382,10 +354,7 @@ static inline int page_esShutdown (TSTREAMINFO *sinfo, TVLCPLAYER *vp)
 int page_esCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TSTREAMINFO *es = (TSTREAMINFO*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_esCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_esRender(es, es->com->vp, dataPtr);
 
@@ -409,4 +378,3 @@ int page_esCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t 
 	
 	return 1;
 }
-

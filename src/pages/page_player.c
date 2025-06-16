@@ -31,8 +31,6 @@ const int queueLeftColumnWidth = 72;
 
 void playlistQueueAdjustPosition (TPLYQUEUE *plyqueue, const int x,  int y)
 {
-	//printf("playlistQueueAdjustPosition in\n");
-	
 	TLISTITEM *item = plyqueue->playlistQueue.items;
 
 	playlist_queue_item_t *obj = listGetStorage(item);
@@ -41,10 +39,7 @@ void playlistQueueAdjustPosition (TPLYQUEUE *plyqueue, const int x,  int y)
 	// clamp to 0
 	int objY = ccGetPositionY(obj->ccCtrl);
 	if (objY+y > 0) y = (y-objY) - y;
-	
 
-	//printf("\n");
-	
 	while (item){
 		playlist_queue_item_t *obj = listGetStorage(item);
 		if (obj->ccCtrl){
@@ -56,7 +51,6 @@ void playlistQueueAdjustPosition (TPLYQUEUE *plyqueue, const int x,  int y)
 			}
 
 			ccSetPosition(obj->ccCtrl, posX, posY);
-			//printf("%i %i %i\n", ct++, obj->track, posY);
 		}
 		item = listGetNext(item);
 	}
@@ -64,8 +58,6 @@ void playlistQueueAdjustPosition (TPLYQUEUE *plyqueue, const int x,  int y)
 
 int queueSlide (TPLYQUEUE *plyqueue, const int x, const int y, TTOUCHCOORD *pos)
 {
-	//printf("queueSlide %i %i\n", y, pos->y);
-	
 	playlistQueueAdjustPosition(plyqueue, 0, y*3);
 	return 1;
 }
@@ -74,12 +66,10 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	TLABEL *base = (TLABEL*)obj;
-	//printf("queue_base_cb in %p, %i %I64lld %I64lld %p\n", base, msg, data1, data2, dataPtr);
-	
+
 	if (msg == LABEL_MSG_BASE_SELECTED_PRESS){
 		TPLYQUEUE *plyqueue = ccGetUserData(base);
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		//printf("base PRESS %i, %i %.2f\n", pos->id, plyqueue->input.baseYDelta, pos->dt);
 
 		plyqueue->input.baseYDelta = data1&0xFFFF;
 		plyqueue->input.baseIsSliding = 0;
@@ -93,7 +83,6 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 		int y = data1&0xFFFF;
 		int delta = y-plyqueue->input.baseYDelta;
 		if (delta){
-			//printf("base SLIDE\n");
 			plyqueue->input.baseIsSliding++;
 			queueSlide(plyqueue, (data1>>16)&0xFFFF, delta, (TTOUCHCOORD*)dataPtr);
 		}
@@ -103,7 +92,6 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 	}else if (msg == LABEL_MSG_BASE_SELECTED_RELEASE){
 		TPLYQUEUE *plyqueue = ccGetUserData(base);
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		//printf("base RELEASE %i, %.0f\n", pos->id, getTime(base->cc->vp) - plyqueue->input.time0);
 
 		plyqueue->input.baseIsHeld = 0;
 		int ret = -1;
@@ -125,16 +113,12 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 		return ret;
 
 	}else if (msg == KP_MSG_PAD_OPENED){
-		printf("KP_MSG_PAD_OPENED: %I64lld %X %p\n", data1, (int)data2, dataPtr);
 
 	}else if (msg == KP_MSG_PAD_CLOSED){
-		printf("KP_MSG_PAD_CLOSED: %I64lld %X %p\n", data1, (int)data2, dataPtr);
 
 	}else if (msg == KP_MSG_PAD_ENTER){
 		int dataType = data1;
 		if (dataType == KP_INPUT_COMPLETE8){		// UTF8 only
-			printf("KP_MSG_PAD_ENTER: %I64lld %X %p: '%s'\n", data1, (int)data2, dataPtr, (char*)dataPtr);
-			
 			TVLCPLAYER *vp = (TVLCPLAYER*)obj->cc->vp;
 			
 					if (strlen(dataPtr) < 1) return 0;
@@ -143,11 +127,9 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 					int pos = (id&0xFFFF)-1;
 					
 					PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-					//printf("%x %x\n", uid, pos);
 					
 					int objType = playlistGetItemType(plc, pos);
 					if (objType == PLAYLIST_OBJTYPE_TRACK){
-						//printf("a track\n");
 						tagAddByHash(vp->tagc, playlistGetHash(plc, pos), MTAG_Title, dataPtr, 1);
 						playlistSetTitle(plc, pos, dataPtr, MAX_PATH_UTF8);
 						
@@ -175,26 +157,15 @@ int64_t queue_base_cb (const void *object, const int msg, const int64_t data1, c
 
 int64_t queue_playlistItem_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER /*|| msg == CC_MSG_INPUT || msg == CC_MSG_HOVER*/) return 1;
-	//if (msg < 130 || msg == 500) return 1;
-
-
 	TLABEL *label = (TLABEL*)object;
-	//printf("queue_playlistItem_cb in %p, %i %I64lld %I64lld %p\n", label, msg, data1, data2, dataPtr);
-	
+
 	if (msg == LABEL_MSG_BASE_SELECTED_PRESS){
-		//printf("PRESS queue_playlistItem_cb in %p, %i %I64lld %I64lld %p\n", label, msg, data1, data2, dataPtr);
 		
 	}else if (msg == LABEL_MSG_BASE_SELECTED_SLIDE){
-		//printf("queue_playlistItem_cb in %p, %i %I64lld %I64lld %p\n", label, msg, data1, data2, dataPtr);
 		
 	}else if (msg == LABEL_MSG_BASE_SELECTED_RELEASE){
-		//printf("RELEASE queue_playlistItem_cb in %p, %i %I64lld %I64lld %p\n", label, msg, data1, data2, dataPtr);
-
-		
 		playlist_queue_item_t *obj = ccGetUserData(label);
-		//printf("%i %i %i\n", obj->itemId.large, obj->itemId.small, obj->itemId.art);
-		
+
 		TPLYQUEUE *plyqueue = obj->dataPtr;
 		TVLCPLAYER *vp = label->cc->vp;
 		
@@ -249,8 +220,6 @@ static inline void queueListInsert (playlist_queue_t *queue, playlist_queue_item
 
 void playlistQueueBuild (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, PLAYLISTCACHE *plc)
 {
-	//printf("playlistQueueBuild in\n");
-	
 	char buffer[MAX_PATH_UTF8+8];
 	char artist[MAX_PATH_UTF8+1];
 	char length[64];
@@ -322,17 +291,11 @@ void playlistQueueBuild (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, PLAYLISTCACHE *plc
 		labelStringSetMaxWidth(label, obj->itemId.small, itemWidth);
 
 		ccEnable(label);
-		
-		//printf("%i %i %i\n", obj->itemId.large, obj->itemId.small, obj->itemId.art);
 	}
-	
-	//printf("playlistQueueBuild out\n");
 }
 
 void playlistQueueRender (TPLYQUEUE *plyqueue, TFRAME *frame)
 {
-	//printf("playlistQueueRender in\n");
-	
 	TMETRICS metrics;
 	TLISTITEM *item = plyqueue->playlistQueue.items;
 	
@@ -346,14 +309,10 @@ void playlistQueueRender (TPLYQUEUE *plyqueue, TFRAME *frame)
 		}
 		item = listGetNext(item);
 	}
-
-	//printf("playlistQueueRender out\n");
 }
 
 void playlistQueueFree (TPLYQUEUE *plyqueue)
 {
-	//printf("playlistQueueFree\n");
-	
 	TLISTITEM *item = plyqueue->playlistQueue.items;
 	while (item){
 		playlist_queue_item_t *obj = listGetStorage(item);
@@ -406,10 +365,6 @@ void playlistQueueFocusItem (TPLYQUEUE *plyqueue, const int trk)
 
 static inline int64_t queue_buttons_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("ccPlyQueueBtn_cb, id:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	TVLCPLAYER *vp = btn->cc->vp;
 	
@@ -424,13 +379,10 @@ static inline int64_t queue_buttons_cb (const void *object, const int msg, const
 			page2SetPrevious(plyqueue);
 			
 		}else if (btnId == BTN_PLYQUEUE_STOP){
-			//printf("stop\n");
 			timerSet(vp, TIMER_STOP, 0);
 			plyqueue->playingTrk = -1;
 			
 		}else if (btnId == BTN_PLYQUEUE_PLAY){
-			//printf("play\n");
-			
 			TPLYQUEUE *plyqueue = pageGetPtr(vp, ccGetOwner(btn));
 			TTIMERPLAYTRACK *tpt = &vp->gui.playtrack;
 			
@@ -441,7 +393,6 @@ static inline int64_t queue_buttons_cb (const void *object, const int msg, const
 			plyqueue->playingTrk = -1;
 
 		}else if (btnId == BTN_PLYQUEUE_EQ){
-			//printf("eq\n");
 			page2Set(vp->pages, PAGE_EQ, 1);
 		}
 	}
@@ -451,8 +402,6 @@ static inline int64_t queue_buttons_cb (const void *object, const int msg, const
 // called at program startup
 int page_queueStartup (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, const int width, const int height)
 {
-	//printf("page_queueStartup\n");
-	
 	TCCBUTTONS *btns = buttonsCreate(vp->cc, PAGE_PLY_QUEUE, BTN_PLYQUEUE_TOTAL, queue_buttons_cb);
 	plyqueue->btns = btns;
 	
@@ -478,8 +427,6 @@ int page_queueStartup (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, const int width, con
 // called when page is first accessed
 int page_queueInitalize (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, const int width, const int height)
 {
-	//printf("page_queueInitalize\n");
-	
 	setPageAccessed(vp, PAGE_PLY_QUEUE);
 
 	plyqueue->playingTrk = -1;
@@ -495,8 +442,6 @@ int page_queueInitalize (TPLYQUEUE *plyqueue, TVLCPLAYER *vp, const int width, c
 // called at program shutdown
 int page_queueShutdown (TPLYQUEUE *plyqueue)
 {
-	//printf("page_queueShutdown\n");
-	
 	buttonsDeleteAll(plyqueue->btns);
 	ccDelete(plyqueue->base);
 	playlistQueueFree(plyqueue);
@@ -508,13 +453,11 @@ int page_queueShutdown (TPLYQUEUE *plyqueue)
 // called when first render is requsted
 int page_queueRenderInit (TPLYQUEUE *plyqueue, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//printf("page_queueRenderInit\n");
 	return 1;
 }
 
 void plyQueueNewTrackEvent (TPLYQUEUE *plyqueue, unsigned int uid, const int trackIdx)
 {
-	//printf("plyQueueNewTrackEvent\n");
 	plyqueue->signalQueueRebuild = 1;
 	plyqueue->updateButtons = 1;
 	
@@ -524,14 +467,10 @@ void plyQueueNewTrackEvent (TPLYQUEUE *plyqueue, unsigned int uid, const int tra
 // called before each render
 void page_queueRenderBegin (TPLYQUEUE *plyqueue, int64_t destId, int64_t data2, void *opaquePtr)
 {
-	//printf("page_queueRenderBegin\n");
-	
 	plyqueue->trackTitleCharSpacing = lGetFontCharacterSpacing(plyqueue->com->vp->ml->hw, LFTW_UNICODE72);
 	lSetFontCharacterSpacing(plyqueue->com->vp->ml->hw, LFTW_UNICODE72, plyqueue->trackTitleCharSpacing-4);
 	
 	if (plyqueue->signalQueueRebuild){
-		//ccDisable(plyqueue->base);
-		
 		if (plyqueue->playlistQueueUID != getQueuedPlaylistUID(plyqueue->com->vp)){
 			plyqueue->playlistQueueUID = getQueuedPlaylistUID(plyqueue->com->vp);
 					
@@ -561,8 +500,6 @@ void page_queueRenderEnd (TPLYQUEUE *plyqueue, int64_t destId, int64_t data2, vo
 
 void playlistQueueSetTrackHighlight (TPLYQUEUE *plyqueue, const int setIdx, const int unsetIdx)
 {
-	//printf("playlistQueueSetTrackHighlight\n");
-	
 	int idx = 0;
 
 	TLISTITEM *item = plyqueue->playlistQueue.items;
@@ -590,8 +527,6 @@ void playlistQueueSetTrackHighlight (TPLYQUEUE *plyqueue, const int setIdx, cons
 // do the render
 int page_queueRender (TPLYQUEUE *plyqueue, TFRAME *frame)
 {
-	//printf("page_queueRender\n");
-	
 	const int playingTrack = getPlayingItem(plyqueue->com->vp);
 	if (playingTrack != plyqueue->playingTrk){
 		playlistQueueSetTrackHighlight(plyqueue, playingTrack, plyqueue->playingTrk);
@@ -646,10 +581,8 @@ int page_queueInput (TPLYQUEUE *plyqueue, const int msg, const int flags, void *
 int page_queueCb (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPLYQUEUE *plyqueue = (TPLYQUEUE*)pageStruct;
-	
-	 //if (msg != PAGE_CTL_RENDER)
-		// printf("# page_queueCallback: %p %i %I64lld %I64lld %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_queueRender(plyqueue, dataPtr);
 

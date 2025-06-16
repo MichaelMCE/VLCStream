@@ -93,8 +93,6 @@ static inline int alButtonPress (TAPPLAUNCHER *al, TCCBUTTON *btn, int id, const
 {
 	TVLCPLAYER *vp = btn->cc->vp;
 	al->btns->t0 = getTickCount();
-		
-	//printf("alButtonPress %i %i\n", btn->id, id);
 
 	if (!id) return 0;
 	
@@ -300,12 +298,7 @@ static inline void homeDrawClock (TAPPLAUNCHER *home, TFRAME *frame, const TMETR
 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (/*msg == CC_MSG_RENDER*/ /*|| msg == CC_MSG_INPUT ||*/ msg == CC_MSG_SETPOSITION) return 1;
-	//if (msg == CC_MSG_ENABLED || msg == CC_MSG_DISABLED) return 1;
-		
 	TCCBUTTON *btn = (TCCBUTTON*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", btn->id, btn->type, msg, (int)data1, (int)data2, dataPtr);
-	//const int id = (int)data2;
 
 	/*if (msg == CC_MSG_RENDER){
 		TAPPLAUNCHER *home = pageGetPtr(btn->cc->vp, ccGetOwner(btn));
@@ -439,7 +432,6 @@ static inline int page_homeRender (TAPPLAUNCHER *al, TVLCPLAYER *vp, TFRAME *fra
 	const int total = applLaunchGetEnabledTotal(al);	
 	if (al->layout.autoExpand){
 		int height = ceilf(total / (float)al->layout.btnsPerRow) * (float)(al->layout.rowSpace + al->layout.btnHeight);
-		//printf("homeRender height %i\n", height);
 		if (height >= frame->height-20)
 			btnPerRow++;
 	}
@@ -533,12 +525,8 @@ void time64ToTime (const uint64_t t64, date64_t *date)
 
 static inline int page_homeStartup (TAPPLAUNCHER *al, TVLCPLAYER *vp, const int fw, const int fh)
 {
-
-	//wprintf(L"page_homeStartup: %i %i %i %i '%s'\n", PAGE_HOME, HOME_BTN_TOTAL, (sizeof(homeBtns) / sizeof(THOMEBTN))-1, ABUTTON_MHOOK, homeBtns[27].path);
-
-	
 #if (!RELEASEBUILD)
-	//assert((sizeof(homeBtns) / sizeof(THOMEBTN)) == (HOME_BTN_TOTAL+1));
+	assert((sizeof(homeBtns) / sizeof(THOMEBTN)) == (HOME_BTN_TOTAL+1));
 	if ((sizeof(homeBtns) / sizeof(THOMEBTN)) != (HOME_BTN_TOTAL+1)){
 		printf("page_homeStartup: sanity check: (sizeof(homeBtns) / sizeof(THOMEBTN)) != PAGE_TOTAL\n");
 		exit(0);
@@ -565,11 +553,9 @@ static inline int page_homeStartup (TAPPLAUNCHER *al, TVLCPLAYER *vp, const int 
 
 		
 	for (int i = 0; i < HOME_BTN_TOTAL && homeBtns[i].page; i++){
-		//wprintf(L"creating %i, '%s'\n", i, homeBtns[i].path);
 		btn = buttonsCreateButton(btns, homeBtns[i].path, homeBtns[i].pathAlt, HOME_BTN_ID(homeBtns[i].page), homeBtns[i].enabled, 0, 0, 0);
 		if (homeBtns[i].animate) buttonAnimateSet(btn, homeBtns[i].animate);
-		/*else if (homeBtns[i].page == PAGE_CLOCK)
-			al->ccId = btn->id;*/
+
 	}
 
 	int val = 0;
@@ -596,115 +582,6 @@ static inline int page_homeStartup (TAPPLAUNCHER *al, TVLCPLAYER *vp, const int 
 	return 1;
 }
 
-/*
-static HQUERY query;
-static HCOUNTER counter;
-
-int GetData (int64_t *value64)
-{
-	if (!counter) return 0;
-	
-	PDH_RAW_COUNTER rawcounter;
-	PDH_FMT_COUNTERVALUE fmtValue;
-	
-	PdhCollectQueryData(query);
-	PdhGetFormattedCounterValue(counter, PDH_FMT_LARGE | PDH_FMT_NOSCALE, 0, &fmtValue);
-	PdhGetRawCounterValue(counter, 0, &rawcounter);
-
-	int nonzero = 0;
-	
-	if (fmtValue.longValue != 0) {
-		*value64 = (int64_t)fmtValue.largeValue;
-		nonzero++;
-	}
-	return nonzero;
-}
-
-void AddCounter (const char *path)
-{
-	printf("AddCounter #%s#\n", path);
-	PdhAddCounterA(query, path, 0, &counter);
-}
-	
-void AddObject (const char *objStr, const char *counterStr, const char *interfaceStr)
-{
-	
-	char objs[4096];
-	unsigned long objsize = sizeof(objs);
-
-	if (ERROR_SUCCESS != PdhEnumObjects(NULL, NULL, objs, &objsize, PERF_DETAIL_WIZARD, FALSE))
-		return;
-
-	char counterlist[4096];
-	char instancelist[4096];
-	char temppath[4096];
-		
-	unsigned long csize = sizeof(counterlist);
-	unsigned long isize = sizeof(instancelist);
-		
-	// loop over strings
-	for (char *obj = objs; *obj; obj += strlen(obj) + 1){
-		if (!strstr(obj, objStr)) continue;
-
-
-		
-		if (PdhEnumObjectItems(NULL, NULL, obj,  counterlist, &csize, instancelist, &isize, PERF_DETAIL_WIZARD, 0) != ERROR_SUCCESS)
-			continue;
-
-		for (char *counter = counterlist; *counter; counter += strlen(counter) + 1){
-			if (counterStr && !strstr(counter, counterStr))	
-				continue;
-			
-			//printf(" Counter '%s'\n", counter);
-
-			if (!*instancelist){
-				sprintf(temppath, "\\%s\\%s", obj, counter);
-				AddCounter(temppath);
-				continue;
-			}
-
-			for (char *instance = instancelist; *instance; instance += strlen(instance) + 1){
-				if (interfaceStr && !strstr(instance, interfaceStr))
-					continue;
-				
-				sprintf(temppath, "\\%s(%s)\\%s", obj, instance, counter);
-				AddCounter(temppath);
-			}
-		}
-	}
-}
-
-void ChooseUI ()
-{
-	
-	PDH_BROWSE_DLG_CONFIG brwDlgCfg;
-	TCHAR szCounterPath[4096];
-	
-	// Initialize all the fields of a PDH_BROWSE_DLG_CONFIG structure, in
-	// preparation for calling PdhBrowseCounters
-	
-	memset(&brwDlgCfg, 0, sizeof(PDH_BROWSE_DLG_CONFIG));
-	
-	brwDlgCfg.bSingleCounterPerDialog = 1;
-	brwDlgCfg.bLocalCountersOnly = 1;
-	
-	brwDlgCfg.szReturnPathBuffer = szCounterPath;
-	brwDlgCfg.cchReturnPathLength = sizeof(szCounterPath);
-	brwDlgCfg.dwDefaultDetailLevel = PERF_DETAIL_WIZARD;
-	brwDlgCfg.szDialogBoxCaption = (char*)"PDH Chooser";
-	
-	szCounterPath[0] = szCounterPath[1] = 0;
-
-	// Bring up the counter browsing dialog
-	if (ERROR_SUCCESS != PdhBrowseCounters(&brwDlgCfg))
-		return;
-	
-	for (char *p = szCounterPath; *p; p = p + strlen(p) + 1){
-		printf("Selected '%s'\n", p);
-	}
-}
-*/
-
 static inline int page_homeInitalize (TAPPLAUNCHER *home, TVLCPLAYER *vp, const int width, const int height)
 {
 	
@@ -720,27 +597,7 @@ static inline int page_homeInitalize (TAPPLAUNCHER *home, TVLCPLAYER *vp, const 
 	else
 		homeSetPageIconFace(home, PAGE_ANTPLUS, BUTTON_SEC);
 #endif
-	
-	
-/*
-	PdhOpenQuery(NULL, 0, &query);
-	
-	//ChooseUI();
-	AddObject("Network Interface", "Bytes Received", "_2");
-	AddObject("Processor Information", "% Processor Time", "0,_Total");
 
-
-	int64_t value = 0;
-	
-	for (int i = 0; i < 100; i++){
-		if (GetData(&value))
-			printf("value %I64d\n", value);
-		
-		lSleep(1000);
-	}
-
-	PdhCloseQuery(query);
-*/
 	return 1;
 }
 
@@ -757,7 +614,6 @@ void page_homeRenderEnd (TAPPLAUNCHER *al, TVLCPLAYER *vp, int64_t destId, int64
 	if (playlistManagerGetTotal(vp->plm) <= 1){
 		PLAYLISTCACHE *plc = playlistManagerGetPlaylist(vp->plm, 0);
 		if (!plc || playlistGetCount(plc, PLAYLIST_OBJTYPE_TRACK) < 1){
-			//printf("home end %i, destId:%i\n", pageRenderGetTop(vp->pages), (int)destId);
 			if (destId == PAGE_OVERLAY || destId == PAGE_NONE || destId == PAGE_META)
 				page2Set(vp->pages, PAGE_HOME, 0);
 		}
@@ -807,10 +663,7 @@ static inline int page_homeRenderInit (TAPPLAUNCHER *home, TVLCPLAYER *vp, int64
 int page_homeCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TAPPLAUNCHER *home = (TAPPLAUNCHER*)pageStruct;
-	
-	//if (msg != PAGE_CTL_RENDER)
-		//printf("# page_homeCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_homeRender(home, home->com->vp, dataPtr);
 

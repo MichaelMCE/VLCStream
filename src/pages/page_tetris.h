@@ -42,17 +42,11 @@ typedef struct {
 int page_tetrisCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr);
 
 
-
 int tetrisInputProc (TVLCPLAYER *vp, TTETRIS *tet, const int key);
-
-
-
-
 int tetrisGameInput (TVLCPLAYER *vp, TTETRIS *tetris, const int key); 
 void tetrisGameClose (TTETRIS *tetris);
 void tetrisGameDraw (TTETRIS *tetris, TFRAME *frame, const int x, const int y);
 int tetrisGameInit (TTETRIS *tetris, TFRAME *frame);
-
 void tetrisPrerenderSetup (TVLCPLAYER *vp);
 
 #endif

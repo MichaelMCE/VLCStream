@@ -42,7 +42,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  case SLIDER_MSG_VALCHANGED:{
 		  	  	double val = sliderGetValueFloat(slider);
 		  	  	vp->vlc->rotateAngle = -((val * 360.0) - 180.0);
-		  	  	//printf("rotateAngle: %f %f\n", val, vp->vlc->rotateAngle);
 		  	  	
 		  	    break;
 		  	  }
@@ -52,8 +51,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 			  case SLIDER_MSG_VALSET:
 		  	  case SLIDER_MSG_VALCHANGED:{
 		  	  	double val = sliderGetValueFloat(slider);
-		  	  	//printf("scale %f\n", val);
-
 		  	  	if (val < 0.5){
 		  	  		val *= 2.0;
 		  	  	}else{
@@ -62,12 +59,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  	}
 
 		  	  	if (val < 0.03) val = 0.03;
-		  	  	/*double v;
-		  	  	if (val >= 1.0)
-		  	  		v = sqrtf(val) / 2.0;
-		  	  	else
-		  	  		v = val / 2.0;
-		  	  	printf("scale %f %f %f %f\n", sliderGetValueFloat(slider), val, sqrtf(val), v);*/
 		  	  	vp->vlc->scaleFactor = val;
 		  	    break;
 		  	  }
@@ -78,7 +69,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  case SLIDER_MSG_VALCHANGED:{
 		  	  	int val = sliderGetValue(slider);
 		  	  	vp->vlc->blurRadius = val;
-		  	  	//printf("blurRadius %i\n", val);
 		  	    break;
 		  	  }
 		  }
@@ -91,8 +81,7 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  		vp->vlc->pixelize = val+1;
 		  	  	else
 		  	  		vp->vlc->pixelize = 0;
-		  	  		
-		  	  	//printf("  %i\n", val);
+
 		  	    break;
 		  	  }
 		  }
@@ -104,7 +93,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  	vlc_setAdjustFloat(vp->vlc, libvlc_adjust_Brightness, value);
 				vlc_setAdjustInt(vp->vlc, libvlc_adjust_Enable, value != 1.0);
 				vp->vlc->brightness = value;
-				//printf("  %f %f\n", value, sliderGetValueFloat(slider));
 		  	    break;
 		  	  }
 		  }
@@ -116,7 +104,6 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  	vlc_setAdjustFloat(vp->vlc, libvlc_adjust_Contrast, value);
 				vlc_setAdjustInt(vp->vlc, libvlc_adjust_Enable, value != 1.0);
 		  	  	vp->vlc->contrast = value;
-		  	  	//printf("  %f %f\n", value, sliderGetValueFloat(slider));
 		  	    break;
 		  	  }
 		  }
@@ -138,10 +125,8 @@ static inline int64_t tfCcObject_cb (const void *object, const int msg, const in
 		  	  	double value = sliderGetValueFloat(slider) * 4.0;
 		  	  	vlc_setAdjustFloat(vp->vlc, libvlc_adjust_Gamma, value);
 				vlc_setAdjustInt(vp->vlc, libvlc_adjust_Enable, value != 1.0);
-				
-		  	  	//int val = sliderGetValue(slider);
+
 		  	  	vp->vlc->gamma = value;
-		  	  	//printf("  %i\n", val);
 		  	    break;
 		  	  }
 			}
@@ -157,7 +142,6 @@ static inline TSLIDER *tfGetSlider (TTRANSFORM *tf, const int sliderIdx)
 
 void tfSetRotate (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetRotate %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_ROTATE);
 
 	val = -val;
@@ -170,7 +154,6 @@ void tfSetRotate (TTRANSFORM *tf, double val)
 
 void tfSetScale (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetScale %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_SCALE);
 
 	if (val < 0.03) val = 0.03;
@@ -214,7 +197,6 @@ void tfSetPixelize (TTRANSFORM *tf, int val)
 
 void tfSetBrightness (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetBrightness %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_BRIGHTNESS);
 
 	if (val < 0.0) val = 0.0;
@@ -226,7 +208,6 @@ void tfSetBrightness (TTRANSFORM *tf, double val)
 
 void tfSetContrast (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetContrast %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_CONTRAST);
 
 	if (val < 0.0) val = 0.0;
@@ -238,7 +219,6 @@ void tfSetContrast (TTRANSFORM *tf, double val)
 
 void tfSetSaturation (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetSaturation %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_SATURATION);
 
 	if (val < 0.0) val = 0.0;
@@ -250,7 +230,6 @@ void tfSetSaturation (TTRANSFORM *tf, double val)
 
 void tfSetGamma (TTRANSFORM *tf, double val)
 {
-	//printf("tfSetGamma %f\n", val);
 	TSLIDER *slider = tfGetSlider(tf, SLIDER_GAMMA);
 
 	if (val < 0.0) val = 0.0;
@@ -543,8 +522,7 @@ static inline int page_tfStartup (TTRANSFORM *tf, TVLCPLAYER *vp, const int fw, 
 
 	//vp->vlc->rotateOp = ROTATE_BILINEAR;
 	//vp->vlc->scaleOp = SCALE_BILINEAR;
-	//tfReset(vp, tf);
-	
+
 	settingsGet(vp, "video.filter.rotate", &vp->vlc->rotateAngle);
 	settingsGet(vp, "video.filter.scale", &vp->vlc->scaleFactor);
 	settingsGet(vp, "video.filter.blur",	&vp->vlc->blurRadius);
@@ -605,8 +583,7 @@ static inline int page_tfInitalize (TTRANSFORM *tf, TVLCPLAYER *vp, const int wi
 static inline int page_tfShutdown (TTRANSFORM *tf, TVLCPLAYER *vp)
 {
 	buttonsDeleteAll(tf->btns);
-	
-	//lDeleteFrame(tf->working);
+
 	for (int i = 0; i < SLIDER_TF_TOTAL; i++){
 		ccDelete(tf->str[i].slider);
 		lDeleteFrame(tf->str[i].frame);
@@ -617,10 +594,7 @@ static inline int page_tfShutdown (TTRANSFORM *tf, TVLCPLAYER *vp)
 int page_tfCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TTRANSFORM *tf = (TTRANSFORM*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_tfCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_tfRender(tf, tf->com->vp, dataPtr);
 

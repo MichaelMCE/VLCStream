@@ -124,7 +124,6 @@ static inline void searchAddHelp (TSEARCH *search)
 		if (tag){
 			strncat(buffer, ", ", 16);
 
-			//if (i && !(i%6)){
 			if (i == 7 || i == 13 || i == 18 || i == 23){
 				searchAddItem(search, 0, buffer, (int64_t)SEARCH_OBJTYPE_NULL<<48);
 				*buffer = 0;
@@ -139,8 +138,6 @@ static inline void searchAddHelp (TSEARCH *search)
 
 static inline void searchFindNewUID (TSEARCH *search, const int uid)
 {
-	//printf("searchFindNewUID %X\n", uid);
-	
 	char buffer[32];
 	__mingw_snprintf(buffer, 31, "#%X", uid);
 	searchFindNewString(search, buffer);
@@ -244,7 +241,7 @@ static inline int searchAddTags (TSEARCH *search, const int mtag, const char *va
 		}
 		tagUnlock(tagc);
 	}
-	//printf("total %i\n", ct);
+
 	search->search.count++;
 	return ct;
 }
@@ -275,8 +272,6 @@ static inline void searchHistroyClean (TSEARCH *search)
 
 static inline int searchHistroyAdd (TSEARCH *search, const char *str)
 {
-	//printf("searchHistroyAdd '%s'\n", str);
-	
 	int ret = 0;
 
 	int count = stackCount(search->history.stack);
@@ -323,8 +318,6 @@ static inline char *searchHistroyGet (TSEARCH *search)
 static inline void searchSetLineHeight (TSEARCH *search, const int height)
 {
 	TPANE *pane = search->pane;
-	//printf("searchSetLineHeight %i (was: %i)\n", height, pane->vertLineHeight);
-
 	pane->vertLineHeight = height;
 }
 
@@ -389,8 +382,6 @@ static inline int searchContextIsVisable (TSEARCH *search)
 static inline void searchContextSetLineHeight (TSEARCH *search, const int height)
 {
 	TPANE *pane = search->context.pane;
-	//printf("searchContextSetLineHeight %i (was: %i)\n", height, pane->vertLineHeight);
-
 	pane->vertLineHeight = height;
 }
 
@@ -427,8 +418,6 @@ static inline void searchContextSetPosition (TSEARCH *search, int x, int y)
 
 static inline void searchContextShow (TSEARCH *search)
 {
-	//printf("searchContextShow\n");
-	
 	TPANE *pane = search->context.pane;
 
 	ccEnable(pane);
@@ -438,8 +427,6 @@ static inline void searchContextShow (TSEARCH *search)
 
 static inline void searchContextHide (TSEARCH *search)
 {
-	//printf("searchContextHide %i\n", search->selected.itemHighlighted);
-	
 	TPANE *pane = search->context.pane;
 	ccHoverRenderSigEnable(pane->cc, 20.0);
 	paneScrollReset(pane);	
@@ -558,8 +545,6 @@ static inline char *getFilename (TVLCPLAYER *vp, const unsigned int hash, PLAYLI
 
 static inline int plms_searchCb (void *uptr, const char *searchedFor, const int uid, const int trackIdx, const int foundInMTag, const unsigned int hash, const int recType, const int count)
 {
-	//printf("%s: %X:%i %i %X %i %i\n", searchedFor, uid, trackIdx, foundInMTag, hash, recType, count);
-	
 	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
 	TSEARCH *search = pageGetPtr(vp, PAGE_SEARCH);
 	TPANE *pane = search->pane;
@@ -621,15 +606,11 @@ static inline int plms_searchCb (void *uptr, const char *searchedFor, const int 
 					return search->search.state;
 				}
 				search->stats.other++;
-				//printf("other: %i '%s'\n", search->stats.other, path);
 			}
 			my_free(path);
 		}
 	}
-	
-	//if (imgId == 0x70)
-	//	printf("%s: %X:%i %i %X %i %i\n", searchedFor, uid, trackIdx, foundInMTag, hash, recType, count);
-	
+
 	if (!imgId) imgId = search->icons.other;
 	char *strA = NULL;
 	char *strB = NULL;
@@ -697,7 +678,6 @@ static inline int plms_searchCb (void *uptr, const char *searchedFor, const int 
 
 	int trackId = playlistGetId(plc, trackIdx);
 	int64_t id = ((int64_t)recType<<48)|((int64_t)uid<<32)|trackId;
-	//printf("searchCb: %I64X %i %X\n", id, trackIdx, trackId);
 	
 	paneTextAdd(pane, imgId, scale, str, SEARCH_RESULT_FONT, id);
 	timerSet(vp, TIMER_SEARCH_UPDATEHEADER, 90);
@@ -734,9 +714,6 @@ static inline void searchSetSearchString (TSEARCH *search, const char *str)
 
 unsigned int __stdcall searchThread (void *ptr)
 {
-	//const int tid = GetCurrentThreadId();
-	//printf("searchThread start %X\n", tid);
-
 	plm_search *plms = (plm_search*)ptr;
 	TVLCPLAYER *vp = plms->uptr;
 	TSEARCH *search = pageGetPtr(vp, PAGE_SEARCH);
@@ -748,12 +725,8 @@ unsigned int __stdcall searchThread (void *ptr)
 
 		plms->string = searchFor;
 		plms->activeState = &search->search.state;
-
-		//dbprintf(vp, "Searching for '%s'..", searchFor);
-		//double t0 = getTime(vp);
 		/*int found =*/ playlistManagerSearchEx(vp->plm, plms, plms->from, plms->to);
-		/*double t1 = getTime(vp);
-		printf("%i matches found for '%s' in %.0fms\n", found, searchFor, t1-t0);*/
+
 		my_free(searchFor);
 	}
 
@@ -761,7 +734,6 @@ unsigned int __stdcall searchThread (void *ptr)
 	searchUpdateHeaderStats(search, search->stats.playlist, search->stats.audio, search->stats.video, search->stats.other);
 	timerSet(vp, TIMER_SEARCH_ENDED, 0);
 
-	//printf("searchThread end %X\n", tid);
 	_endthreadex(1);
 	return 1;
 }
@@ -776,21 +748,16 @@ static inline int searchCtrlWait (TSEARCH *search)
 
 static inline void searchCtrlStop (TSEARCH *search)
 {
-	//printf("searchCtrlStop in %i\n", search->search.state);
-
 	if (search->search.state){
 		search->search.state = 0;
 		if ((WaitForSingleObject(search->search.hthread, 3*60*1000) == WAIT_OBJECT_0)){
 			//CloseHandle(search->search.hthread);
 		}
 	}
-	//printf("searchCtrlStop out %i\n", search->search.state);
 }
 
 static inline void searchClearSearch (TSEARCH *search)
 {
-	//printf("searchClearSearch\n");
-	
 	search->stats.playlist = 0;
 	search->stats.audio = 0;
 	search->stats.video = 0;
@@ -834,8 +801,7 @@ static inline int searchAddPlaylistWithNoCover (TSEARCH *search, PLAYLISTCACHE *
 
 static inline int searchAddPlaylistsWithNoCover (TSEARCH *search)
 {
-	//printf("searchAddPlaylistsWithNoCover\n");
-	
+
 	TPLAYLISTMANAGER *plm = search->com->vp->plm;
 	
 	search->image.scale = (double)(ccGetHeight(search->pane)-(1+search->image.rows)) / (double)search->image.rows / (double)search->com->vp->gui.artMaxHeight;
@@ -882,8 +848,6 @@ static inline int searchAddPlaylistCover (TSEARCH *search, PLAYLISTCACHE *plc, c
 
 static inline int searchAddPlaylistCovers (TSEARCH *search)
 {
-	//printf("searchAddPlaylistCovers\n");
-	
 	TPLAYLISTMANAGER *plm = search->com->vp->plm;
 	
 	search->image.scale = (double)(ccGetHeight(search->pane)-(1+search->image.rows)) / (double)search->image.rows / (double)search->com->vp->gui.artMaxHeight;
@@ -934,8 +898,6 @@ static inline int sortCB_intD (const void *a, const void *b)
 
 static inline int searchAddArtworkCache (TSEARCH *search)
 {
-	//printf("searchAddArtworkCache\n");
-	
 	int totalAdded = 0;
 	int total = 0;
 
@@ -954,7 +916,6 @@ static inline int searchAddArtworkCache (TSEARCH *search)
 		
 			const int64_t recType = (int64_t)SEARCH_OBJTYPE_IMAGE<<48;
 			search->image.scale = (double)(ccGetHeight(search->pane)-(1+search->image.rows)) / (double)search->image.rows / (double)search->com->vp->gui.artMaxHeight;
-			//printf("searchAddArtworkCache: %i %f\n", search->image.rows, search->image.scale);
 			clipFloat(search->image.scale);
 			
 			for (int i = 0; i < total && list[i]; i++)
@@ -962,8 +923,6 @@ static inline int searchAddArtworkCache (TSEARCH *search)
 		}
 		my_free(list);
 	}
-
-	//printf("searchAddArtworkCache: %i %i, %f\n", total, totalAdded, search->image.scale);
 
 	if (totalAdded)
 		search->search.count++;
@@ -1004,8 +963,6 @@ static inline void searchSetDisplayMode (TSEARCH *search, const int mode)
 
 static inline int searchCmdProcess (TSEARCH *search, const char *str)
 {
-	//printf("searchCmdProcess '%s'\n", str);
-	
 	search->pane->horiColumnSpace = 8;
 
 	if (str[0] != '#' || str[1] == '$') return 0;
@@ -1024,7 +981,6 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 			searchUpdateHeaderStats(search, total, 0, 0, 0);
 			searchPreloadItems(search);
 		}
-		//dbprintf(search->com->vp, "Playlists with covers found: %i", total);
 		
 	}else if (!strnicmp(str, SEARCH_CMD_NoCovers, 9)){
 		searchClearSearch(search);
@@ -1038,7 +994,6 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 			searchUpdateHeaderStats(search, total, 0, 0, 0);
 			searchPreloadItems(search);
 		}
-		//dbprintf(search->com->vp, "Playlists without a covers: %i", total);
 				
 	}else if (!strnicmp(str, SEARCH_CMD_Covers, 7)){
 		searchClearSearch(search);
@@ -1052,7 +1007,6 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 			searchUpdateHeaderStats(search, 0, 0, 0, total);
 			searchPreloadItems(search);
 		}
-		//dbprintf(search->com->vp, "Covers found: %i", total);
 		
 	}else if (!strnicmp(str, SEARCH_CMD_Help, 5)){
 		searchClearSearch(search);
@@ -1062,7 +1016,6 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 
 	}else if (!strnicmp(str, SEARCH_CMD_Playing, 8)){
 		const int uid = getQueuedPlaylistUID(search->com->vp);
-		//printf("uid %X %X\n", uid, search->com->vp->playlist.queued);
 		
 		if (uid > PLAYLIST_UID_BASE)
 			searchFindNewUID(search, uid);
@@ -1082,8 +1035,6 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 			if (!*value) value = NULL;
 		}
 		if (!*tag) return 0;
-		
-		//printf("tag:'%s'  value:'%s'\n", tag, value);
 
 		int mtag = tagLookup(tag);
 		if (mtag >= 0){
@@ -1093,8 +1044,7 @@ static inline int searchCmdProcess (TSEARCH *search, const char *str)
 			// return the string back to its original state by undoing the ':' to '\0' (put the ':' back)
 			//if (value) *(--value) = ':';		// gcc falls over with stringoverflow:  error: writing 1 byte into a region of size 0
 			if (value) tag[strlen(tag)] = ':';	// so bypass this by writing from the otherside instead.
-			
-			//printf("@@ tag:'%s'  value:'%s'\n", tag, value);
+
 			searchHistroyAdd(search, str);
 			searchUpdateHeaderStats(search, 0, 0, 0, total);
 			dbprintf(search->com->vp, "Tags found: %i", total);
@@ -1160,15 +1110,11 @@ static inline void searchCtrlStart (TSEARCH *search, TVLCPLAYER *vp)
 
 void searchForceStop (TVLCPLAYER *vp)
 {
-	//printf("searchForceStop\n");
-	
 	searchCtrlStop(pageGetPtr(vp,PAGE_SEARCH));
 }
 
 void searchFindNewString (TSEARCH *search, const char *str)
 {
-	//printf("searchFindNewString '%s'\n", str);
-	
 	searchClearSearch(search);
 	searchSetSearchString(search, str);
 	searchCtrlStop(search);
@@ -1177,7 +1123,6 @@ void searchFindNewString (TSEARCH *search, const char *str)
 
 static inline void searchOpenSearchKeypad (TSEARCH *search, const int listenerCcId)
 {
-	
 	searchCtrlStop(search);
 		
 	char *searchFor = NULL;
@@ -1201,10 +1146,7 @@ static inline void searchOpenSearchKeypad (TSEARCH *search, const int listenerCc
 
 static inline int64_t search_box_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TLABEL *label = (TLABEL*)object;
-	//printf("search_box_cb: %i %I64d %I64d %p\n", msg, data1, data2, dataPtr);
 
 	TVLCPLAYER *vp = label->cc->vp;
 	
@@ -1212,8 +1154,6 @@ static inline int64_t search_box_cb (const void *object, const int msg, const in
 		searchOpenSearchKeypad(ccGetUserData(label), label->id);
 
 	}else if (msg == KP_MSG_PAD_ENTER){		// search box callback
-		//printf("search KP_MSG_PAD_ENTER: %I64d %X '%s'\n", data1, (int)data2, (char*)dataPtr);
-		
 		TSEARCH *search = ccGetUserData(label);
 		TPANE *pane = search->pane;
 
@@ -1227,19 +1167,14 @@ static inline int64_t search_box_cb (const void *object, const int msg, const in
 		searchCtrlStart(search, vp);
 		
 	}else if (msg == KP_MSG_PAD_OPENED){
-		//printf("search KP_MSG_PAD_OPENED: %I64d %X %p\n", data1, (int)data2, dataPtr);
 		ccInputDisable(label);
 		
 	}else if (msg == KP_MSG_PAD_RENDER){
-		//printf("search KP_MSG_PAD_RENDER: %I64d %X %p\n", data1, (int)data2, dataPtr);
-
 		TFRAME *frame = dataPtr;
 		//lBlurImage(frame, lBLUR_STACKFAST, 5);
 		lDrawRectangleFilled(frame, 0, 0, frame->width-1, frame->height-1, (170<<24)|COL_BLACK);
 
 	}else if (msg == KP_MSG_PAD_CLOSED){
-		//printf("search KP_MSG_PAD_CLOSED: %I64d %X %p\n", data1, (int)data2, dataPtr);
-		
 		TKEYBOARD *vkey = pageGetPtr(vp, PAGE_VKEYBOARD);
 
 		keypadListenerRemoveAll(vkey->kp);
@@ -1339,8 +1274,6 @@ static inline void searchCreateMenuMeta (TSEARCH *search)
 
 static inline void searchCreateMenuFormat (TSEARCH *search)
 {
-	//printf("searchCreateMenuFormat\n");
-	
 	if (search->menu.type != SEARCH_MENU_FORMAT){
 		search->menu.type = SEARCH_MENU_FORMAT;
 		searchContextClear(search);
@@ -1381,8 +1314,6 @@ static inline void searchCreateMenuFormat (TSEARCH *search)
 
 static inline void searchCreateMenuPlaylist (TSEARCH *search)
 {
-	//printf("searchCreateMenuPlaylist: %i\n", search->selected.edit.op);
-	
 	if (search->menu.type != SEARCH_MENU_FOLDER){
 		search->menu.type = SEARCH_MENU_FOLDER;
 		
@@ -1478,8 +1409,6 @@ static inline void searchCreateMenuInfo (TSEARCH *search, PLAYLISTCACHE *plc, co
 	}
 	my_free(meta);
 	
-
-	
 	// ensure art fits box
 	if (artId && (titems != search->context.tItems)){
 		searchCreateMenuInfo(search, plc, trackId, 1);
@@ -1515,8 +1444,7 @@ static inline void searchCreateMenuImage (TSEARCH *search)
 	if (search->menu.type != SEARCH_MENU_IMAGE){
 		search->menu.type = SEARCH_MENU_IMAGE;
 		searchContextClear(search);
-		
-		//printf("searchHistroyIsAvailable %i\n", searchHistroyIsAvailable(search));
+
 		if (searchHistroyIsAvailable(search))
 			searchContextAddItem(search, "Back              ", search->icons.find, SEARCH_MENU_ITEM_OTHER_BACK);
 			
@@ -1533,8 +1461,6 @@ static inline void searchCreateMenuImage (TSEARCH *search)
 
 static inline void searchCreateMenuOther (TSEARCH *search)
 {
-	//printf("searchCreateMenuOther\n");
-
 	if (search->menu.type != SEARCH_MENU_OTHER){
 		search->menu.type = SEARCH_MENU_OTHER;
 		searchContextClear(search);
@@ -1550,7 +1476,6 @@ static inline void searchCreateMenuOther (TSEARCH *search)
 				searchContextAddItem(search, "Find Parent", search->icons.find, SEARCH_MENU_ITEM_SEARCH_OPENUID);
 		}
 
-		//printf("searchHistroyIsAvailable %i\n", searchHistroyIsAvailable(search));
 		if (searchHistroyIsAvailable(search)){
 #if 1
 			searchContextAddItem(search, "Back   ", search->icons.find, SEARCH_MENU_ITEM_OTHER_BACK);
@@ -1581,8 +1506,6 @@ static inline void searchCreateMenuOther (TSEARCH *search)
 
 static inline void searchCreateMenuEdit (TSEARCH *search)
 {
-	//printf("searchCreateMenuEdit: %i\n", search->selected.edit.op);
-	
 	if (search->menu.type != SEARCH_MENU_EDIT){
 		search->menu.type = SEARCH_MENU_EDIT;
 		searchContextClear(search);
@@ -1611,9 +1534,6 @@ static inline void searchCreateMenuEdit (TSEARCH *search)
 
 static inline int searchMenuSelectImage (TSEARCH *search, const int item)
 {
-	//printf("searchMenuSelectImage %X %X\n", search->selected.open.uid, search->selected.uid);
-	
-	
 	switch(item){
 	case SEARCH_MENU_ITEM_OTHER_BACK:{
 		char *str = searchHistroyGet(search);
@@ -1703,9 +1623,6 @@ static inline int searchMenuSelectImage (TSEARCH *search, const int item)
 
 static inline int searchMenuSelectSearch (TSEARCH *search, const int item)
 {
-	//printf("searchMenuSelectSearch %X %X\n", search->selected.open.uid, search->selected.uid);
-	
-	
 	switch(item){
 	case SEARCH_MENU_ITEM_SEARCH_TITLE:
 		if (search->selected.recType == PLAYLIST_OBJTYPE_PLC){
@@ -1860,8 +1777,6 @@ static inline void searchMenuSelectOther (TSEARCH *search, const int item)
 
 static inline int searchMenuSelectFormat (TSEARCH *search, const int item)
 {
-	//printf("searchMenuSelectFormat %i\n", item);
-	
 	switch (item){
 	case SEARCH_MENU_ITEM_IMAGE_ROWS:
 		searchCreateMenuRows(search);
@@ -1928,8 +1843,6 @@ static inline int searchMenuSelectFormat (TSEARCH *search, const int item)
 
 static inline void searchMenuSelection (TSEARCH *search, const int item, const int menuType, const int recType, int uid, const int trackId)
 {
-	//printf("## searchMenuSelection in %i %i %i %X %X\n", item, menuType, recType, uid, trackId);
-
 	TVLCPLAYER *vp = search->com->vp;
 	
 	if (menuType == SEARCH_MENU_OTHER){
@@ -1961,13 +1874,11 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
 	if (!plc) return;
 	int trackIdx = playlistIdToIdx(plc, trackId);
-	//printf("@@ searchMenuSelection %X:%X %i\n", uid, trackId, trackIdx);
 	if (trackIdx < 0) return;	
 
 	
 	switch (item){
 	case SEARCH_MENU_ITEM_EDIT:
-		//printf("SEARCH_MENU_ITEM_EDIT %X %X\n", uid, trackId);
 		searchItemSetHighlight(search, search->selected.itemId);
 		searchCreateMenuEdit(search);
 		searchContextSetPosition(search, ccGetPositionX(search->context.pane), ccGetPositionY(search->context.pane));
@@ -1980,8 +1891,6 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 		break;
 
 	case SEARCH_MENU_ITEM_EDIT_CUT:
-		//printf("SEARCH_MENU_ITEM_EDIT_CUT %X %X\n", uid, trackId);
-		
 		if (search->selected.edit.src.itemId != search->selected.itemId){
 			if (/*search->selected.edit.op != EDIT_OP_CUT &&*/ search->selected.edit.op != EDIT_OP_NONE)
 				searchItemSetColour(search, search->selected.edit.src.itemId, COL_WHITE, COL_BLACK, COL_BLUE_SEA_TINT);	
@@ -1996,7 +1905,6 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 		break;
 
 	case SEARCH_MENU_ITEM_EDIT_COPY:
-		//printf("SEARCH_MENU_ITEM_EDIT_COPY %X %X\n", uid, trackId);
 		if (search->selected.edit.src.itemId != search->selected.itemId){
 			if (/*search->selected.edit.op != EDIT_OP_COPY &&*/ search->selected.edit.op != EDIT_OP_NONE)
 				searchItemSetColour(search, search->selected.edit.src.itemId, COL_WHITE, COL_BLACK, COL_BLUE_SEA_TINT);	
@@ -2011,7 +1919,6 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 		break;
 
 	case SEARCH_MENU_ITEM_EDIT_PASTE:{
-		//printf("SEARCH_MENU_ITEM_EDIT_PASTE (%X %X) -> %X %X, op:%i\n", search->selected.edit.src.uid, search->selected.edit.src.trackId, uid, trackId, search->selected.edit.op);
 		int success = 0;
 
 		if (search->selected.edit.src.uid != uid || search->selected.edit.src.trackId != trackId){
@@ -2127,13 +2034,6 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 	case SEARCH_MENU_ITEM_EDIT_DELETE:{
 		if (recType == PLAYLIST_OBJTYPE_PLC){
 			int uidChild = playlistGetPlaylistUID(plc, trackIdx);
-
-			/*char *name = playlistManagerGetName(vp->plm, uidChild);
-			if (name){
-				printf("delete: '%s'\n", name);
-				my_free(name);
-			}*/
-			
 			playlistManagerDeletePlaylistByUID(vp->plm, uidChild, 0);
 			playlistDeleteRecord(plc, trackIdx);
 			paneRemoveItem(search->pane, search->selected.itemId);
@@ -2245,14 +2145,11 @@ static inline void searchMenuSelection (TSEARCH *search, const int item, const i
 			if (path){
 #if 1
 				strchrreplace(path, '/', '\\');
-				//printf("openArt Path #%s#\n", path);
 				fbOpenExplorerLocationA(path);
 #else
 				strchrreplace(path, '/', '\\');
 				char *dir = getDirectory(path);
 				if (dir){
-					//printf("openArt Path #%s#\n", path);
-					//printf("openArt Dir #%s#\n", dir);
 					char cmdLine[MAX_PATH_UTF8+1];
 					__mingw_snprintf(cmdLine, MAX_PATH_UTF8, "explorer %s", dir);
 					processCreate(cmdLine);
@@ -2365,20 +2262,13 @@ static inline int64_t search_pane_cb (const void *object, const int msg, const i
 	if (msg == CC_MSG_RENDER|| msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
 	
 	TPANE *pane = (TPANE*)object;
-	//printf("search_pane_cb in %i %I64d %I64X %p\n", msg, data1, data2, dataPtr);
-	
 
 	/*if (msg == PANE_MSG_VALIDATED){
-		
 
 	}else */if (msg == PANE_MSG_BASE_SELECTED){
 		TSEARCH *search = ccGetUserData(pane);
 		TVLCPLAYER *vp = pane->cc->vp;
-		
-		//int x = (data1>>16)&0xFFFF;
-		//int y = data1&0xFFFF;
-		//printf("base Selected %i,%i %I64X\n", x, y, data2);
-		
+
 		search->selected.itemId = 0;
 		search->selected.recType = 0;
 		search->selected.uid = 0;
@@ -2415,7 +2305,6 @@ static inline int64_t search_pane_cb (const void *object, const int msg, const i
 		if (search->selected.recType == SEARCH_OBJTYPE_PLAYLIST){
 			paneScrollGet(pane, &search->history.xoffset, &search->history.yoffset);
 			search->selected.imgId = search->selected.track;
-			//printf("SEARCH_OBJTYPE_PLAYLIST: uid:%X imgId:%X\n", search->selected.uid, search->selected.imgId);
 
 			searchFindNewUID(search, search->selected.uid);
 			return 1;
@@ -2423,21 +2312,14 @@ static inline int64_t search_pane_cb (const void *object, const int msg, const i
 		}else if (search->selected.recType == SEARCH_OBJTYPE_IMAGE){
 			paneScrollGet(pane, &search->history.xoffset, &search->history.yoffset);
 			search->selected.imgId = search->selected.track;
-			//printf("search->selected.imgId %X\n", search->selected.imgId);
+
 			searchFindNewString(search, "#$");
 			return 1;
 			
 		}else if (search->selected.recType == SEARCH_OBJTYPE_STRING){
 			const unsigned int hash = search->selected.track;
 			search->selected.uid = playlistManagerGetPlaylistByTrackHash(pane->cc->vp->plm, hash);
-			//printf("SEARCH_OBJTYPE_STRING, uid:%X, hash:%X\n", search->selected.uid, hash);
-			/*
-			char *tag = tagRetrieveDup(search->com->vp->tagc, hash, MTAG_PATH);
-			if (tag){
-				printf("  '%s'\n", tag);
-				my_free(tag);
-			}*/
-			
+
 			searchItemSetHighlight(search, search->selected.itemId);
 			searchMenuInvalidate(search);
 			searchCreateMenuOther(search);
@@ -2470,8 +2352,7 @@ static inline int64_t search_pane_cb (const void *object, const int msg, const i
 		
 		int x, y;
 		inputGetCursorPosition(vp, &x, &y);
-		//printf("search_pane_cb %i %X:%i\n", search->selected.recType, search->selected.uid, search->selected.track);
-		
+
 		searchCtrlStop(search);
 		searchContextSetPosition(search, x+1, y+1);
 		searchContextShow(search);
@@ -2483,8 +2364,6 @@ static inline int64_t search_pane_cb (const void *object, const int msg, const i
 		keypadListenerRemoveAll(vkey->kp);
 		
 	}else if (msg == KP_MSG_PAD_ENTER){		// set artwork callback
-		//wprintf(L"pane KP_MSG_PAD_ENTER: %I64d %i '%s'\n", data1, (int)data2, (wchar_t*)dataPtr);
-		
 		const int kpMsg = data1;
 		if (kpMsg == KP_INPUT_COMPLETEW){		// user pressed 'Enter' key
 			wchar_t *path = (wchar_t*)dataPtr;
@@ -2515,8 +2394,6 @@ static inline int64_t search_header_cb (const void *object, const int msg, const
 		
 	if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
 		TSEARCH *search = ccGetUserData(pane);
-		//printf("search_header_cb %i %i %i, %i\n", msg, (int)data1, (int)data2, search->header.ids.audio);
-		
 		int newImgId = 0;
 		int imgId;
 		if (msg == PANE_MSG_TEXT_SELECTED)
@@ -2572,8 +2449,6 @@ static inline int64_t search_header_cb (const void *object, const int msg, const
 	}else if (msg == KP_MSG_PAD_ENTER){		// edit menu callback
 		const int dataType = data1;
 		if (dataType == KP_INPUT_COMPLETE8){
-			//printf("header KP_MSG_PAD_ENTER: %I64d %X '%s'\n", data1, (int)data2, (char*)dataPtr);
-			
 			char *itemStr = dataPtr;
 			if (strlen(itemStr) < 1) return 0;
 			
@@ -2586,11 +2461,9 @@ static inline int64_t search_header_cb (const void *object, const int msg, const
 			TVLCPLAYER *vp = pane->cc->vp;
 			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
 			if (!plc) return 1;
-			//printf("%x %x\n", uid, pos);
 			
 			int objType = playlistGetItemType(plc, pos);
 			if (objType == PLAYLIST_OBJTYPE_TRACK){
-				//printf("a track\n");
 				tagAddByHash(vp->tagc, playlistGetHash(plc, pos), MTAG_Title, itemStr, 1);
 				playlistSetTitle(plc, pos, itemStr, MAX_PATH_UTF8);
 				
@@ -2646,7 +2519,6 @@ static inline int64_t search_header_cb (const void *object, const int msg, const
 // TIMER_SEARCH_METACB
 void timer_metaCb (TVLCPLAYER *vp)
 {
-	//printf("timer_metaCb\n");
 	TSEARCH *search = pageGetPtr(vp, PAGE_SEARCH);
 	if (search->menu.type != SEARCH_MENU_INFO) return;
 	
@@ -2658,7 +2530,6 @@ void timer_metaCb (TVLCPLAYER *vp)
 void searchMetaCb (TVLCPLAYER *vp, const int msg, const int uid, const int trackId, void *dataPtr1, void *dataPtr2)
 {
 	if (SHUTDOWN) return;
-	//printf("searchMetaCb: %X %i, %p %p\n", uid, trackId, dataPtr1, dataPtr2);
 		
 	TSEARCH *search = dataPtr2;
 	if (search->menu.type != SEARCH_MENU_INFO) return;
@@ -2716,9 +2587,6 @@ static inline int64_t search_btn_cb (const void *object, const int msg, const in
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("search_btn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
 
@@ -2758,11 +2626,7 @@ static inline int page_searchRender (TSEARCH *search, TVLCPLAYER *vp, TFRAME *fr
 
 static inline int64_t search_context_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TPANE *pane = (TPANE*)object;
-	//printf("search_context_cb in %p, %i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
-
 
 	if (msg == CC_MSG_RENDER){
 		int colour = 0x00B7EB;
@@ -2783,14 +2647,10 @@ static inline int64_t search_context_cb (const void *object, const int msg, cons
 		g = (int)(g*mul)&0xFF;
 		b = (int)(b*mul)&0xFF;
 		colour = (r<<16)|(g<<8)|b;
-		//printf("search_context_cb %.6X\n", colour);
 #endif
 		drawRectangleFilled(dataPtr, &pane->metrics, (alpha<<24)|colour, 0);
 		
 	}else if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
-		//printf("data1 %i %i\n", (int)data1, (msg == PANE_MSG_IMAGE_SELECTED));
-
-		//TPANE *pane = (TPANE*)object;		
 		TSEARCH *search = ccGetUserData(pane);
 		searchContextHide(search);
 		searchMenuSelection(search, data2, search->menu.type, search->selected.recType, search->selected.uid, search->selected.track);
@@ -2876,7 +2736,6 @@ static inline int page_searchStartup (TSEARCH *search, TVLCPLAYER *vp, const int
 	searchContextSetLineHeight(search, SEARCH_PANE_VPITCH);
 	searchContextSetFont(search, SEARCH_CONTEXT_FONT);
 
-
 	return 1;
 }
 
@@ -2915,7 +2774,6 @@ static inline int page_searchInitalize (TSEARCH *search, TVLCPLAYER *vp, const i
 
 static inline int page_searchShutdown (TSEARCH *search, TVLCPLAYER *vp)
 {
-	//printf("page_searchShutdown\n");
 	searchCtrlStop(search);
 
 	if (search->search.format.buffer)
@@ -3016,8 +2874,6 @@ static void doRotary (TSEARCH *search, rotary_t *enc)
 
 static inline int page_searchInput (TSEARCH *search, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("input msg %i %.4f %.4f \n", msg, pos->time, pos->dt);
-	
 	switch(msg){
 	  case PAGE_IN_ROTARY_CHANGE:
 	  	doRotary(search, (rotary_t*)pos);
@@ -3063,9 +2919,6 @@ static inline int page_searchInput (TSEARCH *search, TVLCPLAYER *vp, const int m
 
 static inline int page_searchInputKey (TSEARCH *search, TVLCPLAYER *vp, const int key, const int modifier)
 {	
-	//printf("page_searchInputKey key:%i(%X)  modifier:0x%.2X\n", key, key, modifier);
-
-		
 	if (key == VK_F3 || (key == 'F' && modifier&KP_VK_CONTROL)){
 		searchOpenSearchKeypad(search, search->search.box->id);
 
@@ -3089,8 +2942,6 @@ static inline int page_searchInputKey (TSEARCH *search, TVLCPLAYER *vp, const in
 
 static inline int page_searchInputChar (TSEARCH *search, TVLCPLAYER *vp, const int key)
 {	
-	//printf("page_searchInputChar key:%i\n", key);
-		
 	if (key == VK_BACK){		// backspace
 		if (!searchMenuSelectImage(search, SEARCH_MENU_ITEM_OTHER_BACK)){
 			if (search->search.count)
@@ -3113,9 +2964,7 @@ static inline int page_searchInputChar (TSEARCH *search, TVLCPLAYER *vp, const i
 int page_searchCb (void *pageObj, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPAGE2COMOBJ *page = (TPAGE2COMOBJ*)pageObj;
-	
-	//printf("# page_searchCallback: %p %i %I64d %I64d %p %p\n", page, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_searchRender((TSEARCH*)page, page->com->vp, dataPtr);
 
@@ -3148,7 +2997,6 @@ int page_searchCb (void *pageObj, const int msg, int64_t dataInt1, int64_t dataI
 
 	}else if (msg == PAGE_MSG_IMAGE_FLUSH){
 		if (dataInt1 == PAGE_SEARCH){
-			//printf("PAGE_MSG_IMAGE_FLUSH\n");
 			if (searchDisplayIsCoverMode((TSEARCH*)page) || searchDisplayIsPlaylistsMode((TSEARCH*)page))
 				searchPreloadItems((TSEARCH*)page);
 		}

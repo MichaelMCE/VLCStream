@@ -67,21 +67,6 @@ void metaCbMsgCb (TVLCPLAYER *vp, const int msg, const int dataInt1, const int d
 {
 	if (SHUTDOWN) return;
 	if (!vp || !getApplState(vp)) return;
-	
-	//printf("metaCbMsgCb %i\n", msg);
-	
-	/*if (msg)*/ return;
-	/*
-	if (dataPtr1 == dataPtr2){
-		if (pageGet(vp) == PAGE_PLY_PANEL)
-			timerSet(vp, TIMER_PLYPAN_REBUILD, 30);
-		else
-			timerSet(vp, TIMER_PLYPAN_REBUILD, 2000);
-		if (fireonce){
-			fireonce = 0;
-			timerSet(vp, TIMER_PLYPAN_REBUILDCLNMETA, 20000);
-		}
-	}*/
 }
 
 
@@ -117,10 +102,6 @@ static inline int plypanButtonPress (TPLYPANEL *plypan, TCCBUTTON *btn, const in
 	  	if (item){
 			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm,(intptr_t)panelImgStorageGet(panel, item->id));
 			if (plc){			
-				//printf("panelImgStorageGet(panel, item->id) %X %X %X %X\n", (int)panelImgStorageGet(panel, item->id), plypan->currentPlcUID, plc->parent->uid, getPrimaryPlaylist(vp)->uid);
-				//if (plc->parent->uid == getPrimaryPlaylist(vp)->uid)
-				//	return plypanButtonPress(plypan, btn, PANEL_BUTTON_ROOT, pos);
-					
 				PLAYLISTCACHE *parent = plc->parent;
 				if (parent){
 					setDisplayPlaylist(vp, parent);
@@ -160,15 +141,11 @@ static inline int plypanButtonPress (TPLYPANEL *plypan, TCCBUTTON *btn, const in
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
-		//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 		return plypanButtonPress(pageGetPtr(btn->cc->vp, ccGetOwner(btn)), btn, ccGetUserDataInt(btn), dataPtr);
 	}
 	return 1;
@@ -180,27 +157,22 @@ int64_t plypan_panel_cb (const void *object, const int msg, const int64_t data1,
 	
 	TPANEL *panel = (TPANEL*)object;
 	TVLCPLAYER *vp = panel->cc->vp;
-	//printf("plypan_panel_cb in %p, %p, %i %I64d %I64d %p\n", panel, vp, msg, data1, data2, dataPtr);
-	
+
+
 	if (msg == PANEL_MSG_ITEMSELECTED){
 		const int uid = (intptr_t)panelImgStorageGet(panel, data1);
 		PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
 		if (playlistManagerGetPlaylistIndex(vp->plm, plc) < 0){
-			//printf("plypan_panel_cb out a %p, %p, %i %I64d %I64d %p\n", panel, vp, msg, data1, data2, dataPtr);
 			return 1;
 		}
 
 		const intptr_t plcItem = (intptr_t)dataPtr;
 		if (playlistGetItemType(plc, plcItem) == PLAYLIST_OBJTYPE_PLC){
-			//printf("plypan_panel_cb %I64d %I64d %p\n", data1, data2, dataPtr);
-			
 			TPLAYLISTITEM *item = playlistGetItem(plc, plcItem);
 			if (item){
 				invalidateShelfAlbum(vp, pageGetPtr(vp, PAGE_PLY_SHELF), 0);
 				setDisplayPlaylist(panel->cc->vp, item->obj.plc);
-				
-				//printf("plypan_panel_cb Build '%s' %i\n", item->obj.plc->title, item->obj.plc->uid);
-				
+
 				if (plyPanelBuild(vp, panel, item->obj.plc))
 					timerSet(vp, TIMER_PLYPAN_REBUILD, 2000);
 			}
@@ -216,7 +188,6 @@ int64_t plypan_panel_cb (const void *object, const int msg, const int64_t data1,
 		}
 	}
 	
-	//printf("plypan_panel_cb out b %p, %p, %i %I64d %I64d %p\n", panel, vp, msg, data1, data2, dataPtr);
 	return 1;
 }
 
@@ -230,12 +201,8 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 #endif	
 
 	TPLYPANEL *plypan = (TPLYPANEL*)ccGetUserData(panel);
-
-	//printf("_plyPanelBuild %i %X '%s'\n", plypan->imgArtSize, plc->artId, plc->title);
-
 	plypan->currentPlcUID = plc->uid;
 
-	//const double scale = plypan->imgArtSize/(double)vp->gui.artMaxHeight;	
 	int missingArtCt = 0;
 	const int hoverCol = swatchGetColour(vp, PAGE_NONE, SWH_PLY_ISELECTED);	
 	char path[MAX_PATH_UTF8+1];
@@ -255,13 +222,9 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 						if (!artId){
 							artId = plcChild->artId;
 							if (!artId){
-								//TMETACOMPLETIONCB mccb;
-								//panelImgArtBuildCB(vp, metaCbMsgCb, (void*)plc->uid, i, (void*)plypan->currentPlcUID, &mccb);
-								
 								initiateAlbumArtRetrievalEx(vp, plc, i, i, vp->gui.artSearchDepth,NULL/* &mccb*/);
 								playlistMetaGetMeta(vp, plc, i, i, NULL/*&mccb*/);
 								initiateAlbumArtRetrievalEx(vp, plcChild, 0, 4, vp->gui.artSearchDepth, NULL/*&mccb*/);
-								//playlistMetaGetMeta(vp, plcChild, 0, 4, &mccb);
 							}
 						}
 					}
@@ -333,7 +296,6 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 			if (!name[0]){
 				char *title = playlistGetTitleDup(plc, i);
 				if (title){
-					//__mingw_snprintf(name, MAX_PATH_UTF8, "%s", title);
 					strncpy(name, title, MAX_PATH_UTF8);
 					my_free(title);
 				}else{
@@ -350,7 +312,6 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 
 				double scale;
 				if (artId){
-					//printf("@@@@ plypanel: b found art for %X, %f\n", artId, scale);
 					scale = plypan->imgArtSize / (double)vp->gui.artMaxHeight;
 					id = panelImgAddEx(panel, artId, 0, scale, name, (void*)i);
 				}else{
@@ -405,8 +366,6 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 					TPANELIMG *pitem = panelImgGetItem(panel, id);
 					if (pitem)
 						button2AnimateSet(pitem->btn, 1);
-					//TMETACOMPLETIONCB mccb;
-					//panelImgArtBuildCB(vp, metaCbMsgCb, (void*)plc->uid, i, (void*)plypan->currentPlcUID, &mccb);
 					playlistMetaGetMeta(vp, plc, i, i,NULL/* &mccb*/);
 				}
 			}
@@ -415,28 +374,22 @@ static inline int _plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *
 
 	TMETRICS metrics = {0, 0, panel->metrics.width, panel->metrics.height};	
 	panel->vHeight = panelImgPositionMetricsCalc(panel->list, panel->listSize, &metrics, panel->itemHoriSpace, panel->itemVertSpace);
-	//lastBuildTime = getTime(vp);
+
 	return missingArtCt;
 }
 
 int plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *plc)
 {
 	int ret = 0;
-	//static int ct = 0;
 
 	if (playlistManagerGetPlaylistIndex(vp->plm, plc) < 0){
-		//printf("plyPanel invalid for %p\n", plc);
 		return -1;	
 	}
-
-	//printf("plyPanel built for '%s' (%i)\n", plc->title, plc->uid);
 
 	if (ccLock(panel)){
 		if (playlistLock(plc)){
 			const int total = playlistGetTotal(plc);
 			if (total){
-				//lSetCharacterEncoding(vp->ml->hw, CMT_UTF8);
-
 				panelListResize(panel, total, 0);
 				panel->itemOffset = &plc->pr->itemOffset;
 				ret = _plyPanelBuild(vp, panel, plc);
@@ -463,8 +416,6 @@ int plyPanelBuild (TVLCPLAYER *vp, TPANEL *panel, PLAYLISTCACHE *plc)
 // TIMER_PLYPAN_REBUILD
 void plyPanRebuild (TVLCPLAYER *vp)
 {
-	//printf("\n\n########################## plyPanRebuild ########\n");
-	
 	TPLYPANEL *plypan = pageGetPtr(vp, PAGE_PLY_PANEL);
 	
 	if (ccLock(plypan->panel)){
@@ -473,8 +424,6 @@ void plyPanRebuild (TVLCPLAYER *vp)
 		
 		if (plc){
 			const int y = plypan->panel->itemOffset->y;
-			//panelListResize(plypan->panel, 1, 0);
-			//printf("plyPanelRebuild\n");
 			plyPanelBuild(vp, plypan->panel, plc);
 			plypan->panel->itemOffset->y = y;
 			
@@ -484,19 +433,11 @@ void plyPanRebuild (TVLCPLAYER *vp)
 	}
 }
 
-
 // TIMER_PLYPAN_REBUILDCLNMETA
 void plyPanRebuildCleanMeta (TVLCPLAYER *vp)
 {
-	//printf("plyPanRebuildCleanMeta\n");
 	vlcEventListInvalidate(vp->vlc);
 	vlcEventsCleanup(vp);
-	//if (vp->jt)
-	//	artQueueFlush(artThreadGetWork(vp->jt));
-	//artworkFlush(vp, 0);
-	//if (vp->jt)
-	//	artQueueFlush(artThreadGetWork(vp->jt));
-	
 	plyPanRebuild(vp);
 }
 
@@ -541,9 +482,6 @@ void plyRenderTitle (TVLCPLAYER *vp, PLAYLISTCACHE *plc, TFRAME *frame)
 
 static inline int page_plypanRender (TPLYPANEL *plypan, TVLCPLAYER *vp, TFRAME *frame)
 {
-
-//	printf("%i\n", plypan->panel->itemOffset->y);
-
 	ccRender(plypan->panel, frame);
 
 	TVIDEOOVERLAY *playctrl = pageGetPtr(vp, PAGE_OVERLAY);
@@ -657,7 +595,6 @@ static inline int page_plypanShutdown (TPLYPANEL *plypan, TVLCPLAYER *vp)
 	return 1;
 }
 
-
 static inline int page_plypanRenderBegin (TPLYPANEL *plypan, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
 	lSetCharacterEncoding(frame->hw, CMT_UTF8);
@@ -679,10 +616,7 @@ static inline void page_plypanRenderEnd (TPLYPANEL *plypan, TVLCPLAYER *vp, int6
 int page_plyPanCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPLYPANEL *plypan = (TPLYPANEL*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_plyPanCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_plypanRender(plypan, plypan->com->vp, dataPtr);
 

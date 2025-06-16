@@ -129,7 +129,6 @@ int chaptersPaneAddChapters (TCHAPTER *chap, TPANE *pane)
 					highlightThis = (i == chap->cchapter && chap->title+1 == chap->ctitle);
 				}else{
 					chapter = chap->titles.list[i].name;
-					//printf("title %i:'%s'\n", i, chapter);
 					highlightThis = (i == chap->ctitle-1);
 				}
 				
@@ -138,8 +137,7 @@ int chaptersPaneAddChapters (TCHAPTER *chap, TPANE *pane)
 					icon = chap->icons.play;
 				else
 					icon = chap->icons.chapters;
-					
-				//printf("addchapter %i '%s'\n", i, chapter);
+
 				paneTextAdd(pane, icon, 1.0, chapter, CHAPTERS_FONT, titleIdx|i);
 			}
 			chaptersUnlock(chap);
@@ -228,9 +226,6 @@ static inline int chapButtonPress (TCHAPTER *chap, TCCBUTTON *btn, const int id,
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -243,8 +238,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 // lock must be held
 static inline char *chaptersGetTitleName (TCHAPTER *chap, const int titleIdx)
 {
-	//printf("%i %i %p\n", titleIdx, chap->tTitles, chap->titles);
-	
 	if (titleIdx >= 0 && titleIdx < chap->titles.total && chap->titles.list)
 		return chap->titles.list[titleIdx].name;
 	return NULL;
@@ -589,10 +582,7 @@ static inline int page_chapInput (TCHAPTER *chap, TVLCPLAYER *vp, const int msg,
 int page_chapCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TCHAPTER *chap = (TCHAPTER*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		 //printf("# page_chapCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_chapRender(chap, chap->com->vp, dataPtr);
 

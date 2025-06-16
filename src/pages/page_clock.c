@@ -1086,10 +1086,7 @@ static inline int page_clkShutdown (TCLK *clk, TVLCPLAYER *vp)
 int page_clkCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TCLK *clk = (TCLK*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_clkCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_clkRender(clk, clk->com->vp, dataPtr);
 

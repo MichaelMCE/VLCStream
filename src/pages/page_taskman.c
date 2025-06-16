@@ -47,7 +47,29 @@
 
 
 
+#define printN(a,b)		{__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %i", (int)(b));				\
+						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
+
+#define printTime(a,b)	{ft = *(FILETIME*)&(b);															\
+						FileTimeToSystemTime(&ft, &stime);												\
+						__mingw_snprintf(buffer, sizeof(buffer)-1, ""a": %.2i:%.2i:%.2i", stime.wHour, stime.wMinute, stime.wSecond);	\
+						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
+
+#define printTimeD(a,b)	{FileTimeToLocalFileTime((FILETIME*)&(b), &ft);									\
+						FileTimeToSystemTime(&ft, &stime);												\
+						__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %.2i:%.2i:%.2i %.2i/%s/%.4i",	\
+								stime.wHour, stime.wMinute, stime.wSecond, stime.wDay, clockGetMonthShortname(stime.wMonth), stime.wYear);	\
+						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
+
+#define printLine()		{taskmanContextAddItem(taskman, " \n", 0, -1);}
+
+#define print64(a,b)	{taskmanFormatSize(bufferSize, b);												\
+						__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %s", bufferSize);				\
+						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
+
 extern int SHUTDOWN;
+
+
 
 
 typedef struct {
@@ -163,7 +185,6 @@ static inline int taskmanContextAddItem (TTASKMAN *taskman, const char *str, con
 		const int pageHeight = pageGetSurfaceHeight(taskman);
 
 		int h = (taskman->context.tItems * pane->vertLineHeight) + 2;
-		//if (h > ccGetHeight(taskman->pane)-1) h = ccGetHeight(taskman->pane)-1;
 		if (h > pageHeight) h = pageHeight-2;
 		int w = pane->tItemWidth + 1;
 		if (w > ccGetWidth(taskman->pane)-1) w = ccGetWidth(taskman->pane)-1;
@@ -175,14 +196,12 @@ static inline int taskmanContextAddItem (TTASKMAN *taskman, const char *str, con
 			artManagerImageGetMetrics(taskman->am, taskman->context.imgId, &iw, &ih);
 			w = MAX(w, iw); h = MAX(h, ih);
 		}
-		
-		//int x = abs(pageGetSurfaceWidth(taskman) - w) / 2;
+
 		int x = pageGetSurfaceWidth(taskman) - w - 5;
 		if (x < 0) x = 0;
 		int y = abs(pageHeight - h) / 2;
 		if (y < 0) y = 0;
 		ccSetMetrics(pane, x, y, w, h);
-		//ccSetMetrics(pane, 0, 0, pageGetSurfaceWidth(taskman), pageGetSurfaceHeight(taskman));
 	}
 
 	return itemId;
@@ -197,8 +216,6 @@ static inline void taskmanContextRender (TTASKMAN *taskman, TFRAME *frame)
 
 static inline void taskmanContextShow (TTASKMAN *taskman)
 {
-	//printf("taskmanContextShow\n");
-	
 	TPANE *pane = taskman->context.pane;
 
 	ccEnable(pane);
@@ -207,8 +224,6 @@ static inline void taskmanContextShow (TTASKMAN *taskman)
 
 static inline void taskmanContextHide (TTASKMAN *taskman)
 {
-	//printf("taskmanContextHide %i\n", taskman->selected.itemHighlighted);
-	
 	TPANE *pane = taskman->context.pane;
 	//ccHoverRenderSigEnable(pane->cc, 20.0);
 	paneScrollReset(pane);	
@@ -268,10 +283,6 @@ static inline const tm_icon *taskmanFindIcon (TTASKMAN *taskman, process_list_ex
 	wcscat(imageName, ple->info.imageName);
 	
 	while (icon->type != TASKMAN_PATH_INVALID){
-		//if (icon->type != TASKMAN_PATH_PROCESS)
-			//wprintf(L"find %i '%s' '%s'\n", icon->type, ple->info.path, icon->u.path);
-		//	wprintf(L"find %i '%s' '%s', %i\n", icon->type, ple->info.path, icon->u.path, wcsicmp(ple->info.path, icon->u.path));
-		
 		if (icon->type == TASKMAN_PATH_PROCESS){
 			if (icon->u.pid == ple->info.processId)
 				return icon;
@@ -327,9 +338,6 @@ static inline ple_snapshot *taskmanSnapshotAcquire (TTASKMAN *taskman)
 		snapshot->ple = processGetProcessListExtended(&snapshot->count);
 		if (snapshot->ple){
 			snapshot->time = snapshot->ple->snapshotTime;
-			
-			//printf("taskmanSnapshotAcquire total:%i\n", snapshot->count);
-			
 		}else{
 			my_free(snapshot);
 			snapshot = NULL;
@@ -355,9 +363,7 @@ static inline void taskmanPaneClean (TTASKMAN *taskman)
 static inline int taskmanPaneFindPid (TTASKMAN *taskman, const int pid)
 {
 	TPANE *pane = taskman->pane;
-	
-	//printf("\n\n %i \n\n", paneIndexToItemId(pane, 0));
-	
+
 	const int count = pane->flags.total.text;
 	for (int i = 0; i < count; i++){
 		int itemId = paneIndexToItemId(pane, i);
@@ -376,8 +382,7 @@ static inline int taskmanPaneFindPid (TTASKMAN *taskman, const int pid)
 
 static inline int taskmanPaneAddSnapshot (TTASKMAN *taskman, ple_snapshot *snapshot, const int byDiff)
 {
-	//printf("taskmanPaneAddSnapshot snapshot %i\n", snapshot->count);
-	
+
 	TPANE *pane = taskman->pane;
 	process_list_extended *ple = snapshot->ple;
 	int totalAdded = 0;
@@ -386,20 +391,13 @@ static inline int taskmanPaneAddSnapshot (TTASKMAN *taskman, ple_snapshot *snaps
 
 	const int count = snapshot->count;
 	for (int i = 0; i < count; i++, ple++){
-		//printf("proc->info.processId %i %i\n", i, ple->info.processId);
-		
 		if (byDiff){
 			const process_list_extended *previous = processFindProcess(taskmanSnaphotGetPrevious(taskman), ple->info.processId);
 			if (previous){
-				//int textId = taskmanPaneFindPid(taskman, ple->info.processId);
 				int textId = previous->udata;
 				if (textId){
 					ple->udata = textId;
-					//printf("AddProcess: %i %i %i\n", i, process->info.processId, (int)(ple->cpuTime*10));
-					
 					if ((int)(previous->cpuTime*100.0) != (int)(ple->cpuTime*100.0)){
-						//printf("updateProcess: %i %i %i %i\n", i, ple->info.processId, (int)(previous->cpuTime*100) , (int)(ple->cpuTime*100));
-						
 						if (ple->cpuTime > 0.5)
 							__mingw_snprintf(buffer, MAX_PATH_UTF8, "%.1f\n%i\n%s", ple->cpuTime, ple->info.processId, ple->info.imageName8);
 						else
@@ -410,8 +408,6 @@ static inline int taskmanPaneAddSnapshot (TTASKMAN *taskman, ple_snapshot *snaps
 				continue;
 			}
 		}
-		
-		//wprintf(L"AddProcess: %i %i '%s'\n", i, ple->info.processId, ple->info.path);
 
 		int imgId = 0;
 		wchar_t *image = taskmanFindNewIcon(taskman, ple);
@@ -435,19 +431,14 @@ static inline int taskmanPaneAddSnapshot (TTASKMAN *taskman, ple_snapshot *snaps
 			else
 				snprintf(buffer, MAX_PATH_UTF8, "0\n%i\n%s", ple->info.processId, ple->info.imageName8);
 
-			//printf("ple->info.deltaTime %i %I64d\n", i, ple->info.deltaTime);
-			
 			int id = paneTextAdd(pane, -imgId, 1.0, buffer, TASKMAN_PROCESS_FONT, ple->info.processId);
 			if (id > 0){
 				ple->udata = id;
-				//printf("addedItem for PID %i, = %i\n", ple->info.processId, id);
 				labelRenderColourSet(pane->base, id, 255<<24|COL_WHITE, 255<<24|COL_BLACK, 255<<24|COL_BLACK);
 				totalAdded++;
 			}
-			//wprintf(L".. %X %i\n", imgId, totalAdded);
 		}
 	}
-	
 	return totalAdded;
 }
 
@@ -503,8 +494,6 @@ static inline void taskmanCPUGraphRender (TTASKMAN *taskman, TFRAME *frame)
 
 static inline int page_taskmanRender (TTASKMAN *taskman, TFRAME *frame)
 {
-	//printf("page_taskmanRender %i\n");
-
 	if (taskman->cpugraph.enabled)
 		taskmanCPUGraphRender(taskman, frame);
 
@@ -586,28 +575,6 @@ static inline void taskmanFormatSize (char *buffer, const uint64_t filesize)
 		__mingw_snprintf(buffer, len, "%i B", (int)(filesize));
 }
 
-
-#define printN(a,b)		{__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %i", (int)(b));				\
-						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
-
-#define printTime(a,b)	{ft = *(FILETIME*)&(b);															\
-						FileTimeToSystemTime(&ft, &stime);												\
-						__mingw_snprintf(buffer, sizeof(buffer)-1, ""a": %.2i:%.2i:%.2i", stime.wHour, stime.wMinute, stime.wSecond);	\
-						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
-
-#define printTimeD(a,b)	{FileTimeToLocalFileTime((FILETIME*)&(b), &ft);									\
-						FileTimeToSystemTime(&ft, &stime);												\
-						__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %.2i:%.2i:%.2i %.2i/%s/%.4i",	\
-								stime.wHour, stime.wMinute, stime.wSecond, stime.wDay, clockGetMonthShortname(stime.wMonth), stime.wYear);	\
-						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
-
-#define printLine()		{taskmanContextAddItem(taskman, " \n", 0, -1);}
-
-#define print64(a,b)	{taskmanFormatSize(bufferSize, b);												\
-						__mingw_snprintf(buffer,sizeof(buffer)-1, ""a": %s", bufferSize);				\
-						taskmanContextAddItem(taskman, buffer, 0, 1+taskman->context.tItems);}
-
-					
 static inline int taskmanContextSetPle (TTASKMAN *taskman, const process_list_extended *ple)
 {
 
@@ -615,8 +582,6 @@ static inline int taskmanContextSetPle (TTASKMAN *taskman, const process_list_ex
 	char bufferSize[64];
 	SYSTEMTIME stime;
 	FILETIME ft;
-
-	//taskmanContextAddItem(taskman, ple->info.imageName8, 0, 1+taskman->context.tItems);
 
 #if 0
 	char *path = convertto8(ple->info.path);
@@ -659,7 +624,6 @@ static inline int taskmanContextSetPle (TTASKMAN *taskman, const process_list_ex
 
 	//printLine();
 	//printTimeD("Created", ple->info.createTime);
-
 	//printLine();
 	print64("PeakVirtualSize", ple->info.vm_counters.PeakVirtualSize);
 	print64("VirtualSize", ple->info.vm_counters.VirtualSize);
@@ -709,8 +673,6 @@ static inline int taskmanContextSetPid (TTASKMAN *taskman, const int pid, const 
 
 static inline int64_t taskman_pane_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER|| msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TPANE *pane = (TPANE*)object;
 	
 	if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
@@ -718,9 +680,7 @@ static inline int64_t taskman_pane_cb (const void *object, const int msg, const 
 		const int pid = data2;
 		int imgId = 0;
 		paneItemGetDetail(pane, itemId, NULL, &imgId);
-		
-		//printf("taskman_pane_cb pid selected: %i %X\n", pid, imgId);
-		
+
 		TTASKMAN *taskman = ccGetUserData(pane);
 		taskmanContextClear(taskman);
 		taskmanContextSetPid(taskman, pid, imgId);
@@ -803,8 +763,6 @@ static inline void taskmanContextMenuDoCB (TTASKMAN *taskman, const int menuId, 
 
 static inline int64_t taskman_context_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER|| msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TPANE *pane = (TPANE*)object;
 	
 	if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
@@ -815,8 +773,7 @@ static inline int64_t taskman_context_cb (const void *object, const int msg, con
 		const int menuId = data2;
 		int imgId = 0;
 		paneItemGetDetail(pane, itemId, NULL, &imgId);
-		//printf("taskman_context_cb pid selected: %i %i %i/%i %X\n", itemId, menuId, plePid, pid, imgId);
-		
+
 		if (plePid == pid){
 			taskmanContextMenuDoCB(taskman, menuId, pid);
 			pageUpdate(taskman);
@@ -880,10 +837,6 @@ static inline int page_taskmanStartup (TTASKMAN *taskman, TVLCPLAYER *vp, const 
 
 static inline int64_t taskman_graph_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER) return 1;
-	
-	//TGRAPH *graph = (TGRAPH*)object;
-
 	return 1;
 }
 
@@ -899,7 +852,6 @@ static inline void taskmanCPUGraphInitalize (TTASKMAN *taskman, TVLCPLAYER *vp, 
 	if (clrList){
 		for (int i = 0; i < clrList->total; i++){
 			taskman->cpugraph.colours[i] = hexToInt(cfg_configStrListItem(clrList,i));
-			//printf("%.6X %s\n", taskman->cpugraph.colours[i], cfg_configStrListItem(clrList,i));
 		}
 				
 		cfg_configStrListFreeStrings(clrList);
@@ -935,8 +887,6 @@ static inline void taskmanCPUGraphInitalize (TTASKMAN *taskman, TVLCPLAYER *vp, 
     		//printf("%i %i, %i\n", clrList->total, i, i%clrList->total);
     
 			sheet->render.palette[GRAPH_PAL_POLYLINE] = 255<<24 | taskman->cpugraph.colours[i%clrList->total];
-				
-			//printf("%p, %i %i %.6X\n", sheet, i, graphSheetIds[i], colours[i]);
 			graphSheetRelease(sheet);
 		}
 	}
@@ -982,8 +932,6 @@ static inline int page_taskmanShutdown (TTASKMAN *taskman)
 
 static inline int page_taskmanInput (TTASKMAN *taskman, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("page_taskmanInput %i\n", msg);
-	
   	const int x = flags >> 16;
   	const int y = flags & 0xFFFF;
 	
@@ -1066,9 +1014,7 @@ static inline int page_taskmanRenderEnd (TTASKMAN *taskman, int64_t time0, int64
 int page_taskmanCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPAGE2COMOBJ *page = (TPAGE2COMOBJ*)pageStruct;
-	
-	// printf("# page_Callback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_taskmanRender(pageStruct, dataPtr);
 

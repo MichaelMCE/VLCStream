@@ -24,29 +24,12 @@
 #include "../common.h"
 
 
-/*
-imgpane config needs:
-	image scale
-	image cache read ahead
-	input accel
-	
-*/
-
-
-
-#define IMGPANE_FONT	LFTW_B24
-
 
 
 static  wchar_t *extImage[] = {
 	EXTIMAGE,
 	L""
 };
-
-
-
-
-
 
 static inline int imgPane_Input (TIMGPANE *imgpane, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
@@ -94,18 +77,13 @@ void imgpaneDoView (TVLCPLAYER *vp, wchar_t *path)
 		}
 		
 		page2Set(vp->pages, PAGE_IMGOVR, 1);
-		//pageSetSec(vp, -1);
 	}
 }
 
 static inline int64_t img_pane_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TPANE *pane = (TPANE*)object;
-	//printf("img_pane_cb in %p, %i %I64d %I64d %p (%i %i)\n", pane, msg, data1, data2, dataPtr, artId>>16, artId&0xFFFF);
-
-
+	
 	if (msg == PANE_MSG_ITEM_ENABLED){
 		int objType = data2;
 		if (objType == PANE_OBJ_IMAGE){
@@ -114,7 +92,6 @@ static inline int64_t img_pane_cb (const void *object, const int msg, const int6
 			if (!imgpane->imgLoader) return 1;
 			
 			TMETRICS *metrics = (TMETRICS*)dataPtr;
-			//printf("%i: %i %i %i %i\n", itemId, metrics->x, metrics->y, metrics->width, metrics->height);
 
 			if (metrics->x >= 0){			// moving left to right
 				int artId = labelArtcGet(pane->base, itemId+6);
@@ -156,7 +133,6 @@ static inline int toggleNameState (TIMGPANE *imgpane)
 
 static inline int imgPaneButtonPress (TIMGPANE *imgpane, TCCBUTTON *btn, const int id, const TTOUCHCOORD *pos)
 {
-	//TVLCPLAYER *vp = btn->cc->vp;
 	imgpane->btns->t0 = getTickCount();
 
 
@@ -182,11 +158,6 @@ static inline int imgPaneButtonPress (TIMGPANE *imgpane, TCCBUTTON *btn, const i
 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
 
@@ -203,7 +174,6 @@ static inline int imgPane_Startup (TIMGPANE *imgpane, TVLCPLAYER *vp, const int 
 	imgpane->btns = buttonsCreate(vp->cc, PAGE_IMGPANE, IMGPANE_TOTAL, ccbtn_cb);
 
 
-	
 	TCCBUTTON *btn = buttonsCreateButton(imgpane->btns, L"common/back_left96.png", NULL, IMGPANE_BACK, 1, 0, 0, 0);
 	btn = buttonsCreateButton(imgpane->btns, L"common/nametoggle.png", L"common/nametogglehl.png", IMGPANE_NAMETOGGLE, 1, 0, 0, 0);
 	ccSetPosition(btn, width-1 - ccGetWidth(btn), 0);
@@ -299,8 +269,6 @@ int imgPaneAddPath (TIMGPANE *imgpane, TPANE *pane, const wchar_t *path, const c
 
 	fbRelease(fb);
 
-	//imgpane->nameToggleState = addTitle;
-
 	if (addCount){
 		wchar_t *newPath = my_wcsdup(path);
 		if (imgpane->path) my_free(imgpane->path);
@@ -349,9 +317,7 @@ static inline int imgPane_RenderInit (TIMGPANE *imgpane, TVLCPLAYER *vp, int64_t
 int imgPane_Callback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TIMGPANE *imgpane = (TIMGPANE*)pageStruct;
-	
-	// printf("# page_Callback: %p %i %I64d %I64d %p %p\n", imgpane, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return imgPane_Render(imgpane, imgpane->com->vp, dataPtr);
 		

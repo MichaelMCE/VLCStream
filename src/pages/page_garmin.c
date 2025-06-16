@@ -57,7 +57,7 @@ typedef struct {
 
 
 
-static const char *mapApplication = "C:\\Program Files (x86)\\Firefox\\firefox.exe";
+static const char *mapApplication = "C:\\Program Files\\Firefox\\firefox.exe";
 //static const char *mapURL = "%s http://www.openstreetmap.org/#map=%.1f/%f/%f&layers=C";
 // http://tile.openstreetmap.org/zoom/x/y.png"
  static const char *mapURL = "%s http://www.openstreetmap.org/?mlat=%f&mlon=%f#map=%.1f/%f/%f";//&layers=C";
@@ -131,7 +131,6 @@ static inline double calcDistM (double lat1, double lon1, double lat2, double lo
 	double a = sin(dlat / 2.0) * sin(dlat / 2.0) + cos(lat1) * cos(lat2) * sin(dlon /2.0) * sin(dlon / 2.0);
 	double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 	double d = R * c;
-	//printf("dist %.0f\n", d);
 
 	return d;
 }
@@ -245,15 +244,10 @@ static inline void calcMapWindow (TTCX *tcx, const tcx_map *mapDesc, TLPOINTEX *
 	window->y1 = topInner / metersPerPixel;
 	double btmInner = calcDistM(topLat, 0.0, rc->minLat, 0.0);
 	window->y2 = btmInner / metersPerPixel;
-
-	//printf("box %i,%i %i,%i\n", window->x1, window->y1, window->x2, window->y2);
 }
-
 
 static inline void calcWorldPositions (TTCX *tcx, tcx_renderContext *rc, const int zoom, int offsetX, int offsetY)
 {
-	//printf("calcWorldPositions %i %i %i\n", zoom, offsetX, offsetY);
-	
 	tcx_renderPt *src = rc->points.source;
 	tcx_screenPt *pts = rc->points.world;
 	const int total = rc->points.total;
@@ -272,8 +266,6 @@ static inline void calcWorldPositions (TTCX *tcx, tcx_renderContext *rc, const i
 	const int y1 = topGrid / 256;
 	const int x2 = rightGrid / 256;
 	const int y2 = btnGrid / 256;*/
-	
-	//printf("map grid box: %i %i %i %i\n", x1, y1, x2, y2);
 
 	int minX = ((((rightGrid / 256) - (leftGrid/256)) * 256) + (rightGrid % 256)) - leftOffset;
 	int minY = ((((btnGrid / 256) - (topGrid/256)) * 256) + (btnGrid % 256)) - topOffset;
@@ -521,12 +513,6 @@ static inline void routeDrawLapStats (TTCX *tcx, TFRAME *frame, const int _x, co
 
 	if (lap->heartRate.average)
 		drawVal_1(tcx, frame, x, y+=vpitch, col, "Heartrate: %.0f", lap->heartRate.average);
-
-	
-	/*tcx_trackpoint *tp1 = lap->tracks.list[0]->trackPoints.list[0];
-	tcx_trackpoint *tp2 = lap->tracks.list[lap->tracks.total-1]->trackPoints.list[lap->tracks.list[lap->tracks.total-1]->trackPoints.total-1];
-	double d = calcDistKm(tp1->latitude, tp1->longitude, tp2->latitude, tp2->longitude);
-	printf("dist %.0f\n", d);*/
 }
 
 static inline void routeDrawMapCursorLocation (TTCX *tcx, TFRAME *frame, int x, int y, const int cx, const int cy)
@@ -541,7 +527,6 @@ static inline void routeDrawMapCursorLocation (TTCX *tcx, TFRAME *frame, int x, 
 	
 	double locLong, locLat;
 	routeScreenToLocation(tcx, cx, cy, &locLong, &locLat);
-	//printf(": %f %f\n", locLong, locLat);
 		
 	drawVal_1(tcx, frame, x, y,          col, "Latitude: %f", locLat);
 	drawVal_1(tcx, frame, x, y += vpitch, col, "Longitude: %f", locLong);
@@ -594,14 +579,12 @@ static inline void routeDrawTrkPtStats (TTCX *tcx, TFRAME *frame, const int _x, 
 	struct tm *tm = _localtime64((__time64_t*)&tpt->time.time64);
 	if (tm)
 		drawVal_3(tcx, frame, x+=hpitch, y=_y, col,  "Clock: %.2i:%.2i:%.2i", tm->tm_hour, tm->tm_min, tm->tm_sec);
-	//drawVal_3(tcx, frame, x+=hpitch, y=_y, col,  "Clock: %.2i:%.2i:%.2i", tpt->time.time.hour, tpt->time.time.min, tpt->time.time.sec);
 
 	tcx_time t = {0};
 	tcx_time64ToTime(time64, &t);
 	drawVal_3(tcx, frame, x, y+=vpitch, col, "Time: %i:%.2i:%.2i", t.hour, t.min, t.sec);
 	if (tpt->power > 0.0)
 		drawVal_1(tcx, frame, x, y+=vpitch, col, "Power: ", tpt->power);
-
 }
 
 static inline void routeDrawTrkPtMark (TFRAME *frame, tcx_screenPt *pt, const int r, const int innerCol, const int outerCol)
@@ -676,8 +659,6 @@ static inline void graphDrawLapBand1 (TGRAPH *graph, TFRAME *frame, tcx_renderCo
 	}
 	
 	if (lapStart >=0 && lapEnd > lapStart){
-		//printf("graphDrawLapBand: %i %i\n", lapStart, lapEnd);
-
 		double posStart = lapStart / (double)rc->points.total;
 		int x1 = posStart * (double)frame->width;
 		
@@ -730,7 +711,6 @@ static inline void drawCrosshair (TTCX *tcx, TFRAME *frame, const int x, const i
 
 static inline void graphDrawCrosshairB (TGRAPH *graph, TFRAME *frame, const int x, const int y)
 {
-
 	const int col = 220<<24 | COL_WHITE;
 	const int holeSize = 2;
 
@@ -761,7 +741,6 @@ static inline int graphDrawCursorSheetValue (TTCX *tcx, TGRAPH *graph, TFRAME *f
 			double range = (metrics.height/sheet->render.scale)/100.0;
 			double value = (graph->hoveredPt.y * range) + (sheet->stats.min * (double)(sheet->render.mode&GRAPH_AUTOSCALE));
 			value /= sht->multiplier;
-			//printf("render %.2f %.2f %.2f %.2f\n", graph->hoveredPt.y, value, sheet->stats.min/sht->multiplier, sheet->stats.max/sht->multiplier);
 				
 			const int col = 240<<24|(sht->colour&0xFFFFFF);
 			lSetForegroundColour(frame->hw, col);
@@ -814,10 +793,6 @@ static inline void routeRenderLine (TTCX *tcx, TFRAME *frame, const tcx_renderCo
 
 static inline void routeRenderShadow (TTCX *tcx, TFRAME *frame, const tcx_renderContext *rc)
 {
-	//const int col1 = 83<<24 | COL_BLACK;
-	//const int col2 = 53<<24 | COL_BLACK;
-	//const int col3 = 33<<24 | COL_BLACK;
-	
 	const int col1 = 33<<24 | COL_BLACK;
 	const int col2 = 23<<24 | COL_BLACK;
 	const int col3 = 13<<24 | COL_BLACK;
@@ -1223,8 +1198,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 			tcx_trackpoint *tpt = l->tracks.list[track]->trackPoints.list[pt];
 			uint64_t t64 = (tpt->time.time64 - a->startTime64)+1;
 
-			//printf("%i %i %i\n", activity+1, lap+1, pt+1);
-			//lPrintf(frame, 200, 2, MFONT, LPRT_CPY, "%i/%i/%i\n", activity+1, lap+1, pt+1);
 			routeDrawTrkPtStats(tcx, frame, 10, tcx->route.render.statsPosY, tpt, t64);
 			routeDrawLapStats(tcx, frame, frame->width - 210, tcx->route.render.statsPosY, l, lap+1);
 		}
@@ -1276,7 +1249,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 			}
 
 			// highlight hovered point
-			//printf("tcx->route.scale.factor %f\n", tcx->route.scale.factor);
 			if (tcx->route.scale.factor >= 2.0 && tcx->route.cursorTrkPtIdx >= 0){
 
 				pts = &rc->points.plotted[tcx->route.cursorTrkPtIdx];
@@ -1288,7 +1260,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 				tcx_lap *l = a->laps.list[lap];
 				tcx_trackpoint *tpt = l->tracks.list[track]->trackPoints.list[pt];
 				uint64_t t64 = (tpt->time.time64 - a->startTime64)+1;	// fixme. does not account for startTime64 being later than endtime (day before)
-				//lPrintf(frame, 200, 2, MFONT, LPRT_CPY, "%i/%i/%i/%i\n", activity+1, lap+1, track+1, pt+1);
 				routeDrawTrkPtStats(tcx, frame, 10, tcx->route.render.statsPosY, tpt, t64);
 				routeDrawLapStats(tcx, frame, frame->width - 210, tcx->route.render.statsPosY, l, lap+1);
 			}
@@ -1345,10 +1316,8 @@ static inline int page_tcxRenderEnd (TTCX *tcx, TVLCPLAYER *vp, int64_t time0, i
 
 static inline tcx_activities *garminTcxLoad (const char *file)
 {
-	//double t0 = getTime(vp);
 	tcx_activities *activities = tcx_open8(file);
 	if (activities) tcx_calcStats(activities);
-	//double t1 = getTime(vp);
 	return activities;
 }
 
@@ -1387,11 +1356,9 @@ static inline void garminTcxRescale (TTCX *tcx, tcx_renderContext *rc, tcx_activ
 	double mlong = rc->minLong + (rc->dLong / 2.0);
 	tcx->route.ruler.distanceLong = calcDistM(mlat, rc->minLong, mlat, rc->maxLong);
 	tcx->route.ruler.distanceLat = calcDistM(rc->minLat, mlong, rc->maxLat, mlong);
-	
-	//printf("garminTcxRescale: %.2f %.2f\n", tcx->route.ruler.distanceLong, tcx->route.ruler.distanceLat);
+
 	tcx->route.ruler.metersPerPixelH = tcx->route.ruler.distanceLong / dPixelsW;
 	tcx->route.ruler.metersPerPixelV = tcx->route.ruler.distanceLat / dPixelsH;
-
 }
 
 static inline tcx_renderContext *garminTcxGenerateRenderContext (TTCX *tcx, tcx_activities *activities, const int width, const int height)
@@ -1457,8 +1424,6 @@ static inline int garminTcxBuildGraphs (tcx_activities *activities, const int ac
 						if (hr < 30 || hr > 240) hr = 30;
 						graphSheetAddData(shtHr, hr * sheets->heartRate.multiplier, 0);
 					}
-				//}else{
-				//	printf("tp->speed %f %f\n", tp->speed, tp->altitude);
 				}
 			}
 		}
@@ -1648,15 +1613,11 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 	
 	TLABEL *label = (TLABEL*)object;
 	TTCX *tcx = ccGetUserData(label);
-		
-	//printf("cc_label_cb in %p, %i %I64d %I64d %p, %p\n", object, msg, data1, data2, dataPtr, tcx->background.label);
 
 	if (!tcx->renderContext) return 1;
 	
 	if (label->id == tcx->background.id){
 		if (msg == LABEL_MSG_BASE_SELECTED_PRESS){
-			//printf("LABEL_MSG_BASE_SELECTED_PRESS\n");
-			
 			if (tcx->route.render.enabled > 0){
 				tcx->slideState = SLIDE_HELD;
 				tcx->route.offset.startX = (data1>>16)&0xFFFF;
@@ -1664,8 +1625,6 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 				tcx_screen(tcx->renderContext, tcx->route.offset.x, tcx->route.offset.y);
 			}
 		}else if (msg == LABEL_MSG_BASE_SELECTED_SLIDE){
-			//printf("LABEL_MSG_BASE_SELECTED_SLIDE\n");
-			
 			// generate a small deadzone, route movement shouldn't be active within this space
 			int x  = ((data1>>16)&0xFFFF);
 			int y = (data1&0xFFFF);
@@ -1689,7 +1648,6 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 				}
 			}
 		}else if (msg == LABEL_MSG_BASE_SELECTED_RELEASE){
-			//printf("LABEL_MSG_BASE_SELECTED_RELEASE\n");
 			if (tcx->slideState == SLIDE_SLIDING){
 				tcx->slideState = SLIDE_RELEASED;
 				tcx->route.offset.x -= tcx->route.offset.deltaX;
@@ -1781,10 +1739,6 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 
 static inline int64_t cc_btn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER) return 1;
-	
-	//printf("cc_btn_cb  in %p, %i %I64d %I64d %p\n", object, msg, data1, data2, dataPtr);
-	
 	if (msg == CC_MSG_ENABLED){
 		TCCBUTTON *btn = (TCCBUTTON*)object;
 		TTCX *tcx = ccGetUserData(btn);
@@ -1834,13 +1788,11 @@ static inline int64_t cc_btn_cb (const void *object, const int msg, const int64_
 			ccDisable(tcx->ui.onlineAddress);
 						
 			tcx->route.render.cursorMode = 1;
-			//printf("tcx->route.render.cursorMode %i %i\n", activeFace , tcx->route.render.cursorMode);
 
 		}else if (tcx->ui.onlineAddress->id == btn->id){
 			tcx_point pt = {tcx->route.location.latitude, tcx->route.location.longitude};
 			char *info = geoCodeReserveLookup(&pt);
 			if (info){
-				//printf("#%s#\n", info);
 				buttonFaceTextUpdate(tcx->ui.onlineAddress, BUTTON_PRI, info);
 				clipboardSend(tcx->com->vp, info);
 				my_free(info);
@@ -2210,8 +2162,6 @@ static inline int page_tcxShutdown (TTCX *tcx, TVLCPLAYER *vp)
 
 static inline int page_tcxInput (TTCX *tcx, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("page_tcxInput %i\n", msg);
-
 	switch(msg){
 	  case PAGE_IN_WHEEL_FORWARD:
 	  	tcx->route.scale.factor /= tcx->route.scale.multiplier;
@@ -2308,7 +2258,6 @@ static inline int page_tcxOpenLocationFile (TTCX *tcx, const char *location, con
 	if (!isGaminFile8(file)) return 1;
 	
 	pageSet(tcx->com->vp, PAGE_TCX);
-	//dbprintf(tcx->com->vp, "Importing  ... '%s'", file);
 	
 	char buffer[MAX_PATH_UTF8+1];
 	__mingw_snprintf(buffer, MAX_PATH_UTF8, "%s%s", location, file);
@@ -2329,9 +2278,7 @@ static inline int page_tcxCfgWrite (TTCX *tcx, TVLCPLAYER *vp)
 int page_tcxCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPAGE2COMOBJ *page = (TPAGE2COMOBJ*)pageStruct;
-	
-	// printf("# page_tcxCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_tcxRender(pageStruct, dataPtr);
 
@@ -2368,4 +2315,3 @@ int page_tcxCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t
 
 
 #endif
-

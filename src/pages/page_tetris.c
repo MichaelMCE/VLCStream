@@ -100,10 +100,7 @@ static inline int page_tetrisShutdown (TTETRIS *tet, TVLCPLAYER *vp)
 int page_tetrisCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TTETRIS *tet = (TTETRIS*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_tetrisCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_tetrisRender(tet, tet->com->vp, dataPtr);
 

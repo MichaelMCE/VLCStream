@@ -87,13 +87,6 @@ static inline int metaButtonPress (TMETA *meta, TCCBUTTON *btn, const int id, co
 	TMETADESC *desc = &meta->desc;
 
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, desc->uid);
-	/*if (pageGetPrevious(vp) == PAGE_OVERLAY){
-	  	plc = getQueuedPlaylist(vp);
-	  	if (!plc)
-	  		plc = getDisplayPlaylist (vp);
-	}else{
-		plc = getDisplayPlaylist (vp);
-	}*/
 	if (!plc) return 0;
 
 
@@ -147,9 +140,6 @@ static inline int metaButtonPress (TMETA *meta, TCCBUTTON *btn, const int id, co
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -279,9 +269,7 @@ static inline void metaUpdateRemoteTrackMeta (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 void metaGetUpdate (TVLCPLAYER *vp)
 {
 	if (!getPlayState(vp)) return;
-	
-	//printf("TIMER_META_UPDATE %i\n", getPlayState(vp));
-	
+
 	TMETA *meta = pageGetPtr(vp, PAGE_META);
 	TVLCCONFIG *vlc = vp->vlc;
 	
@@ -292,8 +280,6 @@ void metaGetUpdate (TVLCPLAYER *vp)
 	}
 	metaUpdateRemoteTrackMeta(vp, vlc);
 	metaUpdateLocalTrackMeta(vp, vlc);
-	
-	//printf("TIMER_META_UPDATE out\n");
 }
 
 static inline void buildPlaylistRoute (TSTACK *stack, PLAYLISTCACHE *plc)
@@ -308,8 +294,6 @@ static inline void buildPlaylistRoute (TSTACK *stack, PLAYLISTCACHE *plc)
 
 char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, const char *lineBreak)
 {
-	//printf("metaGetMetaAll\n");
-	
 	const unsigned int hash = playlistGetHashById(plc, trackId);
 	if (!hash) return NULL;
 	
@@ -428,8 +412,6 @@ char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, con
 				
 				if (esLength){
 					len = esLength + strlen(meta) + 1;
-					//printf("esLength %i %i\n", esLength, len);
-					
 					meta = my_realloc(meta, len);
 					if (meta){
 						for (int i = 0; i < total; i++){
@@ -461,9 +443,6 @@ char *metaGetMetaAll (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int trackId, con
 
 int metaRender (TVLCPLAYER *vp, TFRAME *frame, TMETA *meta, TMETADESC *desc, const int font, const int drawui)
 {
-
-	//printf("metaRender\n");
-
 	int x = desc->x;
 	int y = desc->y;
 	int w = desc->w;
@@ -491,10 +470,6 @@ int metaRender (TVLCPLAYER *vp, TFRAME *frame, TMETA *meta, TMETADESC *desc, con
 		pos = plc->pr->playingItem;
 		if (pos < 0) pos = 0;
 	}
-	
-	//printf("metaRender %i '%s'\n", pos, plc->title);
-	//printf("'%s' %i\n", plc->name, playlistGetItemType(plc, pos) == PLAYLIST_OBJTYPE_PLC);
-
 
 	TMETAARTWORK *mart = (TMETAARTWORK*)&((TMETA*)pageGetPtr(vp, PAGE_META))->desc.art;
 	/*int xw = */drawArtwork(vp, frame, mart, playlistGetArtId(plc, pos), desc->x, desc->y, desc->w, desc->h, drawui);
@@ -648,29 +623,13 @@ int metaRender (TVLCPLAYER *vp, TFRAME *frame, TMETA *meta, TMETADESC *desc, con
 static inline int page_metaRender (TMETA *meta, TVLCPLAYER *vp, TFRAME *frame)
 {
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, meta->desc.uid);
-	/*if (pageGetPrevious(vp) == PAGE_OVERLAY){		// fix this, remove the need for this hack
-	  	plc = getQueuedPlaylist(vp);				// add setter methods for playlist and track items
-	  	if (!plc)
-	  		plc = getDisplayPlaylist(vp);
-	}else if (pageGet(vp) == PAGE_HOME){
-		plc = getQueuedPlaylist(vp);
-	}*/
-	
+	if (!plc) return 0;
 
-	//if (!plc) plc = getDisplayPlaylist(vp);
-	if (!plc){
-		//printf("page_metaRender: invalid playlist %X\n", meta->desc.uid);
-		return 0;
-	}
-	
-	//printf("metaDraw  %X, %i\n", plc->uid, meta->desc.trackPosition);
 	return metaRender(vp, frame, meta, &meta->desc, META_FONT, 1);
 }
 
 static inline int page_metaInput (TMETA *meta, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("@ page_metaInput %i %i %p\n", msg, flags, pos);
-
 	switch(msg){
 	  case PAGE_IN_WHEEL_FORWARD:
 		metaButtonPress(meta, NULL, METABUTTON_UP, NULL);
@@ -708,9 +667,6 @@ static inline int64_t metaCc_cb (const void *object, const int msg, const int64_
 
 static inline int page_metaStartup (TMETA *meta, TVLCPLAYER *vp, const int fw, const int fh)
 {
-	
-	//printf("page_metaStartup %i %i\n", PAGE_META, METABUTTON_TOTAL);
-	
 	TMETADESC *desc = &meta->desc;
 	desc->trackPosition = 0;
 	desc->x = 10;
@@ -814,10 +770,7 @@ static inline int page_metaRenderStart (TMETA *meta, TVLCPLAYER *vp, TFRAME *fra
 int page_metaCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TMETA *meta = (TMETA*)pageStruct;
-	
-	//if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_metaCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_metaRender(meta, meta->com->vp, dataPtr);
 

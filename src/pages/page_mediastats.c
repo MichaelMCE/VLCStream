@@ -159,15 +159,13 @@ static inline int page_msShutdown (TMEDIASTATS *ms, TVLCPLAYER *vp)
 
 void page_msRenderEnd (TMEDIASTATS *ms, TVLCPLAYER *vp, int64_t destId, int64_t data2, void *opaquePtr)
 {
-	//printf("page_msRenderEnd %i\n", vp->gui.displayStats);
+
 }
 
 int page_msCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TMEDIASTATS *ms = (TMEDIASTATS*)pageStruct;
-	
-	// printf("# page_msCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_msRender(ms, ms->com->vp, dataPtr);
 

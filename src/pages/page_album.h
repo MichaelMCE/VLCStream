@@ -38,11 +38,8 @@ void invalidateShelfAlbum (TVLCPLAYER *vp, TSPL *spl, int start);
 int initiateAlbumArtRetrieval (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, int depth);
 int initiateAlbumArtRetrievalEx (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int to, int depth, TMETACOMPLETIONCB *mccb);
 
-
 int getItemImageCB (void *ptr, const int idx, int *freedBy);
 int renderThisShelfItemCB (void *ptr, const int idx, TFRAME *src, TFRAME *des, const int x, const int y, const int w, const int h, double modifier);
-
-//TFRAME *getItemPlaylistImage (TVLCPLAYER *vp, PLAYLISTCACHE *plc, unsigned int *hash);
 int getItemPlaylistImage (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int *artcId);
 
 void plyAlbRefresh (TVLCPLAYER *vp);

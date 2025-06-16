@@ -33,12 +33,10 @@ void video_saveSnapshot (TVLCPLAYER *vp, TFRAME *frame, wchar_t *filename, const
 		dbwprintf(vp, L"Snapshot written to %ls", filename);
 }
 
-
 void video_copySourceFrame (TVLCPLAYER *vp)
 {
 	my_memcpy((uint32_t*)vp->ctx.pixelBuffer, (uint32_t*)vp->ctx.pixels, vp->ctx.bufferSize);
 }
-
 
 void video_copyToDesktop (TVLCPLAYER *vp, TFRAME *front, const int cx, const int cy)
 {
@@ -47,7 +45,6 @@ void video_copyToDesktop (TVLCPLAYER *vp, TFRAME *front, const int cx, const int
 	SetDIBitsToDevice(hdc, cx, cy, front->width, front->height, 0, 0, 0, front->height, front->pixels, vp->ctx.winRender.bitHdr, DIB_RGB_COLORS);
 	ReleaseDC(vp->ctx.winRender.wnd, hdc);
 }
-
 
 void video_drawFPSOverlay (TVLCPLAYER *vp, TFRAME *frame, const float fps, const int x, int y)
 {
@@ -660,10 +657,7 @@ static void onDriveNotification (TPAGEVIDEO *video, const int event, const char 
 int page_videoCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPAGEVIDEO *video = (TPAGEVIDEO*)pageStruct;
-	
-	//if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_videoCallback: %p %i %I64d %I64d %p %p\n", video, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_videoRender(video, video->com->vp, dataPtr);
 
@@ -702,6 +696,3 @@ int page_videoCallback (void *pageStruct, const int msg, int64_t dataInt1, int64
 	
 	return 1;
 }
-
-
-

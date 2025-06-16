@@ -32,8 +32,6 @@ static inline int64_t albumCcObject_cb (const void *object, const int msg, const
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	if (msg == CC_MSG_RENDER) return 1;
-	//printf("albumCcObject_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i\n", obj->id, obj->type, msg, data1, data2);
-
 
 	if (obj->type == CC_SLIDER_HORIZONTAL){
 		TSLIDER *slider = (TSLIDER*)object;
@@ -56,34 +54,25 @@ static inline int64_t albumCcObject_cb (const void *object, const int msg, const
 		
 		if (label->id == ccGetId(vp, CCID_LABEL_ALBTITLE)){
 			 if (msg == KP_MSG_PAD_OPENED){
-				//printf("album KP_MSG_PAD_OPENED: %I64d %X %p\n", data1, (int)data2, dataPtr);
-				
 				TSPL *spl = pageGetPtr(vp, PAGE_PLY_SHELF);
 				swipeReset(&spl->drag);
 				invalidateShelf(vp, spl, sliderGetValue(spl->slider));
 				
 			}else if (msg == KP_MSG_PAD_CLOSED){
-				//printf("album KP_MSG_PAD_CLOSED: %I64d %X %p\n", data1, (int)data2, dataPtr);
-				
 				TKEYBOARD *vkey = pageGetPtr(vp, PAGE_VKEYBOARD);
 				keypadListenerRemoveAll(vkey->kp);
 				
 			}else if (msg == KP_MSG_PAD_ENTER){
 				int dataType = data1;
 				if (dataType == KP_INPUT_COMPLETE8){		// UTF8 only
-					//printf("album KP_MSG_PAD_ENTER: %I64d %X %p: '%s'\n", data1, (int)data2, dataPtr, (char*)dataPtr);
-					
 					if (strlen(dataPtr) < 1) return 0;
 					int id = (int)data2;
 					int uid = id>>16;
 					int pos = (id&0xFFFF)-1;
 					
 					PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-					//printf("%x %x\n", uid, pos);
-					
 					int objType = playlistGetItemType(plc, pos);
 					if (objType == PLAYLIST_OBJTYPE_TRACK){
-						//printf("a track\n");
 						tagAddByHash(vp->tagc, playlistGetHash(plc, pos), MTAG_Title, dataPtr, 1);
 						playlistSetTitle(plc, pos, dataPtr, MAX_PATH_UTF8);
 						
@@ -102,7 +91,6 @@ static inline int64_t albumCcObject_cb (const void *object, const int msg, const
 							dbprintf(vp, "title not saved: %X %i", uid, pos+1);
 						
 					}else if (objType == PLAYLIST_OBJTYPE_PLC){
-						//printf("a playlist\n");
 						int childUid = playlistGetPlaylistUID(plc, pos);
 						if (childUid){
 							plc = playlistManagerGetPlaylistByUID(vp->plm, childUid);
@@ -126,8 +114,7 @@ static inline int64_t albumCcObject_cb (const void *object, const int msg, const
 				
 				TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 				double t0 = (double)ccGetUserDataInt(label) / 1000.0;
-				//printf("albumCcObject_cb label %i %i %i %i, %i, %i %I64d: %I64d\n", label->id, msg, (int)data1, touchState, pos->pen, pos->dt, pos->time, pos->time-t0);
-				
+
 				if (pos->time - t0 >= ALBUM_KP_HOLDPERIOD){
 					if (/*pageGetSec(vp) != PAGE_VKEYBOARD && */pageGet(vp) != PAGE_VKEYBOARD){
 						TKEYPAD *kp = keyboardGetKeypad(spl);
@@ -155,8 +142,6 @@ static inline int64_t albumCcObject_cb (const void *object, const int msg, const
 
 void invalidateShelfAlbum (TVLCPLAYER *vp, TSPL *spl, int start)
 {
-	//printf("invalidateShelfAlbum %i\n",start);
-	
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	int lastIdx = 0;
 	if (plc)
@@ -169,8 +154,6 @@ void invalidateShelfAlbum (TVLCPLAYER *vp, TSPL *spl, int start)
 
 static inline void albumGetPlaylistArtSingle (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const int idx)
 {
-	//printf("albumGetPlaylistArtSingle %i '%s'\n",idx, plc->name);
-	
 	TPLAYLISTITEM *item = playlistGetItem(plc, idx);
 	if (!item) return;
 
@@ -178,7 +161,7 @@ static inline void albumGetPlaylistArtSingle (TVLCPLAYER *vp, PLAYLISTCACHE *plc
 		if (!item->obj.plc->artId)
 			initiateAlbumArtRetrieval(vp, plc, idx, idx, vp->gui.artSearchDepth);
 	}else{
-		playlistMetaGetMeta(vp/*, vp->metac*/, plc, idx, idx, NULL);
+		playlistMetaGetMeta(vp, plc, idx, idx, NULL);
 	}
 }
 
@@ -309,8 +292,6 @@ static inline int _getItemImageCB (void *ptr, const int idx, int *artcId)
 {
 	*artcId = 0;
 	return getItemImageCB(ptr, idx, artcId);
-	//printf("_getItemImageCB: %p %i %X\n", ptr, idx, *artcId);
-	//return *artcId;
 }
 
 int albButtonPress (TSPL *spl, TCCBUTTON *btn, const int btnId, const TTOUCHCOORD *pos)
@@ -337,18 +318,16 @@ int albButtonPress (TSPL *spl, TCCBUTTON *btn, const int btnId, const TTOUCHCOOR
 	  		PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 			if (plc){
 				if (playlistGetCount(plc, PLAYLIST_OBJTYPE_TRACK)){
-					//vp->queuedPlaylist = vp->displayPlaylist;	
 				}else{
 					break;
 				}
 			}else{
 				break;
 			}
-	  		//plc = getQueuedPlaylist(vp);
 	  		
 	  		int trk = 0;
-	  		if (spl->from/*plc->pr->selectedItem*/ >= 0)
-	  			trk = spl->from/*plc->pr->selectedItem*/;
+	  		if (spl->from >= 0)
+	  			trk = spl->from;
 	  		else
 	  			trk = plc->pr->playingItem;
 
@@ -394,11 +373,9 @@ int albButtonPress (TSPL *spl, TCCBUTTON *btn, const int btnId, const TTOUCHCOOR
 	  	swipeReset(&spl->drag);
 		PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 		if (plc){
-			plc->pr->selectedItem = -1; //plc->pr->playingItem;
+			plc->pr->selectedItem = -1;
 			vp->playlist.display = vp->playlist.queued;
-			
-			
-			//vp->plm->pr->selectedItem = vp->queuedPlaylist;
+
 			invalidateShelfAlbum(vp, spl, plc->pr->playingItem);
 		}
 		break;
@@ -429,11 +406,8 @@ static inline int64_t labelCcObject_cb (const void *object, const int msg, const
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
 	if (msg == CC_MSG_RENDER/* || obj->type != CC_BUTTON*/) return 1;
-	//printf("labelCcObject_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 
 	if (msg == LABEL_MSG_IMAGE_SELECTED_PRESS){
-		//printf("labelCcObject_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 		ccDisable(obj);	// close the button panel
 		ccEnable(ccGetUserData(obj));	// enable other one
 		return 1;
@@ -478,8 +452,6 @@ static inline int albPanGetEnabledTotal (TBTNPANEL *btnpan)
 
 void albPanCalcPositions (TBTNPANEL *btnpan, const int set)
 {
-	// enable everything, disable what we don't need then center justify whats left
-	
 	for (int i = 0; i < ALBBUTTON_TOTAL; i++){
 		if (btnpan->itemIds[i])
 			labelItemEnable(btnpan->base, btnpan->itemIds[i]);
@@ -499,11 +471,11 @@ void albPanCalcPositions (TBTNPANEL *btnpan, const int set)
 
 	int x_gap;
 	if (btotal == 6)
-		x_gap = 4.9816; //fw * 0.006227;
+		x_gap = 4.9816;
 	else if (btotal == 5)
-		x_gap = 21.6; //fw * 0.027;
+		x_gap = 21.6;
 	else
-		x_gap = 50;//fw * 0.0625;
+		x_gap = 50;
 		
 	//btnpan->width = ((btotal+1)*x_gap) + (btotal*btnpan->bwidth);
 	ccSetPosition(btnpan->base, abs(fw - ccGetWidth(btnpan->base))/2, ccGetPositionY(btnpan->base));
@@ -524,9 +496,6 @@ void albPanCalcPositions (TBTNPANEL *btnpan, const int set)
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -574,11 +543,8 @@ static inline void renderShelfItemDetail (TVLCPLAYER *vp, TSPL *spl, TFRAME *fra
 			if (!*bufferTitle) strcpy(bufferTitle, " ");
 		}
 		tagRetrieveByHash(vp->tagc, hash, MTAG_Album, bufferAlbum, MAX_PATH_UTF8);
-		//if (!*bufferAlbum) strcpy(bufferAlbum, " ");
-		//if (!*bufferAlbum) cy += frame->height * (textVSpace/3.0);
 		tagRetrieveByHash(vp->tagc, hash, MTAG_LENGTH, bufferLen, sizeof(bufferLen));
 		if (!bufferLen[0] || !bufferLen[1]) strcpy(bufferLen, "0:00");
-
 
 		// album
 		if (*bufferAlbum){
@@ -636,10 +602,7 @@ static inline void renderShelfItemDetail (TVLCPLAYER *vp, TSPL *spl, TFRAME *fra
 			if (!strTitle){
 				//metrics.width = frame->width;
 				strTitle = newStringEx(vp->ml->hw, &metrics, LFRM_BPP_32A, flags, ALBUM_FONT, bufferTitle, frame->width, NSEX_RIGHT);
-				//printf("strTitle %p '%s'\n", strTitle, bufferTitle);
 				strcAddString(vp->strc, strTitle, shash);
-				//if (strTitle)
-				//	printf("strTitle %i %i '%s'\n", strTitle->width, strTitle->height, bufferTitle);
 			}
 			
 			if (strTitle){
@@ -685,8 +648,6 @@ static inline void renderShelfItemDetail (TVLCPLAYER *vp, TSPL *spl, TFRAME *fra
 
 static inline void renderThisShelf (TVLCPLAYER *vp, TFRAME *frame, TSHELF *shelf, TSPL *spl, const unsigned int buttonDt)
 {
-	//printf("renderThisShelf %p %p\n", shelf, spl->shelf);
-	
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	if (!shelfGetClientImageTotal(shelf)){
 		shelfSetClientImageTotal(shelf, playlistGetTotal(plc));
@@ -727,8 +688,6 @@ static inline void renderThisShelf (TVLCPLAYER *vp, TFRAME *frame, TSHELF *shelf
 
 void resetAlbumPosition (TVLCPLAYER *vp, TSPL *spl, int track)
 {
-	//printf("resetAlbumPosition %i %p\n", track, spl->shelf);
-	
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	shelfSetClientImageTotal(spl->shelf, playlistGetTotal(plc));
 
@@ -807,31 +766,12 @@ int initiateAlbumArtRetrieval (TVLCPLAYER *vp, PLAYLISTCACHE *plc, int from, int
 
 int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 {
-//	static unsigned int lastId = 0;
-	
-	// we don't want drag reports
-	//if (pos->dt < 80 || flags) return -2;
-
-	//if (flags == 3) return 0;
-/*
-	if (!flags){		// pen down
-		if (lastId >= pos->id)
-			return 0;
-		lastId = pos->id;
-	}else if (lastId != pos->id){
-		return 0;	
-	}
-*/
-
 	TSHELF *shelf = spl->shelf;
 
 #if 1
 	TTOUCHSWIPE *drag = &spl->drag;
-	
-	//printf("%i, %i %i %i %i\n", pos->count, pos->x, pos->dt, pos->pen, flags);
-	
+
 	if (!pos->pen && flags == 0 && pos->dt > 80){			// pen down
-		//printf("  @@@ pen down %i\n", pos->dt);
 		drag->state = 1;
 		drag->t0 = 0.0;//getTime(vp);
 		drag->sx = pos->x;
@@ -844,7 +784,6 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 
 		shelf->ichanged = 1;
 		shelfSetAnimationStepRate(shelf, spl->cfg.rate);
-		//invalidateShelfAlbum(vp, spl, spl->to);
 		
 	}else if (!pos->pen && drag->state == 1 && flags == 1){	// dragging
 		if (drag->t0 < 1.0)
@@ -853,9 +792,6 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 		drag->ey = pos->y;
 		drag->dx = drag->ex - drag->sx;
 		drag->dy = drag->ey - drag->sy;
-
-		//printf("  @@@ pen drag %i %i, %i\n", drag->dx, drag->dy, pos->dt);
-
 		if (abs(drag->dx) >= drag->dragMinH)
 			return 0;
 		
@@ -865,8 +801,6 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 		drag->dx = drag->ex - drag->sx;
 		drag->dy = drag->ey - drag->sy;
 
-		//printf("  @@@ pen up %i %i, %i\n", drag->dx, drag->dy, pos->dt);
-		
 		if (abs(drag->dx) > drag->dragMinH){
 			drag->dt = getTime(vp) - drag->t0;
 			drag->state = 0;
@@ -878,8 +812,6 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 			if (to > shelf->clientImageTotal-1) to = shelf->clientImageTotal-1;
 			spl->to = shelf->to = to;
 
-			//printf("drag %i,%i %i %.1fms: %.1f %i->%i %i\n", drag->ex, drag->ey, drag->dx, drag->dt, adjustment, shelf->from, shelf->to, shelf->totalImg);
-
 			if (spl->from < shelf->to)
 				shelf->direction = 1;
 			else if (spl->from > shelf->to)
@@ -887,8 +819,7 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 			shelf->ichanged = 1;
 			
 			double aniRate = abs(shelf->from - shelf->to)* (spl->cfg.rate/2.00);
-			//printf("   @@@ adjust %i, %i %i, %f\n", to, shelf->from, shelf->to, aniRate);
-			
+
 			shelfSetAnimationStepRate(shelf, aniRate);
 			renderSignalUpdate(vp);
 			return 0;
@@ -924,12 +855,8 @@ int albumTouch (TSPL *spl, TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 						if (item){
 							if (item->objType == PLAYLIST_OBJTYPE_PLC){
 								PLAYLISTCACHE *plc = item->obj.plc;
-								//int plidx = playlistManagerGetPlaylistIndex(vp->plm, plc);
-					  			//vp->displayPlaylist = plidx;
 					  			setDisplayPlaylist(vp, plc);
-					  			
-					  			
-								//vp->plm->pr->selectedItem = plidx;
+
 								plcD->pr->selectedItem = simg[idx].imgSrcIndex;
 								invalidateShelfAlbum(vp, spl, 0);
 								return 0;
@@ -975,8 +902,6 @@ static inline int page_albumRender (TSPL *spl, TVLCPLAYER *vp, TFRAME *frame)
 		resetAlbumPosition(vp, spl, spl->resetTrack);
 	}
 
-	//albumGetPlaylistArt(vp, getDisplayPlaylist(vp), spl);
-
 	PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 	if (plc == getPrimaryPlaylist(vp))
 		buttonsStateSet(spl->btns, ALBBUTTON_PLAYLISTBACK, 0);
@@ -994,10 +919,6 @@ static inline int page_albumRender (TSPL *spl, TVLCPLAYER *vp, TFRAME *frame)
 	
 	const unsigned int dt = buttonsRenderAll(spl->btns, frame, BUTTONS_RENDER_HOVER|BUTTONS_RENDER_ANIMATE);
 	renderThisShelf(vp, frame, spl->shelf, spl, dt);
-
-	//int marqueeY = 8;
-	//if (ccGetState(spl->albpan.base))
-	//	marqueeY = 64;
 
 	sliderSetValue(spl->slider, spl->from);
 	ccRender(spl->slider, frame);
@@ -1025,10 +946,6 @@ static inline int page_albumRender (TSPL *spl, TVLCPLAYER *vp, TFRAME *frame)
 #if DRAWTOUCHRECTS
 	ccRender(spl->title, frame);	// is used for touch input only so nothing to render
 #endif
-
-	//TVIDEOOVERLAY *playctrl = pageGetPtr(vp, PAGE_OVERLAY);
-	//marqueeDraw(vp, frame, playctrl->marquee, 2, marqueeY);
-	
 	return 1;
 }
 
@@ -1190,7 +1107,6 @@ static inline int page_albumStartup (TSPL *spl, TVLCPLAYER *vp, const int fw, co
 
 static inline int page_albumInitalize (TSPL *spl, TVLCPLAYER *vp, const int width, const int height)
 {
-	//printf("page_albumInitalize %x %x\n", spl->noartId, vp->gui.shelfNoArtId);
 	setPageAccessed(vp, PAGE_PLY_SHELF);
 	page2InputDragEnable(vp->pages, PAGE_PLY_SHELF);
 	
@@ -1213,8 +1129,6 @@ static inline int page_albumShutdown (TSPL *spl, TVLCPLAYER *vp)
 
 static inline int page_albumRenderInit (TSPL *spl, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//printf("page_albumRenderInit %x %x\n", spl->noartId, vp->gui.shelfNoArtId);
-	
 	if (vp->gui.shelfNoArtId){
 		spl->noartId = vp->gui.shelfNoArtId;
 		
@@ -1250,9 +1164,7 @@ int page_plyAlbCallback (void *pageStruct, const int msg, int64_t dataInt1, int6
 {
 	TSPL *album = (TSPL*)pageStruct;
 	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_plyAlbCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_albumRender(album, album->com->vp, dataPtr);
 

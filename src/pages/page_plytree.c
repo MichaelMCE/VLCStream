@@ -53,8 +53,6 @@ void playlistExpandTo (TTV *tv, const int uid)
 	
 	if (sp){
 		for (int i = sp-1; i >= 0; i--){
-			//printf("%i %X\n", i, stack[i]);
-	
 			TTV_ITEM *item = tvTreeGetItem(tv, stack[i], NULL);
 			if (item){
 				tvInputDoAction(tv, item->id, TV_ACTION_EXPANDER_OPEN, NULL, item);
@@ -65,8 +63,6 @@ void playlistExpandTo (TTV *tv, const int uid)
 	}
 }
 #endif
-
-
 
 static inline int opaqueGetType (TTV_NODE_DESC_OPAQUE *opaque)
 {
@@ -321,7 +317,6 @@ static inline TTV_ITEM_DESC *tvTreeBuildDescDetail (TPLYTV *plytv, TTV *tv, cons
 		descDetail->metrics.height = MIN_IMAGE_HEIGHT;
 
 	//descDetail->metrics.height -= descDetail->label.offsetY;
-
 	descDetail->metrics.width += 4;
 	descDetail->metrics.height += 5;
 
@@ -331,11 +326,9 @@ static inline TTV_ITEM_DESC *tvTreeBuildDescDetail (TPLYTV *plytv, TTV *tv, cons
 static inline int tvTreeAddPlc (TPLYTV *plytv, TTV *tv, const int id, PLAYLISTCACHE *plc, const int addBranches)
 {
 	const int total = playlistGetTotal(plc);
-	//printf("tvTreeAddPlc %X '%s' %i %i\n", id, plc->title, addBranches, total);
-	
+
 	for (int i = 0; i < total; i++){
 		TPLAYLISTITEM *item = playlistGetItem(plc, i);
-		//printf("tvTreeAddPlc %i %p\n", i, item);
 		if (!item) continue;
 
 		if (item->objType == PLAYLIST_OBJTYPE_PLC){
@@ -349,7 +342,6 @@ static inline int tvTreeAddPlc (TPLYTV *plytv, TTV *tv, const int id, PLAYLISTCA
 		}else if (item->objType == PLAYLIST_OBJTYPE_TRACK){
 			const int trackId = MAKEID(plc->uid, i+1);
 			TTV_ITEM_DESC *desc = tvTreeBuildDescTrack(tv, item->obj.track.title, plc->uid, i);
-			//printf(":: %i, %X, '%s', %X\n", i, id, item->obj.track.title, trackId);
 			tvTreeAddNode(tv, id, item->obj.track.title, trackId, desc);
 			
 			TPLAYLISTITEM *playlistItem = playlistGetItem(plc, i);
@@ -357,35 +349,10 @@ static inline int tvTreeAddPlc (TPLYTV *plytv, TTV *tv, const int id, PLAYLISTCA
 			char length[MAX_PATH_UTF8+1];
 			tagRetrieveByHash(tv->cc->vp->tagc, playlistItem->obj.track.hash, MTAG_LENGTH, length, MAX_PATH_UTF8);
 			if (!*length) strcpy(length, "0:00");
-	
-	
-			/*TTV_ITEM_DESC *descDetail = my_calloc(1, sizeof(TTV_ITEM_DESC));
-			descDetail->enabled = 1;
-			descDetail->objType = TV_TYPE_LABEL;
-			descDetail->label.flags = 0;
-			descDetail->label.font = PLAYLIST_TV_FONT;
-			descDetail->label.offsetX = 172;
-			descDetail->label.offsetY = -160;
-			descDetail->expander.drawExpander = TV_EXPANDER_DISABLED;
-			descDetail->expander.expanderState = TV_EXPANDER_DONTRENDER;
-			descDetail->checkbox.drawCheckbox = 0;
-			lGetTextMetrics(tv->cc->vp->ml->hw, "testing", 0, descDetail->label.font, &descDetail->metrics.width, &descDetail->metrics.height);
-			descDetail->metrics.height += 2;
-			if (descDetail->metrics.height > TEXT_MAX_HEIGHT)
-				descDetail->metrics.height = TEXT_MAX_HEIGHT;
-				
-			TTV_NODE_DESC_OPAQUE *desco = my_calloc(1, sizeof(TTV_NODE_DESC_OPAQUE));
-			desco->objType = NODE_OBJTYPE_DETAIL;
-			desco->detail.pid = plc->uid;
-			desco->detail.position = i;
-			descDetail->opaque = desco;*/
-			
+
 			desc = tvTreeBuildDescDetail(plytv, tv, length, playlistItem, plc->uid, i);
 			tvTreeAddItem(tv, trackId, length, 0x8000 | trackId, desc);
-			
-			/*descDetail->label.offsetX += desc->metrics.width;
-			descDetail->label.offsetY = -desc->metrics.height;
-			tvTreeAddItem(tv, trackId, "testing", 0x4000 | trackId, descDetail);*/
+
 		}
 	}
 	return total;
@@ -396,15 +363,10 @@ static inline void tvTreeResyncItems (TTV *tv, TTV_ITEM *item, const int pid)
 	TTV_NODE_DESC_OPAQUE *desc, *data;
 	int idx = 0;
 	int child = 0;
-	
-	//printf("tvTreeResyncItems '%s'\n", item->name);
-	
+
 	while(item->children[child]){
 		TTV_ITEM *subItem = tvTreeGetItem(tv, item->children[child], item->entry);
 		if (subItem){
-
-			//printf(":: %i :%s:\n", idx, subItem->name);
-
 			desc = tvItemOpaqueGet(subItem);
 			desc->track.position = idx++;
 			desc->playlist.position = desc->track.position;
@@ -447,9 +409,6 @@ static inline void tvTreeResyncItems (TTV *tv, TTV_ITEM *item, const int pid)
 
 static inline int plytvTreeRemoveCheckedItems (TTV *tv, TTV_ITEM *item)
 {
-	
-	//printf("# plytvTreeRemoveCheckedItems %i '%s'\n", item->id, item->name);
-	
 	int recOffset = 0;
 	int doResync = 0;
 	int child = 0;
@@ -467,8 +426,6 @@ static inline int plytvTreeRemoveCheckedItems (TTV *tv, TTV_ITEM *item)
 			
 			TTV_ITEM_DESC *desc = tvTreeItemGetDesc(subItem);
 			if (desc->checkbox.checkState == TV_CHECKBOX_CHECKED){
-				//printf("tvTreeDelete %X\n", subItem->id);
-
 				TTV_NODE_DESC_OPAQUE *opaque = tvItemOpaqueGet(subItem);
 				if (opaque->objType == NODE_OBJTYPE_TRACK){
 					PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(tv->cc->vp->plm, opaque->track.pid);
@@ -478,7 +435,6 @@ static inline int plytvTreeRemoveCheckedItems (TTV *tv, TTV_ITEM *item)
 				}else if (opaque->objType == NODE_OBJTYPE_PLC){
 					PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(tv->cc->vp->plm, opaque->playlist.pid);
 					if (plc){
-						//printf("deleting playlist: %i/%i '%s'\n", opaque->playlist.pid, opaque->playlist.position, plc->title);
 						playlistManagerDeletePlaylist(tv->cc->vp->plm, plc, 0);
 						playlistDeleteRecord(plc->parent, opaque->playlist.position - recOffset++);
 						doResync = 1;
@@ -488,7 +444,6 @@ static inline int plytvTreeRemoveCheckedItems (TTV *tv, TTV_ITEM *item)
 			
 				tvTreeDelete(tv, subItem->id);
 			}
-
 			tvTreeFreeItem(subItem);
 		}
 		child++;
@@ -513,12 +468,7 @@ static inline void plytvTreeDeleteCheckedItems (TTV *tv)
 		tvTreeFreeItem(item);
 		//plytvTvRenderRebuild(tv);
 	}
-
-	//const double t0 = getTime(tv->cc->vp);
 	tagFlushOrfhansPlm(tv->cc->vp->tagc, tv->cc->vp->plm);
-	//const double t1 = getTime(tv->cc->vp);
-	//printf("tagFlushOrfhansPlm %f\n", t1-t0);
-	//
 }
 
 static inline void plytvDeleteChecked (TPLYTV *plytv, TTV *tv)
@@ -671,9 +621,6 @@ static inline int plytvButtonPress (TPLYTV *plytv, TCCBUTTON *btn, const int btn
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-	
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -686,8 +633,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 
 static inline int plytvTreeCreateRoot (TPLYTV *plytv, TTV *tv, PLAYLISTCACHE *plc)
 {
-	//printf("plytvTreeCreateRoot\n");
-	
 	int ret = 0;
 	if (ccLock(tv)){
 		//tvTreeCreate(tv, plc->title, plc->uid);
@@ -701,18 +646,13 @@ static inline int plytvTreeCreateRoot (TPLYTV *plytv, TTV *tv, PLAYLISTCACHE *pl
 
 int plytvTvReload (TPLYTV *plytv, TTV *tv, PLAYLISTCACHE *plc)
 {
-	//printf("plytvTvReload\n");
-	
-	
 	int ret = 0;
 	if (ccLock(tv)){
 		plytv->buildNo++;
 		
 		vlcEventListInvalidate(tv->cc->vp->vlc);
 		vlcEventsCleanup(tv->cc->vp);
-		//if (tv->cc->vp->jt)
-		//	artQueueFlush(artThreadGetWork(tv->cc->vp->jt));
-		
+
 		tv->sbVertPosition = 0;
 		plytv->current = 0;
 
@@ -730,7 +670,6 @@ int plytvTvReload (TPLYTV *plytv, TTV *tv, PLAYLISTCACHE *plc)
 
 void plytvTvRenderRebuild (TTV *tv)
 {
-	//printf("plytvTvRenderRebuild\n");
 	tvBuildPrerender(tv, tv->rootId);
 }
 
@@ -886,14 +825,8 @@ static inline int plytvTreeRender (TVLCPLAYER *vp, TFRAME *frame, TPLYTV *plytv)
 {
 	TTV *tv = (TTV*)plytv->tv;
 
-				
-	//lSetForegroundColour(frame->hw, 0xFFFFFFFF);
-	//shadowTextEnable(frame->hw, 255<<24|COL_BLUE_SEA_TINT, plytv->shadowPre);
-	
-
 	lDrawRectangleFilled(frame, 0, tv->metrics.y, frame->width-1, frame->height-1, (50<<24)|COL_BLACK);
 	//plytvTreeRenderCutPaste(tv, frame, vp->gui.cursor.dx, vp->gui.cursor.dy);	
-
 	
 	// as a two pass renderer, we don't want the scroll position to change between passes
 	tv->renderStartY = tv->sbVertPosition;
@@ -906,8 +839,6 @@ static inline int plytvTreeRender (TVLCPLAYER *vp, TFRAME *frame, TPLYTV *plytv)
 
 	ccRender(tv, frame);
 #endif
-
-	//plytvTreeRenderCutPaste(tv, frame, vp->gui.cursor.dx, vp->gui.cursor.dy);
 
 	if (!tvRenameGetState(tv)){
 		lSetForegroundColour(frame->hw, 255<<24 | COL_WHITE);
@@ -955,9 +886,7 @@ static inline void drawSwipeMarker (TFRAME *frame, const int cx, const int cy, c
 	int y1 = cy - (cHeight>>1);
 	int x2 = x1 + cWidth;
 	int y2 = y1 + cHeight;
-	
-	//drawRectangle(frame, 1, x1, y1, x2, y2, colour);
-	
+
 	const int y = cy - dy;
 	if (y > cHeight){			// up
 		drawRectangle(frame, filled, x1, y1-1, x2, dy, colour);
@@ -979,20 +908,14 @@ static inline void drawSwipeMarker (TFRAME *frame, const int cx, const int cy, c
 static inline void tvTreeItemSelectTrack (TPLYTV *plytv, TTV *tv, TTV_ITEM *item, const int pid, const int position)
 {
 	TVLCPLAYER *vp = tv->cc->vp;
-	//if (!item->tv) return;
-	//printf("item %p %p\n", item, item->tv);
-	
+
 	// refresh artwork
-
 	TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);	
-	//printf(":tvTreeItemSelectTrack %X '%s' %p %i\n", item->id, item->name, desc->image, desc->imageTotal);
-
 	TTV_ITEM_DESC_IMAGE *image = tvItemImageGet(desc, ITEM_DETAIL_IMAGE_ARTWORK);
 	if (!image) return;
 	
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, pid);
-	//printf("tvTreeItemSelectTrack plc->name '%s'\n", plc->title);
-	
+
 	int noartId = plytv->artc.noart;
 	if (!image->artId || image->artId == noartId){
 		int id = playlistGetArtId(plc, position);
@@ -1012,8 +935,6 @@ static inline void tvTreeImageSelectPlay (TTV *tv, TTV_ITEM *item, TTV_ITEM_DESC
 	TPLYTV *plytv = pageGetPtr(vp, PAGE_PLY_TV);
 	TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, pid);
-
-	//printf("@@@ playing %X %X\n", item->id, item->parentId);
 
 	if (getPlayState(vp) == 2 && getQueuedPlaylist(vp) == plc && getPlayingItem(vp) == position){
 		trackPlay(vp);		// is paused so unpause
@@ -1117,7 +1038,6 @@ static inline void tvTreeImageSelectArtwork (TTV *tv, TTV_ITEM *item, TTV_ITEM_D
 	
 	int artId = playlistGetArtId(plc, position);
 	if (artId){
-		//printf("plytv: found art for %X, %X, %X\n", item->id, artId, artId);
 		tvInputDisable(tv);
 
 		TPLYTV *plytv = pageGetPtr(vp, PAGE_PLY_TV);
@@ -1133,16 +1053,12 @@ static inline void tvTreeImageSelectArtwork (TTV *tv, TTV_ITEM *item, TTV_ITEM_D
 		ccEnable(plytv->imgovr);
 		
 		tvTreeItemSelectTrack(plytv, tv, item, pid, position);
-	//}else{
-	//	printf("noartwork for %i:%s\n", position, plc->title);
 	}
-	
 }
 
 static inline void tvTreeItemSelectDetail (TTV *tv, TTV_ITEM *item, const int pid, const int position)
 {
-	//printf("tvTreeItemSelectDetail\n");
-	
+
 	TVLCPLAYER *vp = tv->cc->vp;
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, pid);
 	if (!plc) return;
@@ -1188,15 +1104,11 @@ static inline void tvTreeItemInputCallback (TPLYTV *plytv, TTV *tv, TTV_ITEM *it
 {
 	int wantUpdate = 0;
 	  	
-	//printf("tvTreeItemInputCallback type: %i %p\n", type, opaque);
-	  	
 	switch (type){
 	  case NODE_OBJTYPE_PLC:{
-	  	//printf("NODE_OBJTYPE_PLC\n");
 		PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(tv->cc->vp->plm, opaque->playlist.pid);
 		
 		if (plc){
-			//printf("count: %i %i, %i %i\n", tvTreeCountItems(tv, item->id), playlistGetTotal(plc), plc->uid, item->id);
 			if (playlistLock(plc)){
 				const int total = tvTreeCountItems(tv, item->id);
 				if (total < 1 || plc->total != total || plc->uid != item->id){
@@ -1219,7 +1131,6 @@ static inline void tvTreeItemInputCallback (TPLYTV *plytv, TTV *tv, TTV_ITEM *it
 	  }
 
 	  case NODE_OBJTYPE_TRACK:{
-	  	//printf("NODE_OBJTYPE_TRACK %X\n", item->children[0]);
 	  	TTV_ITEM *subItem = tvTreeGetItem(tv, item->children[0], item->entry);
 	  	if (subItem){
 	  		tvTreeItemSelectTrack(plytv, tv, subItem, opaque->track.pid, opaque->track.position);
@@ -1229,7 +1140,6 @@ static inline void tvTreeItemInputCallback (TPLYTV *plytv, TTV *tv, TTV_ITEM *it
 	  }
 
 	  case NODE_OBJTYPE_DETAIL:
-	  	//printf("NODE_OBJTYPE_DETAIL\n");
 		tvTreeItemSelectDetail(tv, item, opaque->detail.pid, opaque->detail.position);
 		break;
 	  
@@ -1259,11 +1169,9 @@ static inline void tvTreeItemInputCallback (TPLYTV *plytv, TTV *tv, TTV_ITEM *it
 			break;
 
 		  default:
-			//printf("node objtype image INVALID: %p %p %i\n", item, image, opaque->image.type);
 		  	break;
 		}
 
-	  	//printf("node objtype image %p %p %i\n", item, image, opaque->image.type);
 		break;
 	  }
 	}
@@ -1277,8 +1185,6 @@ static inline int tvTreeCutPaste (TTV *tv, TTV_ITEM *src, TTV_ITEM *dst, const i
 {
 	const int from = src->id;
 	const int to = dst->id;
-
-	//printf("tvTreeCutPaste %X %X %i\n", from, to, pasteType);
 
 	TTV_NODE_DESC_OPAQUE *srcData = tvItemOpaqueGet(src);
 	PLAYLISTCACHE *plcSrc = playlistManagerGetPlaylistByUID(tv->cc->vp->plm, opaqueGetPlaylist(srcData));
@@ -1294,7 +1200,6 @@ static inline int tvTreeCutPaste (TTV *tv, TTV_ITEM *src, TTV_ITEM *dst, const i
 
 
 	if (srcNodeType == NODE_OBJTYPE_PLC && isChild){
-		//printf("is child, returning\n");
 		return 0;
 	}
 
@@ -1329,7 +1234,6 @@ static inline int tvTreeCutPaste (TTV *tv, TTV_ITEM *src, TTV_ITEM *dst, const i
 			}
 		}
 	}else if (pasteType == 1){	// drop in to the playlist
-		//printf("'%s' : '%s'\n", plcSrc->title, plcDst->title);
 		tvTreeEntryMoveToTail(tv, from, to);
 		
 		TTV_ITEM *srcParent = tvTreeGetItem(tv, src->parentId, NULL);
@@ -1406,9 +1310,7 @@ static inline int64_t labelccobject_cb (const void *object, const int msg, const
 	if (msg == CC_MSG_RENDER) return 1;
 
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("labelccobject_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, data1, data2, dataPtr);
-	
+
 	if (msg == CC_MSG_ENABLED){
 		TLABEL *label = (TLABEL*)obj;
 		TPLYTV *plytv = pageGetPtr(label->cc->vp, PAGE_PLY_TV);
@@ -1450,14 +1352,9 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 	TTV *tv = (TTV*)obj;
 	TVLCPLAYER *vp = tv->cc->vp;
 	TPLYTV *plytv = pageGetPtr(vp, PAGE_PLY_TV);
-	
-	//printf("plytvccobject_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
-	
 	switch (msg){
 	  case KP_MSG_PAD_OPENED:{
-	  	//printf("plytv KP_MSG_PAD_OPENED\n");
-	  	
 	  	tvInputDisable(tv);
 	  	ccDisable(tv->sbVert);
 	  	plytvButtonsSetState(plytv, plytv->btns, 0);
@@ -1465,8 +1362,6 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 	  	break;
 	  }
 	  case KP_MSG_PAD_CLOSED:{
-	  	//printf("plytv KP_MSG_PAD_CLOSED\n");
-	  	
 	  	if (!tvRenameGetState(tv))
 	  		plytvButtonsSetState(plytv, plytv->btns, 1);
 
@@ -1487,17 +1382,13 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 	  	break;
 	  }
 	  case KP_MSG_PAD_PRESS:
-	  	//printf("KP_MSG_PAD_PRESS\n");
 	  	break;
 	  
 	  case KP_MSG_PAD_ENTER:{
-	  	//printf("KP_MSG_PAD_ENTER\n");
-	  	
+
 	 	if ((int)data1 != KP_INPUT_COMPLETE8)
 	 		return 0;
-	 	
-		//printf("plytv  KP_MSG_PAD_ENTER: %I64d %I64d %p: '%s'\n", data1, data2, dataPtr, (char*)dataPtr);
-		
+
 		int id = (int)data2;
 		char *newTitle = (char*)dataPtr;
 		
@@ -1505,12 +1396,8 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 		if (strlen(newTitle) < 1) return 0;
 
 		TTV_ITEM *item = tvTreeGetItem(tv, id, NULL);
-		//printf("item %X %p\n", id, item);
-		
 		if (item){
 			TTV_NODE_DESC_OPAQUE *opaque = tvItemOpaqueGet(item);
-			//printf("opaque %X %p\n", id, opaque);
-			
 			if (opaque){
 				int uid = opaqueGetPlaylist(opaque);
 				int track = opaqueGetTrack(opaque);
@@ -1518,20 +1405,15 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 				char *newTitle = (char*)dataPtr;
 
 				if (type == NODE_OBJTYPE_PLC){
-	  				PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-	  				//printf("playlist %i: %X,%i '%s'\n", type, uid, track, plc->title);
-	  				
+	  				PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);	  				
 	  				if (plc){
-  						//printf("newTitle '%s'\n", newTitle);
   						if (playlistSetName(plc, newTitle))
   							treeRenameItem(tv, id, newTitle);
 	  				}
 	  			}else if (type == NODE_OBJTYPE_TRACK){
 	  				PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, uid);
-	  				//printf("track %i: %X,%i '%s'\n", type, uid, track, plc->title);
 
 	  				if (plc){
-  						//printf("newTitle '%s'\n", newTitle);
   						treeRenameItem(tv, id, newTitle);
 
 						int saved = 0;
@@ -1560,31 +1442,21 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 	  }
 #if 0
 	  case CC_MSG_CREATE:
-		//printf("TV_MSG_CREATE: %i, %i, %p\n", data1, data2, dataPtr);
 		break;
 	  case CC_MSG_INPUT:
-		//printf("TV_MSG_INPUT: %i, %i, %p\n", data1, data2, dataPtr);
 		break;
 	  case CC_MSG_SETPOSITION:
-		//printf("TV_MSG_SETPOSITION: %i, %i, %p\n", data1, data2, dataPtr);
 		break;
 	  case CC_MSG_ENABLED:
-		//printf("TV_MSG_ENABLED: %i, %i, %p\n", data1, data2, dataPtr);
 		break;
 	  case CC_MSG_DISABLED:
-		//printf("TV_MSG_DISABLED: %i, %i, %p\n", data1, data2, dataPtr);
 		break;				
 	  case TV_MSG_SB_INPUT:{
-		//if (tree->renderStartY != tree->sbVertPosition)
-		//	renderSignalUpdate(vp);
-		//TPLYTV *plytv = pageGetPtr(tv->cc->vp, PAGE_PLY_TV);
-		//swipeReset(&plytv->swipe);
+
 		break;
 	  }
 #endif
-	  case TV_MSG_ITEMDROP:
-		//printf("TV_MSG_ITEMDROP: %i, %i, %p\n", data1, data2, dataPtr);
-		
+	  case TV_MSG_ITEMDROP:		
 		if (ccLock(tv)){
 			TTV_INPUT_DROP *tvid = (TTV_INPUT_DROP*)dataPtr;
 
@@ -1609,8 +1481,6 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 		break;
 		
 	  case TV_MSG_EXPANDERSTATE:
-		//printf("TV_MSG_EXPANDERSTATE: %i, %X, %p\n", data1, data2, dataPtr);
-
 		if (data1 == TV_EXPANDER_OPEN){
 			//const int id = data2;
 			//if (ccLock(tree)){
@@ -1634,13 +1504,7 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 		}
 
 		break;
-	  //case TV_MSG_CHECKBOXSTATE:
-		//printf("TV_MSG_CHECKBOXSTATE: %i, %i, %p\n", data1, data2, dataPtr);
-		//break;
-		
 	  case TV_MSG_ITEMSELECT:{
-		//printf("TV_MSG_ITEMSELECT: %i, %X, %p\n", data1, data2, dataPtr);
-
 		if (ccLock(tv)){
 			const int id = data2;
 			TTV_ITEM *item = tvTreeGetItem(tv, id, NULL);
@@ -1654,8 +1518,6 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 		break;
 	  }
 	  case TV_MSG_IMAGESELECT:{
-		//printf("TV_MSG_IMAGESELECT: %i, %X, %p\n", data1, data2, dataPtr);
-
 		if (ccLock(tv)){
 			const int id = data2;
 
@@ -1665,8 +1527,6 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 				TTV_ITEM_DESC_IMAGE *image = tvItemImageGet(desc, data1);
 				TTV_NODE_DESC_OPAQUE *opaque = tvItemImageOpaqueGet(image);
 
-				//TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
-				//printf("opaque->objType %i\n", opaque->objType);
 				tvTreeItemInputCallback(plytv, tv, subItem, opaque->objType, opaque);
 			
 				tvTreeFreeItem(subItem);
@@ -1676,9 +1536,6 @@ static inline int64_t plytvccobject_cb (const void *object, const int msg, const
 
 		break;
 	  }
-	  //default:
-	  	//printf("plytvccobject_cb. id:%i/%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, ccGetId(vp, CCID_TV_PLAYLIST), obj->type, msg, data1, data2, dataPtr);
-	  //	break;
 	}
 	return 1;
 }
@@ -1702,15 +1559,9 @@ int plytvTouch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 
 	if (!tv->inputEnabled) return 0;
 
-	//printf("plytv %i %i %i %i, %i %i %i\n", tv->dragEnabled, pos->pen, swipe->state, flags, pos->x, pos->y, ccPositionIsOverlapped(tv, pos->x, pos->y));
-
 	if (ccLock(plytv->tv)){
 		if (!tv->dragEnabled){
 			if (!pos->pen && !flags && pos->dt > 0){			// pen down
-				//printf("%i %i %i\n", (int)tv->sbVertPosition, (int)swipe->u64value, (int)scrollbarGetFirstItem(tv->sbVert));
-				//swipeReset(swipe);
-				//swipe->u64value = tv->sbVertPosition;
-				
 				if (ccPositionIsOverlapped(tv, pos->x, pos->y)){
 					//swipeReset(swipe);
 					swipe->sx = pos->x;
@@ -1721,7 +1572,6 @@ int plytvTouch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 					swipe->decayAdjust = 0.0;
 					swipe->t0 = 0.0;//getTime(vp);
 					swipe->state = SWIPE_DOWN;
-					//printf("\npen down\n\n");
 				}else{
 					swipe->state = SWIPE_UP;
 					swipeReset(swipe);
@@ -1736,8 +1586,6 @@ int plytvTouch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 				swipe->dx = swipe->ex - swipe->sx;
 				swipe->dy = swipe->ey - swipe->sy;
 
-				//printf("drag: %i\n", swipe->dy);
-			
 				if (abs(swipe->dy) >= swipe->dragMinV){
 					swipe->adjust = -swipe->dy * swipe->velocityFactor;
 					ccUnlock(plytv->tv);
@@ -1753,9 +1601,7 @@ int plytvTouch (TTOUCHCOORD *pos, int flags, TVLCPLAYER *vp)
 				swipe->dt = 0;
 				swipe->u64value = scrollbarGetFirstItem(tv->sbVert);
 				tv->sbVertPosition = swipe->u64value;
-				
-				//printf("up %i\n\n", (int)swipe->u64value);
-				
+
 				setTargetRate(vp, UPDATERATE_BASE);
 				ccUnlock(plytv->tv);
 				renderSignalUpdate(vp);
@@ -1779,8 +1625,6 @@ static inline void swapInt (int *a, int *b)
 
 static inline void blurMarker (TFRAME *frame, int x1, int y1, int x2, int y2)
 {
-	//if (x2 < x1) swapInt(&x1, &x2);
-
 	if (y2 < y1){
 		swapInt(&y1, &y2);
 		y1 -= 30;
@@ -1796,8 +1640,6 @@ static inline void blurMarker (TFRAME *frame, int x1, int y1, int x2, int y2)
 static inline int page_plytvRender (TPLYTV *plytv, TVLCPLAYER *vp, TFRAME *frame)
 {
 	TTV *tv = (TTV*)plytv->tv;
-
-	//int inputEnabled = 0;
 
 	TTOUCHSWIPE *swipe = &plytv->swipe;
 	if (swipe->state == SWIPE_SLIDE){
@@ -1827,7 +1669,6 @@ static inline int page_plytvRender (TPLYTV *plytv, TVLCPLAYER *vp, TFRAME *frame
 
 	TVIDEOOVERLAY *playctrl = pageGetPtr(vp, PAGE_OVERLAY);
 	marqueeDraw(vp, frame, playctrl->marquee, 2, 0);
-
 
 	if (swipe->state == SWIPE_DOWN || swipe->state == SWIPE_SLIDE){
 		if (ccLock(tv)){
@@ -1908,8 +1749,7 @@ static inline int page_plytvStartup (TPLYTV *plytv, TVLCPLAYER *vp, const int fw
 	TTV *tv = ccCreate(vp->cc, PAGE_PLY_TV, CC_TV, plytvccobject_cb, &vp->gui.ccIds[CCID_TV_PLAYLIST], 0, 0);
 	int width = fw - x;
 	int height = fh - y;
-	//if (height > 394) height = 394;
-	
+
 	tvScrollbarSetWidth(tv, SCROLLBAR_VERTWIDTH);
 	ccSetMetrics(tv, x, y, width, height);
 	tvTreeCreate(tv, PLAYLIST_PRIMARY, PLAYLIST_UID_BASE+1);
@@ -2018,48 +1858,22 @@ static inline int page_plytvShutdown (TPLYTV *plytv, TVLCPLAYER *vp)
 
 void page_plytvRenderStart (TPLYTV *plytv, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//printf("page_plytvRenderStart\n");
-	
-	/*TKEYBOARD *vkey = pageGetPtr(vp, PAGE_VKEYBOARD);
-	TKEYPAD *kp = vkey->kp;
-	if (ccGetState(kp)) ccDisable(kp);*/
-	
-	
-	//plytv->imgc.play = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_TVPLAY]);
-	//plytv->imgc.pause = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_TVPAUSE]);
-	//plytv->imgc.stop = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_TVSTOP]);
-	//plytv->imgc.noart = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_NOART_PLYTV]);
 }
 
 void page_plytvRenderEnd (TPLYTV *plytv, TVLCPLAYER *vp, int64_t destId, int64_t data2, void *opaquePtr)
 {
-	//printf("page_plytvRenderEnd\n");
-	
 	if (tvRenameGetState(plytv->tv)){
 		tvInputEnable(plytv->tv);
 		ccEnable(plytv->tv->sbVert);
 		tvRenameDisable(plytv->tv);
 		plytvButtonsSetState(plytv, plytv->btns, 1);
 	}
-	
-	
-	//imageManagerImageRelease(vp->im, vp->gui.image[IMGC_TVPLAY]);
-	//imageManagerImageRelease(vp->im, vp->gui.image[IMGC_TVPAUSE]);
-	//imageManagerImageRelease(vp->im, vp->gui.image[IMGC_TVSTOP]);
-	//imageManagerImageRelease(vp->im, vp->gui.image[IMGC_NOART_PLYTV]);
-		
-	/*TKEYBOARD *vkey = pageGetPtr(vp, PAGE_VKEYBOARD);
-	TKEYPAD *kp = vkey->kp;
-	if (ccGetState(kp)) ccDisable(kp);*/
 }
 
 int page_plyTvCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPLYTV *plytv = (TPLYTV*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_plyTvCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_plytvRender(plytv, plytv->com->vp, dataPtr);
 

@@ -97,8 +97,6 @@ static inline void expanPanelChildrenSetState (TPANEL *panel, const int sid, con
 	for (int i = 0; i < ps->idTotal; i++){
 		TPANELIMG *img = panelImgGetItem(panel, ps->idList[i]);
 		if (img){
-			//printf("img %i\n", img->id);
-
 			if (!state)
 				ccDisable(img->btn);
 			else
@@ -175,7 +173,6 @@ int expGetEntryId (TFB *fb, const int id, const char *str)
 		entry = treeListGetSubEntry(item);
 		if (treeEntryIsBranch(entry)){
 			if (!stricmp(entry->name, str)){
-				//printf("found %i, %i '%s'\n", ct, entry->id, entry->name);
 				return entry->id;
 			}
 		}
@@ -191,10 +188,7 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 
 	TPANEL *panel = (TPANEL*)object;
 	TEXPPANEL *expan = (TEXPPANEL*)ccGetUserData(panel);
-	
-	//printf("expan_panel_cb: %i %i %i %p\n", msg, (int)data1, (int)data2, dataPtr);
-	
-	
+
 	if (msg == PANEL_MSG_ITEMDELETE){
 		//if (!ccGetState(panel)) return 0;
 	
@@ -210,8 +204,6 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 			}
 		}
 	}else if (msg == PANEL_MSG_ITEMSELECTED){
-		//if (!ccGetState(panel)) return 0;
-		
 		if (panelImgAttributeCheck(panel, data1, PANEL_ITEM_DRIVE) > 0){
 			TFILEPANE *filepane = pageGetPtr(panel->cc->vp, PAGE_FILE_PANE);
 
@@ -228,8 +220,6 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 			if (idx&16384){
 				idx &= ~16384;
 				TSTRSHORTCUT *sc = fbShortcutsGet(&expan->userLinks, idx);
-				//wprintf(L"PANEL_ITEM_LINK link: '%s' '%s'\n", sc->link, sc->path);
-
 				char *path = convertto8(sc->path);
 				if (path){
 					filepaneSetPath(filepane, path);
@@ -237,7 +227,6 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 					page2Set(filepane->com->pages, PAGE_FILE_PANE, 1);
 				}
 			}else{
-				//wprintf(L"PANEL_ITEM_LINK shellfolder: '%s' '%s'\n", expan->shellFolders[idx].name, expan->shellFolders[idx].location);
 				char *path = convertto8(expan->shellFolders[idx].location);
 				if (path){
 					filepaneSetPath(filepane, path);
@@ -248,7 +237,6 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 		}else if (panelImgAttributeCheck(panel, data1, PANEL_ITEM_MODULE) > 0){
 			intptr_t idx = (intptr_t)dataPtr;
 			TSTRSHORTCUT *sc = fbShortcutsGet(&expan->userLinks, idx);
-			//wprintf(L"fbShortcutsGet %i, '%s' '%s'\n", idx, sc->link, sc->path);
 			
 			if (!wcscmp(expan->selectedFile, sc->path)){
 				expan->selectedFile[0] = 0;
@@ -335,8 +323,6 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 				TPANELSEPARATOR *ps = panelImgStorageGet(panel, data1);
 				if (ps){
 					ps->state ^= 0x01;
-					//printf("state %i\n",  ps->state);
-
 					TPANELIMG *img = panelImgGetItem(panel, data1);
 					if (!ps->state)
 						button2FaceActiveSet(img->btn, BUTTON_SEC);
@@ -504,11 +490,8 @@ static inline void driveSpaceFormat (char *buffer, const int drive, const uint64
 int expanPanelBuild (TEXPPANEL *expan, TPANEL *panel, TLOGICALDRIVE *drives, const int dTotal)
 {
 	int sbid1 = 0, sbid2 = 0, sbid3 = 0, sbid4 = 0;
-	
 	int tShortcuts = fbShortcutsGetTotal(&expan->userLinks);
-	
-	//printf("## expanPanelBuild %i\n", dTotal);
-	
+
 	int remoteDriveTotal = 0;
 	for (int i = 0; i < expan->logicalDriveTotal; i++)
 		remoteDriveTotal += (expan->drives[i].driveType == DRIVE_REMOTE);
@@ -529,7 +512,6 @@ int expanPanelBuild (TEXPPANEL *expan, TPANEL *panel, TLOGICALDRIVE *drives, con
 
 			int imgid;
 			if (driveType == DRIVE_FIXED){
-				//printf("drive fixed %c %i\n", expan->drives[i].drive[0], expan->drives[i].isSystemDrive);
 				const int busType = expan->drives[i].busType;
 				if (busType == BusTypeSata){
 					if (expan->drives[i].isSystemDrive)
@@ -742,15 +724,11 @@ int expanGetPathObjectTotal (TEXPPANEL *expan)
 
 int expanPanelRebuild (TEXPPANEL *expan, TPANEL *panel)
 {
-	//printf("expanPanelRebuild\n");
-	
 	for (int i = 0; i < PANEL_SID_TOTAL && expan->panelIds[i]; i++){
 		TPANELSEPARATOR *ps = panelImgStorageGet(panel, expan->panelIds[i]);
 		expanPanelSeparatorIdClearAll(ps);
 	}
 	int total = expanGetPathObjectTotal(expan);
-	//if (!total) printf("expanPanelRebuild zero object total %s:%i\n",__FILE__,__LINE__);
-
 	panelListResize(panel, total, 0);
 	int ret = expanPanelBuild(expan, panel, expan->drives, expan->logicalDriveTotal);
 	panelInvalidate(panel);
@@ -760,8 +738,6 @@ int expanPanelRebuild (TEXPPANEL *expan, TPANEL *panel)
 // TIMER_EXPPAN_REBUILD
 void expanTimerPanelRebuild (TVLCPLAYER *vp)
 {
-	//printf("expanTimerPanelRebuild\n");
-	
 	TEXPPANEL *expan = pageGetPtr(vp, PAGE_EXP_PANEL);
 	if (ccLock(expan->panel)){
 		fbGetLogicalDrivesRelease(expan->drives);
@@ -979,7 +955,6 @@ static inline int page_expPanInitalize (TEXPPANEL *expan, TVLCPLAYER *vp, const 
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	
 	strList = NULL;
@@ -1000,7 +975,6 @@ static inline int page_expPanInitalize (TEXPPANEL *expan, TVLCPLAYER *vp, const 
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	
 	return 1;
@@ -1019,10 +993,7 @@ static inline int page_expPanShutdown (TEXPPANEL *expan, TVLCPLAYER *vp)
 int page_expPanCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TEXPPANEL *expan = (TEXPPANEL*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_expPanCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_expPanRender(expan, expan->com->vp, dataPtr);
 
@@ -1050,4 +1021,3 @@ int page_expPanCallback (void *pageStruct, const int msg, int64_t dataInt1, int6
 	
 	return 1;
 }
-

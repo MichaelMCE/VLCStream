@@ -89,7 +89,6 @@ void plypaneUpdateTimestamp (TPLYPANE *plypane)
 	}
 }
 
-
 static inline void buildTitleBar (TPLYPANE *plypane, TLABEL *title, const int uid)
 {
 	char buffer[MAX_PATH_UTF8+1];
@@ -147,8 +146,6 @@ static inline void buildLocBar (TPLYPANE *plypane, TLABEL *bar)
 	
 			
 	for (int i = 0; i < length-1; i++){
-		//printf("bar %i %X\n", i, stack[i]);
-			
 		char *sep;
 		if (stack[i] != rootUid){
 			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(bar->cc->vp->plm, stack[i]);
@@ -194,9 +191,6 @@ static inline void buildLocBar (TPLYPANE *plypane, TLABEL *bar)
 
 static inline int page_plypaneRender (TPLYPANE *plypane, TVLCPLAYER *vp, TFRAME *frame)
 {
-
-//	printf("%i\n", plypan->pane->itemOffset->y);
-
 	ccRender(plypane->locBar, frame);
 	ccRender(plypane->title, frame);
 	ccRender(plypane->pane, frame);
@@ -206,9 +200,6 @@ static inline int page_plypaneRender (TPLYPANE *plypane, TVLCPLAYER *vp, TFRAME 
 
 static inline int page_plypaneInput (TPLYPANE *plypane, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("page_plypaneInput %i %i %i %i\n", pos->x, pos->y, flags, pos->pen);
-
-	
 	switch(msg){
 	  case PAGE_IN_WHEEL_FORWARD:
 		if (ccGetState(plypane->pane))
@@ -228,9 +219,7 @@ static inline int plyPaneAddPlaylist (TPLYPANE *plypane, TPANE *pane, TPLAYLISTM
 {
 	PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(plm, pid);
 	if (!plc) return 0;
-	
-	//printf("### plyPaneAddPlaylist %X ###\n", pid);
-	
+
 	if (playlistLock(plc)){
 		TVLCPLAYER *vp = pane->cc->vp;
 
@@ -324,8 +313,6 @@ static inline int plyPaneAddPlaylist (TPLYPANE *plypane, TPANE *pane, TPLAYLISTM
 						playlistGetTitle(plc, i, buffer, MAX_PATH_UTF8);
 
 					if (*buffer){
-						//int artId = playlistGetArtId(plc, i);
-						//int itemId = paneTextAdd(pane, artId, 0.07, buffer, PANE_FONT, (plc->uid<<16) | (i+1));
 						int itemId = paneTextAdd(pane, plypane->icons.audio, 0.0, buffer, PANE_FONT, (plc->uid<<16) | (i+1));
 						
 						if (i == playingItem) playingItemId = itemId;
@@ -364,10 +351,6 @@ int plyPaneRefresh (TVLCPLAYER *vp)
 		
 	TPLYPANE *plypane = pageGetPtr(vp, PAGE_PLY_PANE);
 	TPANE *pane = plypane->pane;
-
-
-	//printf("plyPaneRefresh %X\n", plypaneGetPaneUID(plypane));
-
 	intptr_t uid = 0;
 	
 	if (ccLock(pane)){
@@ -391,8 +374,6 @@ int plyPaneRefresh (TVLCPLAYER *vp)
 // TIMER_PLYPANE_REFRESH
 void timer_plyPaneRefresh (TVLCPLAYER *vp)
 {
-	//printf("@@@ timer_plyPaneRefresh\n");
-	
 	if (pageIsDisplayed(vp, PAGE_PLY_PANE)){
 		plyPaneRefresh(vp);
 		renderSignalUpdate(vp);
@@ -401,11 +382,8 @@ void timer_plyPaneRefresh (TVLCPLAYER *vp)
 
 int64_t plypane_titlebar_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TLABEL *title = (TLABEL*)object;
-	//printf("plypane_titlebar_cb in %p, %i %I64d %I64d %p\n", bar, msg, data1, data2, dataPtr);
-	
+
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS){
 		TPLYPANE *plypane = ccGetUserData(title);	
 		const int uid = labelItemDataGet(title, data2);
@@ -451,7 +429,6 @@ int64_t plypane_locbar_cb (const void *object, const int msg, const int64_t data
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
 	
 	TLABEL *bar = (TLABEL*)object;
-	//printf("plypane_lbl_cb in %p, %i %I64d %I64d %p\n", bar, msg, data1, data2, dataPtr);
 
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS){
 		TPLYPANE *plypane = ccGetUserData(bar);	
@@ -531,7 +508,6 @@ static inline int64_t plypane_pane_cb (const void *object, const int msg, const 
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
 	
 	TPANE *pane = (TPANE*)object;
-	//printf("plypane_pane_cb in %p, %i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
 	
 	if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
 		TVLCPLAYER *vp = pane->cc->vp;
@@ -541,9 +517,7 @@ static inline int64_t plypane_pane_cb (const void *object, const int msg, const 
 		const int isClose = (int64_t)(data2>>33)&0x01;
 		const int pid = (data2>>16)&0xFFFF;
 		int track = (data2&0xFFFF);
-		
-		//printf("isBack:%i %i, %X %i %i\n", isBack, isClose, pid, track, pid);
-		
+
 		if (isClose){
 			page2SetPrevious(plypane);
 			
@@ -699,10 +673,7 @@ static inline void page_plypaneRenderEnd (TPLYPANE *plypane, TVLCPLAYER *vp, int
 int page_plyPaneCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TPLYPANE *plypane = (TPLYPANE*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_plyPaneCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_plypaneRender(plypane, plypane->com->vp, dataPtr);
 
@@ -731,4 +702,3 @@ int page_plyPaneCallback (void *pageStruct, const int msg, int64_t dataInt1, int
 	
 	return 1;
 }
-

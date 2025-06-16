@@ -59,12 +59,9 @@ static inline int alarmTimeToString (time64_t t64, char *buffer, const size_t bu
 	int hours = (int)((int)t64/60/60.0f);
 	if (t64 && t64%60 == 0 && !hours) minutes = (int)t64/60;
 
-	//printf("alarmTimeToString %i, %i %i\n", (int)t64, hours, minutes);
 	int ret = _snprintf(buffer, bufferLen+1, "%.02i:%02i", hours, minutes);
-	//printf("alarmTimeToString #%s# %.02i:%02i\n", buffer, hours, minutes);
 	return ret;
 }
-
 
 static inline TALARMTIMER *alarmIdToAlm (TALARM *alarm, const int id)
 {
@@ -223,8 +220,6 @@ static inline void alarmDrawDateTime (TFRAME *frame, const struct tm *tdate, int
 {
 	char buffer[32];
 	_snprintf(buffer, 15, "%.2i:%.2i:%.2i", tdate->tm_hour, tdate->tm_min, tdate->tm_sec);
-	//printf("alarmDrawDateTime #%s#\n", buffer);
-
 
 	int blurOp = LTR_BLUR5;
 	int flags = PF_IGNOREFORMATTING;
@@ -316,8 +311,6 @@ static inline void alarm_action_beep (TALARM *alarm, const int id, alarm_beep *a
 static inline void alarm_action_plystart (TALARM *alarm, const int id, alarm_plystart *act)
 {
 	TVLCPLAYER *vp = alarm->com->vp;
-	//TTIMERPLAYTRACK *tpt = &vp->gui.playtrack;
-	
 	TTIMERPLAYTRACK _tpt;
 	TTIMERPLAYTRACK *tpt = &_tpt;
 	
@@ -442,8 +435,6 @@ static inline void alarmUiSetEnabledState (TALARM *alarm, const int state)
 	TLABELSTR *lblstr = alarm->ui.btns[ALARM_BTN_ENABLE];
 	if (!lblstr) return;
 
-	//printf("alarmUiSetEnabledState %i\n", state);
-
 	labelRenderColourSet(lblstr->label, lblstr->strId, strEnabled[state].colFore, strEnabled[state].colBack, strEnabled[state].colOutline);
 	labelStringSet(lblstr->label, lblstr->strId, strEnabled[state].str);
 	ccSetUserDataInt(lblstr->label, state);
@@ -463,8 +454,6 @@ static inline void alarmUiSetPeriodState (TALARM *alarm, const int state)
 
 static inline void alarmUiSetAlarmTime (TALARM *alarm, const char *tStr)
 {
-	//printf("alarmUiSetAlarmTime '%s'\n", tStr);
-	
 	int slen = strlen(tStr);
 	if (slen < 4 || slen > 5) return;	// min str = 1:23, ideal is nn:nn
 
@@ -515,29 +504,20 @@ int alarmUiGetAlarmTime (TALARM *alarm, char *buffer)
 
 static inline int alarmEnableAlarm (TALARM *alarm, const int id)
 {
-	//printf("alarmEnableAlarm %i\n", id);
-	
 	TALARMTIMER *alm = alarmIdToAlm(alarm, id);
 	if (alm){
 		if (!(alm->state == ALARM_FIRED && alm->trigger.period == ALARM_FIRE_SINGLESHOT)){
 			alm->state = ALARM_ENABLED;
-			//printf("alarmEnableAlarm %i set\n", id);
 			return 1;
 		}else{
-			//printf("alarmEnableAlarm %i not ready\n", id);
 		}
 	}else{
-		//printf("alarmEnableAlarm %i invalid\n", id);
 	}
-	
-	//printf("alarmEnableAlarm %i not set\n", id);
 	return 0;
 }
 
 static inline void alarmDisableAlarm (TALARM *alarm, const int id)
 {
-	//printf("alarmDisableAlarm %i\n", id);
-	
 	TALARMTIMER *alm = alarmIdToAlm(alarm, id);
 	if (alm) alm->state = ALARM_DISABLED;
 }
@@ -631,7 +611,6 @@ static inline int alarmSetTime (TALARM *alarm, const int id, const time64_t t64)
 		alarmTimeToString(t64, alm->timeStr, ALARM_MAXTIMEDIGITS);
 		if (id == alarm->active.aid)
 			alarmUiSetAlarmTime(alarm, alm->timeStr);
-		//printf("alarmSetTime %I64d '%s'\n", t64, alm->timeStr);
 		return 1;
 	}
 	return 0;
@@ -647,21 +626,8 @@ static inline void alarmActionClear (TALARM *alarm, const int id)
 static inline int alarmActionAdd (TALARM *alarm, const int id, const int action, void *desc)
 {
 	TALARMTIMER *alm = alarmIdToAlm(alarm, id);
-	//printf("alarmActionAdd: %p %i %i\n", alm, id, action);
 	if (!alm) return 0;
-	
-/*	
-	printf("%i\n", sizeof(alarm_starttask));
-	printf("%i\n", sizeof(alarm_endtask));
-	printf("%i\n", sizeof(alarm_beep));
-	printf("%i\n", sizeof(alarm_plystart));
-	printf("%i\n", sizeof(alarm_plystop));
-	printf("%i\n", sizeof(alarm_flash));
-	printf("%i\n", sizeof(alarm_callback));
-	printf("%i\n", sizeof(alarm_msg));
-	printf("%i\n", sizeof(alarm_exit));
-*/
-	
+
 	switch (action){
 	  case ALARM_ACT_IGNORE:	break;
 	  case ALARM_ACT_STARTTASK:	my_memcpy(&alm->starttask,	desc, sizeof(alarm_starttask)); break;
@@ -705,9 +671,7 @@ int alarmActionGetDesc (TALARM *alarm, const int id, const int action, void *des
 {
 	TALARMTIMER *alm = alarmIdToAlm(alarm, id);
 	if (!alm) return 0;
-	
-	//printf("alarmActionGetDesc %X\n", action);
-	
+
 	switch (action){
 	  case ALARM_ACT_IGNORE:	break;
 	  case ALARM_ACT_STARTTASK:	my_memcpy(desc, &alm->starttask, sizeof(alarm_starttask)); break;
@@ -743,7 +707,6 @@ int alarmCreate (TALARM *alarm, const int period, const time64_t t64, const int 
 		alm->trigger.period = period;
 		alm->trigger.when = when;
 		alarmTimeToString(t64*60, alm->timeStr, ALARM_MAXTIMEDIGITS);
-		//printf("alarmCreate: %I64d '%s'\n", t64, alm->timeStr);
 		if (alarmAdd(alarm, alm))
 			return alm->id;
 		else
@@ -754,14 +717,9 @@ int alarmCreate (TALARM *alarm, const int period, const time64_t t64, const int 
 
 static inline int alarmFire (TALARM *alarm, TALARMTIMER *alm)
 {
-	//TALARMTIMER *alm = alarmIdToAlm(alarm, id);
-	//if (!alm) return 0;
-
 	int ret = 0;
 	const int action = alm->action&ALARM_ACT_MASK;
-	
-	//printf("alarmFire %X\n", action);
-	
+
 	// more than alarm event may be active
 	if (action&ALARM_ACT_IGNORE){		// don't act upon alarm, do nothing
 		alarm_action_ignore(alarm, alm->id, &alm->ignore);
@@ -872,16 +830,10 @@ int alarmCheckAlarms (TALARM *alarm)
 // TIMER_ALARM
 void timer_alarm (TVLCPLAYER *vp)
 {
-	//printf("TIMER_ALARM\n");
-	
 	if (alarmCheckAlarms(pageGetPtr(vp,PAGE_ALARM)))
 		timerSet(vp, TIMER_ALARM, ALARM_PERIOD);
 	else
 		timerSet(vp, TIMER_ALARM, ALARM_PERIOD+10000);
-		
-	//TALARM *alarm = pageGetPtr(vp, PAGE_ALARM);
-	//TALARMTIMER *alm = alarmIdToAlm(alarm, alarm->active.aid);
-	//printf("TIMER_ALARM %i\n", alm->state);
 	
 
 }
@@ -1008,10 +960,6 @@ static inline int alarmTimeGetDigitIdxChar (TALARM *alarm, const int idx)
 
 static inline int64_t alarmLblstr_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("almLblstr_cb, id:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, msg, (int)data1, (int)data2, dataPtr);
-		
 	TLABEL *label = (TLABEL*)object;
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS){
 		TALARM *alarm = ccGetUserData(label);
@@ -1048,18 +996,15 @@ static inline int64_t alarmLblstr_cb (const void *object, const int msg, const i
 
 		alarmUiSetAlarmTime(alarm, tstr);
 		alarm->ui.strTimeInt = alarmTimeAlarmToInt(alarm);
-		//printf("alarm->ui.strTimeInt %i\n", alarm->ui.strTimeInt);
 
 		if (alarm->ui.strTimeInt > ALARM_MAXTIME){
 			if (alarm->active.state){
 				alarmTimeSetColour(alarm, 0, 80.0);
-				//printf("alarmTimeSetColour red\n");
 			}
 			alarm->active.state = 0;
 		}else if (alarm->ui.strTimeInt <= ALARM_MAXTIME){
 			if (!alarm->active.state){
 				alarmTimeSetColour(alarm, 240<<24 | COL_GREEN_TINT, 0.0);
-				//printf("alarmTimeSetColour green\n");
 			}
 			alarm->active.state = 1;
 		}
@@ -1106,7 +1051,6 @@ static inline void alarmCfgApplyConfigSetup (TALARM *alarm)
 
 			for (int d = 0; d < 7; d++){
 				if (stristr(day, clkDayToName(d))){
-					//printf("%i %i: '%s' '%s'\n", i, d, day, clkDayToName(d));
 					when |= (1<<d);
 					break;
 				}
@@ -1143,7 +1087,6 @@ static inline void alarmCfgApplyConfigSetup (TALARM *alarm)
 
 	int status = 0;
 	settingsGet(vp, "alarm.enabled", &status);
-	//printf("status %i\n", status);
 	if (!status)
 		alarmDisable(alarm, alarm->active.aid);
 	else
@@ -1163,7 +1106,6 @@ static inline void alarmCfgApplyConfigAction (TALARM *alarm)
 	settingsGet(vp, "alarm.action.playtrack.volume", &media.volume);
 
 	if (media.volume > 100) media.volume = 100;	
-	//printf("'%s' %X %i %i\n", media.title, (int)media.uid, media.track, media.volume);
 	
 	alarmActionClear(alarm, alarm->active.aid);
 	alarmActionAdd(alarm, alarm->active.aid, ALARM_ACT_PLYSTART, &media);
@@ -1229,8 +1171,6 @@ static inline int page_alarmRenderEnd (TALARM *alarm, TVLCPLAYER *vp, int64_t ti
 	
 static inline int page_alarmRender (TALARM *alarm, TVLCPLAYER *vp, TFRAME *frame)
 {
-
-//double t0 = getTime(vp);
 	const struct tm *tdate = getTimeReal(NULL);
 
 	alarmDrawDateDay(frame, tdate, -1, 20, ALARM_DAY_FONT);
@@ -1245,18 +1185,11 @@ static inline int page_alarmRender (TALARM *alarm, TVLCPLAYER *vp, TFRAME *frame
 
 	if (alarmGetPeriod(alarm, alarm->active.aid) == ALARM_FIRE_WEEKLY)
 		buttonsRenderAll(alarm->ui.cfg.btns[BTN_ALM_DAYS], frame, BUTTONS_RENDER_HOVER|BUTTONS_RENDER_ANIMATE);
-
-//printf("render %f\n", getTime(vp)-t0);
-
 	return 1;
 }
 
 static inline int64_t ccAlmBtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("ccAlmBtn_cb, id:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
@@ -1274,8 +1207,6 @@ static inline int64_t ccAlmBtn_cb (const void *object, const int msg, const int6
 			when |= day;
 		
 		alarmSetWhen(alarm, aid, when);
-		//printf("when %X %X\n", when, day);
-
 		buttonFaceActiveSet(btn, !(when&day));
 	}
 	return 1;	
@@ -1283,10 +1214,6 @@ static inline int64_t ccAlmBtn_cb (const void *object, const int msg, const int6
 
 static inline int64_t alarmLblBtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("alarmLblBtn_cb, id:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, msg, (int)data1, (int)data2, dataPtr);
-		
 	TLABEL *label = (TLABEL*)object;
 	TALARM *alarm = ccGetUserData(label);
 			
@@ -1294,12 +1221,10 @@ static inline int64_t alarmLblBtn_cb (const void *object, const int msg, const i
 		if (label->id == alarm->ui.btns[ALARM_BTN_ENABLE]->ccId){
 			int btnState = ccGetUserDataInt(label)^1;
 			ccSetUserDataInt(label, btnState);
-			//printf("btnState %i %i\n", btnState, alarm->active.state);
 
 			if (btnState){
 				alarmEnable(alarm, alarm->active.aid);
 				alarmSetTime(alarm, alarm->active.aid, alarmTimeAlarmToInt(alarm)*60);
-				//printf("alarmSetTime %i\n", alarmTimeAlarmToInt(alarm));
 				
 			}else{
 				alarmDisable(alarm, alarm->active.aid);
@@ -1403,15 +1328,12 @@ static inline int page_alarmStartup (TALARM *alarm, TVLCPLAYER *vp, const int fw
 
 static inline int page_alarmInitalize (TALARM *alarm, TVLCPLAYER *vp, const int fw, const int fh)
 {
-	//printf("page_alarmInitalize\n");
 	setPageAccessed(vp, PAGE_ALARM);
 	return 1;
 }
 
 static inline int page_alarmShutdown (TALARM *alarm, TVLCPLAYER *vp)
 {
-	//resetPageAccessed(vp, PAGE_ALARM);
-	
 	for (int i = 0; i < ALARM_MAX; i++){
 		if (alarm->alm[i])
 			alarmDestroy(alarm->alm[i]);
@@ -1455,9 +1377,6 @@ static inline int page_alarmInput (TALARM *alarm, TVLCPLAYER *vp, const int msg,
 int page_alarmCb (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TALARM *alarm = (TALARM*)pageStruct;
-	
-	//if (msg != PAGE_CTL_RENDER)
-	//	printf("# page_alarmCb: %p %i %I64d %I64d %p %p\n", alarm, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
 	
 	if (msg == PAGE_CTL_RENDER){
 		return page_alarmRender(alarm, alarm->com->vp, dataPtr);

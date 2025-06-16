@@ -39,13 +39,11 @@ TKEYPAD *keyboardGetKeypad (void *pageStruct)
 static inline int keyboardKeyPress (TKEYBOARD *vkey, TVLCPLAYER *vp, TKEYPAD *kp, TKP_EDITBOX *eb, const int btnId)
 {
 	if (btnId == VKEY_CB_PASTE){
-		//printf("VKEY_CB_PASTE\n");
 		keypadPlayKeyAlert(kp);
 		HWND hWnd = (HWND)vp->gui.hMsgWin;
 		keypadClipBoardGet(kp, hWnd, eb);
 		
 	}else if (btnId == VKEY_CB_COPY){
-		//printf("VKEY_CB_COPY\n");
 		keypadPlayKeyAlert(kp);
 		HWND hWnd = (HWND)vp->gui.hMsgWin;
 		wchar_t *buffer = keypadEditboxGetBufferW(eb);
@@ -55,18 +53,12 @@ static inline int keyboardKeyPress (TKEYBOARD *vkey, TVLCPLAYER *vp, TKEYPAD *kp
 		}
 	}else if (btnId == VKEY_UNDO){
 		keypadPlayKeyAlert(kp);
-		//printf("VKEY_UNDO\n");
 		keypadEditboxUndoBuffer(eb);
 
 	}else if (btnId == VKEY_CLOSE){
-		//printf("VKEY_CLOSE %p\n", ccGetUserData(btn));
 		ccDisable(kp);
-		/*if (pageGetSec(btn->cc->vp) == PAGE_VKEYBOARD)
-			pageSetSec(btn->cc->vp, -1);
-		else*/
 		if (page2RenderGetState(vp->pages, PAGE_VKEYBOARD))
 			page2SetPrevious(vkey);
-		//page2RenderDisable(btn->cc->vp->pages, PAGE_VKEYBOARD);
 		
 	}else if (btnId == VKEY_CARET_LEFT){
 		keypadPlayKeyAlert(kp);
@@ -104,17 +96,13 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 		vkey->btns->t0 = getTickCount();
 
 		int btnId = (int)ccGetUserDataInt(btn);
-		//printf("keyboard key %i, %i\n", btn->id, btnId);
 		keyboardKeyPress(vkey, vp, kp, eb, btnId);
 	}
-
 	return 1;
 }  
 
 int64_t keypadMsg_cb (const void *object, const int msg, const int64_t dataInt1, const int64_t dataInt2, void *dataPtr)
 {
-	//printf("keypadMsg_cb msg:%i\n", msg);
-
 #if 0
 	if (msg == KP_MSG_PAD_RENDER){
 		TKEYPAD *kp = (TKEYPAD*)object;
@@ -171,12 +159,10 @@ static inline int page_vkbInput (TKEYBOARD *vkey, TVLCPLAYER *vp, const int msg,
 {
 	switch(msg){
 	  case PAGE_IN_WHEEL_FORWARD:
-		//keypadPlayKeyAlert(vkey->kp);
 		keypadEditboxCaretMoveLeft(&vkey->kp->editbox);
 		return keypadEditboxGetCharTotal(&vkey->kp->editbox) > 0;
 
 	  case PAGE_IN_WHEEL_BACK:
-		//keypadPlayKeyAlert(vkey->kp);
 		keypadEditboxCaretMoveRight(&vkey->kp->editbox);
 		return keypadEditboxGetCharTotal(&vkey->kp->editbox) > 0;
 
@@ -236,8 +222,6 @@ static inline int page_vkbShutdown (TKEYBOARD *vkey, TVLCPLAYER *vp)
 
 void page_vkbRenderStart (TKEYBOARD *vkey, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//printf("page_vkbRenderStart\n");
-	
 	TKEYPAD *kp = vkey->kp;
 	if (!ccGetState(kp)) ccEnable(kp);
 	ccHoverRenderSigEnable(vp->cc, 16.0);
@@ -245,7 +229,6 @@ void page_vkbRenderStart (TKEYBOARD *vkey, TVLCPLAYER *vp, int64_t time0, int64_
 
 void page_vkbRenderEnd (TKEYBOARD *vkey, TVLCPLAYER *vp, int64_t destId, int64_t data2, void *opaquePtr)
 {
-	//printf("page_vkbRenderEnd\n");
 	ccHoverRenderSigDisable(vp->cc);
 	TKEYPAD *kp = vkey->kp;
 	if (ccGetState(kp)) ccDisable(kp);
@@ -305,10 +288,7 @@ static inline int page_vkbInputCharDown (TKEYBOARD *vkey, TVLCPLAYER *vp, const 
 int page_vkbCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TKEYBOARD *vkey = (TKEYBOARD*)pageStruct;
-	
-	//if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_vkbCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		TKEYPAD *kp = vkey->kp;
 		keypadDispatchEvent(kp, KP_RENDER_PRE, KP_MSG_PAD_RENDER, dataInt1, dataPtr);
@@ -343,8 +323,5 @@ int page_vkbCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t
 		return page_vkbShutdown(vkey, vkey->com->vp);
 		
 	}
-	
 	return 1;
 }
-
-

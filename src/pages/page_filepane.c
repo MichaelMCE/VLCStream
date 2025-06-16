@@ -268,8 +268,6 @@ int filepaneBuildPlaylistDir (TFILEPANE *filepane, PLAYLISTCACHE *plc, wchar_t *
 		__mingw_snwprintf(location, MAX_PATH, L"%ls\\", pathw);
 	else
 		__mingw_snwprintf(location, MAX_PATH, L"%ls", pathw);
-
-	//wprintf(L"filepaneBuildPlaylistDir #%s#\n", location);
 	
 	int total = 0;
 	int count = 0;
@@ -377,9 +375,7 @@ static inline void buildLocBar (TFILEPANE *filepane, TLABEL *bar)
 	int length;
 	TFB **stack = stackCopyPtr(filepane->stack, &length);
 	if (!stack || !length) return;
-	
-	//printf("locBar %p %i\n", stack, length);
-	
+
 	if (length < 2){		// my computer
 		char *name = filepane->myComputerName;
 
@@ -401,8 +397,6 @@ static inline void buildLocBar (TFILEPANE *filepane, TLABEL *bar)
 	
 	for (int i = 0; i < length-1; i++){
 		TFB *fb = stack[i];
-		//printf("@@ %i, #%s#\n", i, fb->rootName);
-
 		char *name = my_strdup(fb->rootName);
 		int len = strlen(name);
 		if (name[len-1] == '\\') name[len-1] = 0;
@@ -451,7 +445,6 @@ static inline void filepaneSetSortLabel (TFILEPANE *filepane, const int mode)
 
 void filepaneSetSortMode (TFILEPANE *filepane, const int mode)
 {
-	//printf("filepaneSetSortMode %i\n", mode);
 	filepane->sortMode = mode;
 	filepaneSetSortLabel(filepane, filepane->sortMode);
 }
@@ -464,7 +457,6 @@ static inline void filepaneSetFilterLabel (TFILEPANE *filepane, const int type)
 
 void filepaneSetFilterMask (TFILEPANE *filepane, const int type)
 {
-	//printf("filepaneSetFilterMask %i\n", type);
 	filepane->filterMask = type;
 	filepaneSetFilterLabel(filepane, filepane->filterMask);
 }
@@ -541,8 +533,6 @@ static inline void driveSpaceFormat (char *buffer, const char *drive, const uint
 static inline int filepaneAddLogicalDrives (TFILEPANE *filepane)
 {
 	TPANE *pane = filepane->pane;
-
-	//printf("@@ filepaneAddLogicalDrives\n");
 	
 	filepane->drives.total = 0;
 	if (filepane->drives.list) fbGetLogicalDrivesRelease(filepane->drives.list);
@@ -586,10 +576,6 @@ static inline char *filepaneFBGetItem (TFB *fb, const int idx)
 	TFBITEM *item = fbGetFirst(fb);
 	while (item){
 		if (addCount++ == idx){
-			/*TTREEENTRY *entry = fbGetEntry(fb, item);
-			TFB_ITEM_DESC *desc = treeEntryGetStorage(entry);
-			printf("%i, %I64d %I64d %I64d\n", entry->id, desc->fileSize, desc->creationDate, desc->modifiedDate);
-			*/
 			char *str = fbGetName(fb,item);
 			if (str)
 				return my_strdup(str);
@@ -604,9 +590,7 @@ static inline char *filepaneFBGetItem (TFB *fb, const int idx)
 static inline int filepaneAddFB (TFILEPANE *filepane, TFB *fb)
 {
 	TPANE *pane = filepane->pane;
-	
-	//printf("@@ filepaneAddFB'\n");
-	
+
 	if (!filepane->icons.areRegistered)
 		filePaneRegisterIcons(filepane);
 	
@@ -621,10 +605,6 @@ static inline int filepaneAddFB (TFILEPANE *filepane, TFB *fb)
 	int addBranchCount = 0;
 	char *text;
 
-	//printf("filepaneAddFB -> '%s' ", fb->rootName);
-	//double t0 = getTime(filepane->com->vp);
-	
-	
 	int showFileSize = 0;
 	settingsGet(pane->cc->vp, "browser.showFileSize", &showFileSize);
 		
@@ -672,9 +652,6 @@ static inline int filepaneAddFB (TFILEPANE *filepane, TFB *fb)
 	paneTextAdd(pane, filepane->icons.closePane, 0.0, "       ", PANE_FONT, (FB_OBJTYPE_BACKRIGHT<<16));
 #endif
 
-	//double t1 = getTime(filepane->com->vp);
-	//printf("%.2f\n", t1-t0);
-	
 	fb->branchCount = addBranchCount;
 	fb->leafCount = addLeafCount;
 	return addLeafCount+addBranchCount;
@@ -682,8 +659,6 @@ static inline int filepaneAddFB (TFILEPANE *filepane, TFB *fb)
 
 static inline TFB *filepaneCreatePath (TFILEPANE *filepane, const char *name, const char *path)
 {
-	//printf("filepaneCreatePath '%s' '%s'\n", name, path);
-	
 	wchar_t *pathw = converttow(path);
 	if (!pathw) return 0;
 
@@ -693,7 +668,6 @@ static inline TFB *filepaneCreatePath (TFILEPANE *filepane, const char *name, co
 	int depth = 0;
 
 	fbSetUserData(fb, my_strdup(path));
-
 	fbFindFiles(fb, fb->rootId, pathw, L"*.*", &depth, filepane->filterMasks[filepane->filterMask]);
 	fbSort(fb, fb->rootId, filepane->sortMode);
 	
@@ -731,8 +705,6 @@ static inline int filepaneImport_File (TFILEPANE *filepane, PLAYLISTCACHE *plc, 
 
 static inline int filepaneImport_Folder (TFILEPANE *filepane, PLAYLISTCACHE *plcParent, char *name, const int includeSubDir)
 {
-	//printf("filepaneImport_Folder '%s'\n", name);
-
 	TVLCPLAYER *vp = filepane->com->vp;
 
 	const int playlistExists = (playlistManagerGetPlaylistByName(vp->plm, name) != NULL);
@@ -748,8 +720,6 @@ static inline int filepaneImport_Folder (TFILEPANE *filepane, PLAYLISTCACHE *plc
 		else
 			playlistAddPlc(getPrimaryPlaylist(vp), plc);
 	}
-
-	//playlistDeleteRecords(plc);	// if pre-existing, remove tracks already in playlist
 
 	if (plc->parent)
 		plc->parent->pr->selectedItem = playlistManagerGetPlaylistIndex(vp->plm, plc);
@@ -903,21 +873,17 @@ int filepaneSetPath (TFILEPANE *filepane, char *path)
 
 static inline void filepaneSelection_Media (TFILEPANE *filepane, TFB *fb, const char *filename, const char *completePath, const wchar_t *folder)
 {
-	//printf("media\n");
+
 	filepanePlay_DoPlay(filepane, (char*)completePath);
 }
 
 static inline void filepaneSelection_Audio (TFILEPANE *filepane, TFB *fb, const char *filename, const char *completePath, const wchar_t *folder)
 {
-	//printf("audio\n");
-	
 	filepaneSelection_Media(filepane, fb, filename, completePath, folder);
 }
 
 static inline void filepaneSelection_Video (TFILEPANE *filepane, TFB *fb, const char *filename, const char *completePath, const wchar_t *folder)
 {
-	//printf("video\n");
-	
 	filepaneSelection_Media(filepane, fb, filename, completePath, folder);
 }
 
@@ -928,8 +894,6 @@ static inline void filepaneSelection_Image (TFILEPANE *filepane, TFB *fb, const 
 	
 	// open folder 'folder'
 	// find then focus on image 'filename'
-	//printf("filename '%s'\n", filename);
-	//wprintf(L"folder '%s'\n", folder);
 	int found = imgPaneAddPath(imgpane, imgpane->pane, folder, filename, imgpane->nameToggleState, 0.35);
 	imgPaneSetImageFocus(imgpane, found);
 
@@ -960,8 +924,6 @@ void filepaneViewImage (TFILEPANE *filepane, wchar_t *path)
 
 static inline void filepaneSelection_Playlist (TFILEPANE *filepane, TFB *fb, const char *filename, const char *completePath, const wchar_t *folder)
 {
-	//printf("playlist\n");
-	
 	int total = 0;
 	TVLCPLAYER *vp = filepane->com->vp;
 	
@@ -998,7 +960,6 @@ int filepaneSetLogicalDriveRoot (TFILEPANE *filepane, const char driveLetter)
 	
 	buildLocBar(filepane, filepane->locBar);
 	buildTitleBar(filepane, filepane->title);
-	//printf("added %i\n", addCount);
 	return addCount;
 }
 
@@ -1034,8 +995,7 @@ static inline int filepaneImport (TFILEPANE *filepane, TFB *fb, const int fbType
 			}else if (isMediaImage8(item)){
 				filepaneSelection_Image(filepane, fb, item, pathFull8, folder);
 			}else{
-				//printf("# UNHANDLED FILE '%s'\n", path8);
-				//printf("\t %I64d %I64d %p, %i %i\n", data1, data2, dataPtr, fbType, fbIndex);
+
 			}
 			my_free(folder);
 		}
@@ -1056,15 +1016,11 @@ static inline int filepaneImport (TFILEPANE *filepane, TFB *fb, const int fbType
 
 static inline int64_t filepane_pane_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT/* || msg == CC_MSG_HOVER*/) return 1;
 	if (msg < 200) return 1;
 	
 	TPANE *pane = (TPANE*)object;
-	//printf("filepane_pane_cb: %i %i %I64d %I64d %p\n", pane->id, msg, data1, data2, dataPtr);
-	
-	
+
 	if (msg == PANE_MSG_BASE_SELECTED_RELEASE){
-		//printf("PANE_MSG_BASE_SELECTED_RELEASE: %i %i %I64d %I64d %p\n", pane->id, msg, data1, data2, dataPtr);
 		TFILEPANE *filepane = ccGetUserData(pane);
 		ccDisable(filepane->pane->input.drag.label);
 		filepane->import.heldItemId = 0;
@@ -1079,7 +1035,7 @@ static inline int64_t filepane_pane_cb (const void *object, const int msg, const
 		int id = data2&0xFFFF;
 		char *name = filepaneFBGetItem(fb, --id);
 		if (name){
-			//printf("filepane_pane Held: %I64d %I64d '%s%s'\n", data1, data2, (char*)fbGetUserData(fb), name);
+
 			my_free(name);
 		}
 	}else if (msg == PANE_MSG_SLIDE_HOVER){
@@ -1091,13 +1047,9 @@ static inline int64_t filepane_pane_cb (const void *object, const int msg, const
 		char *name = filepaneFBGetItem(fb, --id);
 		if (name){
 			int itemHoveredOver = data1>>32;
-			//int itemHovering = data1&0xFFFFFFF;
-			//printf("filepane_pane Hover: %i:%i %I64d '%s%s'\n", itemHoveredOver, itemHovering, data2, (char*)fbGetUserData(fb), name);
-			
 			if (labelItemGetType(pane->base, itemHoveredOver) == LABEL_OBJTYPE_TEXT){
 				char *str = labelStringGet(pane->base, itemHoveredOver);
 				if (str){
-				//	printf("filepane_pane HoveredOver: '%s%s'\n", (char*)fbGetUserData(fb), str);
 					my_free(str);
 				}
 			}
@@ -1111,36 +1063,27 @@ static inline int64_t filepane_pane_cb (const void *object, const int msg, const
 		int id = data2&0xFFFF;
 		char *name = filepaneFBGetItem(fb, --id);
 		if (name){
-			//int itemReleasedOver = data1>>32;  // if any
-			//int itemReleased = data1&0xFFFFFFF;
-			//printf("filepane_pane Release: %i:%i %I64d '%s%s'\n", itemReleasedOver, itemReleased, data2, (char*)fbGetUserData(fb), name);
 			my_free(name);
 			renderSignalUpdate(pane->cc->vp);
 		}
 #endif
 	}else if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
-		//int itemId = data1 + (msg == PANE_MSG_IMAGE_SELECTED);
 		TFILEPANE *filepane = ccGetUserData(pane);
 
 		const int fbType = (data2>>16)&0x0F;
 		int fbIndex = (data2&0xFFFF);
 		
 		if (fbType == FB_OBJTYPE_FILE){
-			//printf("# FILE\n");
-
 			TFB *fb = filepaneGetPaneFB(filepane);
 			if (!fb) return 1;
 
 			char *name = filepaneFBGetItem(fb, --fbIndex);
 			if (name){
-				//printf("filepane selected '%s' #%s#\n", (char*)fbGetUserData(fb), (char*)name);
 				if (pageDispatchMessage(pane->cc->vp->pages, PAGE_MSG_FILE_SELECTED, (intptr_t)fbGetUserData(fb), (intptr_t)name,  NULL))
 					filepaneImport(filepane, fb, fbType, fbGetUserData(fb), name);
 				my_free(name);
 			}
 		}else if (fbType == FB_OBJTYPE_FOLDER){
-			//printf("# FOLDER in\n");
-
 			TFB *fb = filepaneGetPaneFB(filepane);
 			if (!fb) return 1;
 			
@@ -1149,10 +1092,7 @@ static inline int64_t filepane_pane_cb (const void *object, const int msg, const
 				filepaneImport(filepane, fb, fbType, fbGetUserData(fb), name);
 				my_free(name);
 			}
-			//printf("# FOLDER out\n");
 		}else if (fbType == FB_OBJTYPE_BACK){
-			//printf("# BACK\n");
-			
 			intptr_t data;
 			stackPop(filepane->stack, &data);
 			filepaneReleaseFB((TFB*)data);
@@ -1169,18 +1109,15 @@ static inline int64_t filepane_pane_cb (const void *object, const int msg, const
 				filepaneAddFB(filepane, fb);
 				filepaneSetSortLabel(filepane, fb->sortedMode);
 				filepaneSetFilterLabel(filepane, fb->filteredMode);
-				//printf("added %i\n", addCount);
 			}
 			
 			buildLocBar(filepane, filepane->locBar);
 			buildTitleBar(filepane, filepane->title);
 			
 		}else if (fbType == FB_OBJTYPE_BACKRIGHT){
-			//printf("# CLOSE\n");
 			page2SetPrevious(filepane);
 			
 		}else if (fbType == FB_OBJTYPE_DRIVE){
-			//printf("# DRIVE %c:\n", fbIndex);
 			filepaneSetLogicalDriveRoot(filepane, fbIndex);
 
 		}
@@ -1195,11 +1132,9 @@ int64_t filepane_titlebar_cb (const void *object, const int msg, const int64_t d
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
 	
 	TLABEL *title = (TLABEL*)object;
-	//printf("filepane_titlebar_cb in %p, %i %I64d %I64d %p\n", bar, msg, data1, data2, dataPtr);
-	
+
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS){
 		const int data = labelItemDataGet(title, data2);
-		//printf("title id %i\n", data);
 		
 	}
 #endif
@@ -1211,28 +1146,20 @@ int64_t filepane_locbar_cb (const void *object, const int msg, const int64_t dat
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
 	
 	TLABEL *bar = (TLABEL*)object;
-	//printf("filepane_locbar_cb:  %i, %i %I64d %I64d %p\n", bar->id, msg, data1, data2, dataPtr);
 
-	
 	if (msg == LABEL_MSG_TEXT_SELECTED_PRESS){
 		TFILEPANE *filepane = ccGetUserData(bar);	
-		//TPANE *pane = filepane->pane;
 		const int data = labelItemDataGet(bar, data2);
-		//printf("locBar id %i\n", data);
 
 		const int type = (data>>16)&0x0F;
 		const int fbIndex = data&0xFFFF;
-		//printf("locBar id %i, %i %i\n", data, type, fbIndex);
 		
 		if (type == FB_OBJTYPE_FOLDER || type == FB_OBJTYPE_DRIVE){
-			//printf("## FOLDER %i\n", fbIndex);
-			
 			int length;
 			TFB **stack = stackCopyPtr(filepane->stack, &length);
 			if (stack){
 				TFB *fb = stack[fbIndex];
-				//printf("fb: %i '%s'\n", fbIndex, fb->rootName);
-					
+
 				filepaneStackRewind(filepane, fb);
 				filepaneEmpty(filepane);
 				filepaneAddFB(filepane, fb);
@@ -1241,15 +1168,12 @@ int64_t filepane_locbar_cb (const void *object, const int msg, const int64_t dat
 				filepaneSetFilterLabel(filepane, fb->filteredMode);
 				buildLocBar(filepane, filepane->locBar);
 				buildTitleBar(filepane, filepane->title);
-				//printf("added %i\n", addCount);
 					
 				my_free(stack);
 			}else{
-				//printf("locbar: stack empty\n");
+
 			}
 		}else if (type == FB_OBJTYPE_MYCOM){
-			//printf("## MYCOM %i\n", fbIndex);
-
 			filepaneEmpty(filepane);
 			filepaneStackEmpty(filepane);
 #if 0
@@ -1296,8 +1220,6 @@ static inline void drawFolderStats (TFILEPANE *filepane, TFRAME *frame, const in
 
 static inline int page_filePaneRender (TFILEPANE *filepane, TFRAME *frame)
 {
-//	printf("paneRender -> %i ", filepane->pane->id);
-
 	ccRender(filepane->filterLabel, frame);
 	ccRender(filepane->sortLabel, frame);
 	drawFolderStats(filepane, frame, PANE_FODLERSTATS_FONT, 8, 0);
@@ -1306,12 +1228,8 @@ static inline int page_filePaneRender (TFILEPANE *filepane, TFRAME *frame)
 	ccRender(filepane->locBar, frame);
 	labelStrRender(filepane->import.media, frame);
 	ccRender(filepane->title, frame);
-	
-	//double t0 = getTime(filepane->com->vp);	
+
 	ccRender(filepane->pane, frame);
-	//double t1 = getTime(filepane->com->vp);
-	//printf("%.2f\n", t1-t0);	
-	
 	return 1;
 }
 
@@ -1362,8 +1280,6 @@ static inline int page_filepaneRenderInit (TFILEPANE *filepane, int64_t time0, i
 
 static inline void page_filePaneObjHover (TFILEPANE *filepane, int64_t data1, int64_t data2, void *dataPtr)
 {
-	//printf("### page_filePaneObj Hover: %I64d %I64d %p\n", data1, data2, dataPtr);
-	
 	if (data1 == PAGE_OBJ_HOVER_NONE){
 		buttonsStateSet(filepane->btns, FILEPANE_SHOWEXT, 1);
 		buttonsStateSet(filepane->btns, FILEPANE_REFRESH, 1);
@@ -1405,13 +1321,11 @@ static inline void page_filePaneObjHover (TFILEPANE *filepane, int64_t data1, in
 			paneDragDisable(filepane->pane);
 			paneDragEnable(filepane->pane);
 		}
-		
-		//printf("page_filePaneObjHover Held: %I64d %i %i\n", data1, (int)(data2>>32), (int)(data2&0xFFFFFFFF));
+
 	}else if (data1 == PAGE_OBJ_HOVER_RELEASE){
 		filepane->import.releasedItemId = (data2>>32);
 		labelStrDisable(filepane->import.media);
 		ccEnable(filepane->locBar);
-		//printf("page_filePaneObjHover Release: %i %i\n", (int)(data2>>32), (int)(data2&0xFFFFFFFF));
 	}
 	
 }
@@ -1435,16 +1349,14 @@ static inline int filepaneRefreshContents (TFILEPANE *filepane)
 
 			fb = filepaneCreatePath(filepane, name, path);
 			filepaneEmpty(filepane);
-	//double t0 = getTime(filepane->com->vp);
+
 			filepaneAddFB(filepane, fb);
-	//double t1 = getTime(filepane->com->vp);
+
 			stackPush(filepane->stack, (intptr_t)fb);
 			filepaneSetFilterLabel(filepane, fb->filteredMode);
 			buildLocBar(filepane, filepane->locBar);
 			buildTitleBar(filepane, filepane->title);
 
-
-		//	printf("buildTime %.2f\n", t1-t0);
 		}
 		if (name) my_free(name);
 		if (path) my_free(path);
@@ -1457,9 +1369,7 @@ static inline int filepaneRefreshContents (TFILEPANE *filepane)
 
 static inline int filepaneButtonPress (TFILEPANE *filepane, TCCBUTTON *btn, const int id, const TTOUCHCOORD *pos)
 {
-	//TVLCPLAYER *vp = btn->cc->vp;
 	filepane->btns->t0 = getTickCount();
-
 
 	switch (id){
 	case FILEPANE_SHOWEXT:
@@ -1502,16 +1412,8 @@ static inline int filepaneButtonPress (TFILEPANE *filepane, TCCBUTTON *btn, cons
 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("ccBtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	TFILEPANE *filepane = pageGetPtr(btn->cc->vp, ccGetOwner(btn));
-
-	//if (msg != CC_MSG_RENDER && msg != CC_MSG_ENABLED && msg != CC_MSG_DISABLED)
-	//	printf("ccBtn_cb, id:%i, msg:%i, data1:%I64d, data2:%I64d, ptr:%p\n", btn->id, msg, data1, data2, dataPtr);
-
 
 	if (btn->id == filepane->import.ccAddTrackId){
 		if (msg == BUTTON_MSG_SELECTED_RELEASE){
@@ -1528,8 +1430,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 			if (itemStr){
 				char *path = fbGetUserData(fb);
 				if (path){
-					//printf("import single released: %i: %i %i, '#%s#%s#'\n", filepane->import.heldItemId, fbType, fbIndex, path, itemStr);
-					
 					PLAYLISTCACHE *plc = getQueuedPlaylist(btn->cc->vp);
 					if (!plc) plc = getDisplayPlaylist(btn->cc->vp);
 					if (!plc) plc = getPrimaryPlaylist(btn->cc->vp);
@@ -1570,8 +1470,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 			if (itemStr){
 				char *path = fbGetUserData(fb);
 				if (path){
-					//printf("import nulti released: %i: %i %i, '#%s#%s#'\n", filepane->import.heldItemId, fbType, fbIndex, path, itemStr);
-					
 					if (fbType == FB_OBJTYPE_FILE){
 						filepaneImport(filepane, fb, fbType, path, itemStr);
 					}else if (fbType == FB_OBJTYPE_FOLDER){
@@ -1598,10 +1496,7 @@ static inline int64_t filepane_label_cb (const void *object, const int msg, cons
 	if (msg == CC_MSG_RENDER/* || msg == CC_MSG_INPUT*/) return 1;
 
 	TLABEL *label = (TLABEL*)object;
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//if (msg != CC_MSG_RENDER)
-	//	printf("filepane_label_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-	
+
 	switch (msg){
 	case LABEL_MSG_BASE_SELECTED_PRESS:{
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
@@ -1632,7 +1527,7 @@ static inline int64_t filepane_label_cb (const void *object, const int msg, cons
 			if (!filepaneRefreshContents(filepane))
 				filepane->filterMask = oldMask;
 		}
-	}
+	  }
 	};
 	return 1;
 }
@@ -1809,9 +1704,6 @@ static inline int page_filePaneInput (TFILEPANE *filepane, const int msg, const 
 int page_filePaneCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TFILEPANE *filepane = (TFILEPANE*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_filePaneCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
 	
 	if (msg == PAGE_CTL_RENDER){
 		return page_filePaneRender(filepane, dataPtr);

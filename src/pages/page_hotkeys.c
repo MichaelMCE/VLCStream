@@ -181,9 +181,6 @@ static inline int ghkPanButtonPress (TGLOBALHOTKEYS *ghk, TCCBUTTON *btn, const 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -199,13 +196,10 @@ int64_t ghk_panel_cb (const void *object, const int msg, const int64_t data1, co
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 	
 	TPANEL *panel = (TPANEL*)object;
-	//TVLCPLAYER *vp = panel->cc->vp;
-	//printf("ghk_panel_cb %p, %p, %i %i %i %p\n", panel, vp, msg, data1, data2, dataPtr);
-	
+
 	if (msg == PANEL_MSG_ITEMSELECTED){
 		THOTKEY *hk = panelImgStorageGet(panel, data1);
 		if (hk && hk->key){
-			//printf("key %i %i %c\n", hk->modifierA, hk->modifierB, hk->key);
 			ghkSendHotkey(hk->modifierA, hk->modifierB, hk->key);
 		}
 	}
@@ -223,7 +217,6 @@ int ghkPanelAddKeys (TPANEL *panel, THOTKEY **keys, const int total, const int s
 				key->id = panelImgAdd(panel, genAMId(panel,path), " ", (void*)i);
 			else
 				key->id = panelImgAdd(panel, genAMId(panel,path), key->name, (void*)i);
-			//printf("ghkPanelAddKeys: %i, %i '%s'\n", i, key->id, key->imagePath);
 			my_free(path);
 			
 			
@@ -280,8 +273,7 @@ static inline int page_ghkRender (TGLOBALHOTKEYS *ghk, TVLCPLAYER *vp, TFRAME *f
 		if (ghk->vlcTitle[0])
 			ghkRenderTitle(vp, frame, ghk->vlcTitle);
 	}
-	
-	//printf("vlc running: %i '%s'\n", ghk->isVlcRunning, ghk->vlcTitle);
+
 	ccRender(ghk->panel, frame);
 	return 1;
 }
@@ -440,17 +432,12 @@ static inline int page_ghkInitalize (TGLOBALHOTKEYS *ghk, TVLCPLAYER *vp, const 
 				
 				ghk->keys[validKeys] = ghkAllocKey();
 				my_memcpy(ghk->keys[validKeys], &hk, sizeof(THOTKEY));
-
-				//printf("name:'%s'\nmodA:%s/%i\nmodB:%s/%i\nkey:%c\nimage:%s\n\n", hk.name,
-				//		  modifierStrA, hk.modifierA, modifierStrB, hk.modifierB, hk.key, hk.imagePath);
-
 				validKeys++;
 			}
 			ghk->totalKeys = validKeys;
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	
 	return 1;
@@ -466,10 +453,7 @@ static inline int page_ghkShutdown (TGLOBALHOTKEYS *ghk, TVLCPLAYER *vp)
 int page_ghkCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TGLOBALHOTKEYS *ghk = (TGLOBALHOTKEYS*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_ghkCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_ghkRender(ghk, ghk->com->vp, dataPtr);
 

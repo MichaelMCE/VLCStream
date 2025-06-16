@@ -130,8 +130,6 @@ void subtitleGetUpdate (TVLCPLAYER *vp)
 	my_free(path);
 	if (canNotHaveSubs) return;
 
-	//printf("TIMER_SUB_UPDATE\n");
-	
 	TSUB *sub = pageGetPtr(vp, PAGE_SUB);
 	TVLCCONFIG *vlc = vp->vlc;
 	
@@ -148,7 +146,6 @@ static inline int page_subRender (TSUB *sub, TVLCPLAYER *vp, TFRAME *frame)
 	if (vp->vlc->isMediaLoaded && vlc->spu.total)
 		ccRender(sub->lb, frame);
 	else
-		//pageSetPrevious(vp);
 		page2SetPrevious(sub);
 		
 	return 1;
@@ -195,9 +192,6 @@ static inline int page_subStartup (TSUB *sub, TVLCPLAYER *vp, const int fw, cons
 	ccEnable(sub->lb);
 
 	lbScrollbarSetWidth(sub->lb, SCROLLBAR_VERTWIDTH);
-	//lbSetFocus(sub->lb, 0);
-	//ccEnable(sub->lb);
-
 	return 1;
 }
 
@@ -229,9 +223,6 @@ static inline int page_subShutdown (TSUB *sub, TVLCPLAYER *vp)
 int page_subCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TSUB *sub = (TSUB*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_subCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
 	
 	if (msg == PAGE_CTL_RENDER){
 		return page_subRender(sub, sub->com->vp, dataPtr);

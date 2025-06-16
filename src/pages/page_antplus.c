@@ -78,12 +78,6 @@ static inline int getMode (const unsigned char *bpm, const int len)
 static inline void antPulseCb (const THRBUFFER *rate, const void *opaque)
 {
 	if (SHUTDOWN || rate->currentBpm < 25) return;	// if it's less than 25 then i've probably died 
-	//static uint64_t preTime;
-
-	//printf("antPulseCb %i HR: %i %i %i\n", rate->currentSequence, rate->currentBpm, ant->stats.mode, ant->stats.average);
-	//printf("antPulseCb %i\n", (int)(rate->time0 - preTime));
-	//preTime = rate->time0;
-
 
 	TANTPLUS *ant = (TANTPLUS*)opaque;
 	
@@ -107,7 +101,6 @@ static inline void antPulseCb (const THRBUFFER *rate, const void *opaque)
 				
 				regSetQword(L"HRM_bpmTime", rate->time0);
 			}else{
-				//for (int i = 0; i < 100; i++)
 				graphSheetAddData(sheet, rate->currentBpm, 0);
 			}
 			graphSheetRelease(sheet);
@@ -241,8 +234,6 @@ static inline void onButtonDiscoverDevices (TANTPLUS *ant)
 static inline void onButtonStart (TANTPLUS *ant)
 {
 	antConfigGetDeviceIds(ant, &ant->device.vid, &ant->device.pid);
-	//printf("doButtonStart %X %X\n", ant->device.vid, ant->device.pid);
-
 	if (antHrmStart(ant)){
 		hrmStatsSet(ant->hr, &ant->stats.rate);
 		
@@ -256,7 +247,6 @@ static inline void onButtonStart (TANTPLUS *ant)
 
 static inline void onButtonStop (TANTPLUS *ant)
 {
-	//printf("doButtonStop\n");
 	if (ant->lsId)
 		lsItemRemove(ant, ant->lsId);
 	hrmStatsGet(ant->hr, &ant->stats.rate);
@@ -266,8 +256,6 @@ static inline void onButtonStop (TANTPLUS *ant)
 
 static inline void onButtonClear (TANTPLUS *ant)
 {
-	//printf("doButtonClear\n");
-	
 	if (ant->hr){
 		graphClear(ant->graph, 0);
 		hrmStatsReset(ant->hr);
@@ -284,8 +272,6 @@ static inline void onButtonSheetFocus (TANTPLUS *ant)
 
 static inline int antButtonPress (TANTPLUS *ant, const int btnId)
 {
-	//TVLCPLAYER *vp = ant->com->vp;
-
 	switch (btnId){
 	case ANTPLUS_FIND:
 		onButtonDiscoverDevices(ant);
@@ -307,7 +293,6 @@ static inline int antButtonPress (TANTPLUS *ant, const int btnId)
 	//	page2SetPrevious(ant);
 	//	break;
 	};
-	
 	
 	return 1;
 }
@@ -336,23 +321,13 @@ static inline void antDrawGraphKey (TANTPLUS *ant, TFRAME *frame)
 
 static inline int64_t ant_pane_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_HOVER) return 1;
-	
 	TPANE *pane = (TPANE*)object;
-	//printf("pane_cb in %p, %i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
-	
+
 	if (msg == CC_MSG_RENDER){
 		antDrawGraphKey(ccGetUserData(pane), dataPtr);
 		
 	}else if (msg == PANE_MSG_TEXT_SELECTED || msg == PANE_MSG_IMAGE_SELECTED){
-		//int itemId = data1 + (msg == PANE_MSG_IMAGE_SELECTED);
-		//TVLCPLAYER *vp = pane->cc->vp;
-		//TANTPLUS *ant = pageGetPtr(vp, PAGE_ANTPLUS);	
-		
-		//if (ant){
-			//printf("ant_pane_cb in %p, %i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
-			antButtonPress(ccGetUserData(pane), data2&0xFF);
-		//}
+		antButtonPress(ccGetUserData(pane), data2&0xFF);
 	}
 	
 	return 1;
@@ -360,8 +335,6 @@ static inline int64_t ant_pane_cb (const void *object, const int msg, const int6
 
 static inline int64_t ccGraph_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//printf("ccGraph_cb in %p, %i %I64d %I64d %p\n", object, msg, data1, data2, dataPtr);
-	
 	return 1;
 }
 
@@ -449,7 +422,6 @@ static inline void antRenderGraphSheet (TANTPLUS *ant, TGRAPH *graph, TGRAPHSHEE
 		}
 		lSetRenderEffect(frame->hw, LTR_DEFAULT);
 	}else{
-		//ant->com->vp->gui.cursor.draw = 1;
 		graph->cc->cursor->draw = 1;
 	}
 }
@@ -467,18 +439,12 @@ static inline int page_antRender (TANTPLUS *ant, TVLCPLAYER *vp, TFRAME *frame)
 			}
 		}
 	}
-	
-	//TGRAPH *graph = ant->graph;
-	//printf("graph %i %i %i %i\n", graph->metrics.x, graph->metrics.y, graph->metrics.width, graph->metrics.height);
-	
 	ccRender(ant->pane, frame);
 	return 1;
 }
 
 static inline int page_antInput (TANTPLUS *ant, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("# page_antInput: %p %i %I64d %I64d %p %p\n", msg, flags, dataInt2, dataPtr, opaquePtr);
-	
 	if (msg == PAGE_IN_TOUCH_DOWN){
 		int y = ccGetPositionY(ant->pane) - 16;
 		if (pos->y < y){
@@ -508,14 +474,11 @@ static inline int page_antStartup (TANTPLUS *ant, TVLCPLAYER *vp, const int widt
 	settingsGet(vp, "hrm.device.index", &ant->device.index);
 	settingsGet(vp, "hrm.device.key", &strKey);
 	if (strKey){
-		//printf("key '%s'\n",strKey);
 		char *str = strKey;
 		for (int i = 0; i < 8 && *str; i++){
 			ant->device.key[i] = hexToInt(str)&0xFF;
 			str += strcspn(str, ",")+1;
 		}
-		//for (int i = 0; i < 8; i++)
-		//	printf("%X\n", ant->device.key[i]);
 		my_free(strKey);
 	}
 	
@@ -539,15 +502,7 @@ static inline int page_antInitalize (TANTPLUS *ant, TVLCPLAYER *vp, const int wi
 		 70<<24 | COL_WHITE
 	  };
 	labelBorderProfileSet(pane->base, LABEL_BORDER_SET_PRE, col_pre, 3);
-	
-	/*unsigned int col_post[] = {
-		255<<24 | COL_RED,
-		180<<24 | COL_WHITE,
-		 70<<24 | COL_RED
-	  };
-	labelBorderProfileSet(pane->base, LABEL_BORDER_SET_POST, col_post, 1);*/
-	
-	
+
 	int flags = LABEL_RENDER_IMAGE | LABEL_RENDER_BLUR;
 	flags |= LABEL_RENDER_BASE;
 	flags |= LABEL_RENDER_BORDER_PRE;
@@ -647,9 +602,7 @@ static inline int page_antRenderEnd (TANTPLUS *ant, TVLCPLAYER *vp, int64_t time
 int page_antCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TANTPLUS *ant = (TANTPLUS*)pageStruct;
-	
-	//printf("# page_antCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_antRender(ant, ant->com->vp, dataPtr);
 

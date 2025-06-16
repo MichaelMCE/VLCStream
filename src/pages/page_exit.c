@@ -31,8 +31,6 @@ const int border = 18;
 
 void exitInitShutdown (TVLCPLAYER *vp)
 {
-  	//pageSetSec(vp, -1);
-  	
 	if (mHookGetState()){
 		captureMouse(vp, 0);
 		mHookUninstall();
@@ -80,15 +78,11 @@ static inline int exitButtonPress (TEXIT *exit, const int id, const TTOUCHCOORD 
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
-		//printf("exit ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 		return exitButtonPress(ccGetUserData(btn), ccGetUserDataInt(btn), dataPtr);
 	}
 
@@ -182,10 +176,7 @@ static inline int page_exitShutdown (TEXIT *exit, TVLCPLAYER *vp)
 int page_exitCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TEXIT *exit = (TEXIT*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_exitCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_exitRender(exit, exit->com->vp, dataPtr);
 

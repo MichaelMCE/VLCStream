@@ -39,11 +39,6 @@
 
 
 typedef struct {
-	//TFRAME *tvplay;
-	//TFRAME *tvpause;
-	//TFRAME *tvstop;
-	//TFRAME *noart;
-	
 	int tvplayId;
 	int tvpauseId;
 	int tvstopId;
@@ -112,11 +107,7 @@ int page_plyTvCallback (void *pageStruct, const int msg, int64_t dataInt1, int64
 
 int plytvTvReload (TPLYTV *plytv, TTV *tv, PLAYLISTCACHE *plc);
 void plytvTvRenderRebuild (TTV *tv);
-
-
 void plytvRefresh (TVLCPLAYER *vp);
-
-
 void plytvButtonsSetState (TPLYTV *plytv, TCCBUTTONS *btns, const int state);
 
 #endif

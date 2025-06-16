@@ -157,7 +157,6 @@ static inline int page_textRenderEnd (TTEXTOVERLAY *txtovr, TVLCPLAYER *vp, int6
 
 static inline int page_textRenderInit (TTEXTOVERLAY *txtovr, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//lSetFontCharacterSpacing(vp->ml->hw, TEXTOVERLAY_FONT, lGetFontCharacterSpacing(vp->ml->hw, TEXTOVERLAY_FONT)+1);
 	return 1;
 }
 
@@ -182,9 +181,7 @@ static inline int page_textShutdown (TTEXTOVERLAY *txtovr, TVLCPLAYER *vp)
 int page_textCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TTEXTOVERLAY *txtovr = (TTEXTOVERLAY*)pageStruct;
-	
-	// printf("# page_textCallback: %p %i %I64d %I64d %p %p\n", txtovr, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_textRender(txtovr, txtovr->com->vp, dataPtr);
 	

@@ -63,18 +63,13 @@ static inline void epgSetActiveControl (TEPG *epg, const int view)
 	 };
 }
 
-
 static inline void epgGuideDestroyEvent (TGUIDE_EVENT *event, const int freeStorage)
 {
 	if (event){
-		//printf("epgGuideDestroyEvent %i '%s'\n", event->pid, event->name);
-		
 		if (event->name) my_free(event->name);
 		if (event->descriptionLong) my_free(event->descriptionLong);
 		if (event->descriptionShort) my_free(event->descriptionShort);
 		if (freeStorage) my_free(event);
-	//}else{
-		//printf("epgGuideDestroyEvent NULL\n");
 	}
 }
 
@@ -126,9 +121,6 @@ static inline int epgGuideAddEvent (TTREE *tree, const int branchId, const int64
 		treeEntrySetStorage(entry, guide);
 		epgGuideDestroyEvent(oldEvent, 1);
 	}
-	
-	//if (!entry)
-	//	printf("epgGuideAddEvent failed: %p %i:%I64d '%s'\n", entry, branchId, eventId, guide->name);
 	return (entry != NULL);
 }
 
@@ -238,8 +230,6 @@ static inline void epgGuideSyncDatabase (TEPG *epg)
 
 			TGUIDE_EVENT *guide = my_calloc(1, sizeof(TGUIDE_EVENT));
 			if (guide){
-				//printf("%i %i: '%s'\n", vepgIdx, i, event->psz_name/*event->psz_short_description*/);
-
 				guide->start = event->i_start;
 				guide->duration = event->i_duration;
 				guide->name = my_strdup(event->psz_name);
@@ -248,36 +238,11 @@ static inline void epgGuideSyncDatabase (TEPG *epg)
 					guide->descriptionLong = my_strdup(event->psz_description);
 				if (event->psz_short_description)
 					guide->descriptionShort = my_strdup(event->psz_short_description);
-			    
-			    //printf("%i %i: %i '%s'\n", vepgIdx, i, programme, guide->name);
+
 				epgGuideAddEvent(tree, programme, guide->start, guide);
 			}
 		}
 	}
-	
-/*	
-	printf("\n\n");
-	
-	int i = 0;
-	TGUIDE_EVENT *guide = NULL;
-	
-	do{
-		//printf("%i\n", i);
-		guide = epgGuideGetEvent(tree, EPG_GUIDE_ROOTID, i++);
-		if (guide){
-			printf("##  '%s'\n", guide->name);
-
-			int j = 0;
-			TGUIDE_EVENT *event = NULL;
-			do{
-				event = epgGuideGetEvent(tree, guide->pid, j++);
-				if (event){
-					printf("\t\t  '%s'\n", event->name);
-				}
-			}while(event != NULL);
-		}
-	}while(guide != NULL);
-*/
 }
 
 static inline char *epgGuideBuildString (const TGUIDE_EVENT *event, const int complete)
@@ -342,9 +307,7 @@ static inline int epgPaneAddGuide (TEPG *epg, TTREE *tree)
 		paneTextMulityLineEnable(epg->guide.paneContents);
 		paneTextWordwrapEnable(epg->guide.paneContents);
 	}
-		
-	//printf("lineheight %i\n", epg->guide.paneContents->vertLineHeight);
-		
+
 	//if (epg->guide.isRoot){	// display a channel guide selection list
 		pid = EPG_GUIDE_ROOTID;
 		epg->guide.paneChannels->vertLineHeight = 36;
@@ -360,10 +323,8 @@ static inline int epgPaneAddGuide (TEPG *epg, TTREE *tree)
 			channel = epgGuideGetEvent(tree, pid, i);
 			if (channel){
 				TGUIDE_EVENT *event = epgGuideGetEvent(tree, channel->pid, 0);
-				//snprintf(buffer, sizeof(buffer), "%s", event->name);
 				buffer = event->name;
 			}else{
-				//snprintf(buffer, sizeof(buffer), "%s", guide->name);
 				buffer = guide->name;
 			}
 		
@@ -439,12 +400,8 @@ static inline int64_t epgCcObject_cb (const void *object, const int msg, const i
 				epgFillProgrammeListbox(epg, lb);
 				break;
 		  	 // case CC_MSG_DISABLED:
-			//	break;
 		  	 // case LISTBOX_MSG_VALCHANGED:
-		  	  	//printf("LISTBOX_MSG_VALCHANGED %i %i\n", data1, data2);
-			//	break;
 		  	  case LISTBOX_MSG_ITEMSELECTED:
-		  	  	//printf("LISTBOX_MSG_ITEMSELECTED %I64d %I64d\n", data1, data2);
 		  	  	vlc_setProgram(vp->vlc, data2);
 		  	  	epg->vepg.playing.channelIdx = data1;
 		  	  	epgFillProgrammeListbox(epg, lb);
@@ -507,9 +464,6 @@ static inline int epgButtonPress (TEPG *epg, TCCBUTTON *btn, const int id, const
 static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-		
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
@@ -523,7 +477,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 int epgProgrammeLbGetTotal (TEPG *epg)
 {
 	return epg->vepg.total;
-	//return listboxGetTotalItems(epg->programme.listbox);
 }
 
 void epgProgrammeListboxRefresh (TEPG *epg)
@@ -629,9 +582,7 @@ static int dvbCreatePlaylistAuto (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const char
 // TIMER_EPG_DISPLAYOSD
 void epgDisplayOSD (TVLCPLAYER *vp)
 {
-	printf("TIMER_EPG_DISPLAYOSD\n");
-	/*int ret =*/ epg_displayOSD(vp->vlc->mp, 6000);
-	//printf("timertest %i\n", ret);
+	epg_displayOSD(vp->vlc->mp, 6000);
 }
 #endif
 
@@ -745,7 +696,6 @@ static inline int epgGetProgrammeDetails (TVLCPLAYER *vp, TVLCCONFIG *vlc, TEPG 
 							epg->vepg.playing.programmeIdx = j;
 							epg->vepg.playing.pid = epg->vepg.epg[i]->programme;
 							epg->vepg.playing.start = epg->vepg.epg[i]->pp_event[j]->i_start;
-							//printf("now playing [%i,%i] '%s' '%s'\n", i, j, epg->vepg.epg[i]->psz_name, current->psz_name);
 							return epg->vepg.total;
 						}
 					}
@@ -760,9 +710,7 @@ static inline int epgGetProgrammeDetails (TVLCPLAYER *vp, TVLCCONFIG *vlc, TEPG 
 void epgUpdateCurrentProgramme (TVLCPLAYER *vp, TEPG *epg)
 {
 	if (!getPlayState(vp)) return;
-	
-	//printf("epgUpdateCurrentProgramme %i\n", getPlayState(vp));
-	
+
 	TVLCEPGEVENT *current = epg_getGetProgramme(epg->vepg.epg, epg->vepg.total, epg->vepg.playing.channelIdx, epg->vepg.playing.programmeIdx);
 	if (current){
 		if (current->psz_short_description){
@@ -859,8 +807,6 @@ static inline void epgGuideUpdatePending (TEPG *epg)
 		epgGuideSyncDatabase(epg);
 		epgGuideSortDatabase(epg);
 		epgBuildGuide(epg, NULL);
-		
-		//printf("epgGuideUpdatePending updatePending %i\n", epg->guide.updatePending);
 	}
 }
 
@@ -887,15 +833,11 @@ void epgGetUpdate (TVLCPLAYER *vp)
 	my_free(path);
 	if (wontHaveEpg) return;
 
-	//printf("TIMER_EPG_UPDATE\n");
-	
 	TEPG *epg = pageGetPtr(vp, PAGE_EPG);
 
 	if (epgGetProgrammeDetails(vp, vp->vlc, epg)){
 		epgUpdateCurrentProgramme(vp, epg);
 		epg->guide.updatePending++;
-
-		//printf("epgGetUpdate updatePending %i (vguide total %i)\n", epg->guide.updatePending, epg->vepg.total);
 #if 0
 		epgGuideSyncDatabase(epg);
 		epgGuideSortDatabase(epg);
@@ -1040,9 +982,6 @@ static inline int64_t epg_paneCont_cb (const void *object, const int msg, const 
 {
 	TPANE *pane = (TPANE*)object;
 	
-	//if (msg != CC_MSG_RENDER)
-	//	printf("epg_paneCont_cb in %p, msg:%i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
-	
 	 if (msg == PANE_MSG_SLIDE){
 		TEPG *epg = ccGetUserData(pane);
 		if (epg->guide.isRoot){
@@ -1064,16 +1003,12 @@ static inline int64_t epg_paneCont_cb (const void *object, const int msg, const 
 		const int pid = (data2&0x7FFFFFFF00000000)>>32;
 		const int eventId = data2&0xFFFFFFFF;
 
-		//printf("paneCont_cb: %X %X, %i %i, %i\n", (int)(data2>>32), (int)(data2&0xFFFFFFFF), isRoot, pid, eventId);
-
 		TEPG *epg = ccGetUserData(pane);
 		if (!isRoot){
 			TGUIDE_EVENT *guide = epgGuideFindEvent(epg->guide.database, pid, eventId);
 			if (guide){
 				guide->ui.paneExpanded ^= 1;
-			
-				//printf("paneCont_cb lineheight %i %i\n", guide->ui.paneExpanded, epg->guide.paneContents->vertLineHeight);
-			
+
 				char *text = epgGuideBuildString(guide, guide->ui.paneExpanded);
 				if (text){
 					int itemId = data1 + (msg == PANE_MSG_IMAGE_SELECTED);
@@ -1113,11 +1048,7 @@ static inline int64_t epg_paneCont_cb (const void *object, const int msg, const 
 static inline int64_t epg_paneChan_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	TPANE *pane = (TPANE*)object;
-	
-	//if (msg != CC_MSG_RENDER)
-	//	printf("epg_paneChan_cb in %p, msg:%i %I64d %I64d %p\n", pane, msg, data1, data2, dataPtr);
-	
-	
+
 	if (msg == PANE_MSG_SLIDE){
 		TEPG *epg = ccGetUserData(pane);
 		if (epg->guide.isRoot){
@@ -1131,9 +1062,6 @@ static inline int64_t epg_paneChan_cb (const void *object, const int msg, const 
 		//int isRoot = (data2>>63)&0x01;
 		//const int pid = (data2&0x7FFFFFFF00000000)>>32;
 		const int eventId = data2&0xFFFFFFFF;
-
-		//printf("paneChan_cb: %X %X, %i %i, %i\n", (int)(data2>>32), (int)(data2&0xFFFFFFFF), isRoot, pid, eventId);
-
 		TEPG *epg = ccGetUserData(pane);
 
 		epg->guide.programmeIdx = eventId;
@@ -1208,7 +1136,6 @@ static inline int page_epgInitalize (TEPG *epg, TVLCPLAYER *vp, const int width,
 	epg->guide.icons.pgmEvent = 0;//artManagerImageAdd(vp->am, buildSkinD(vp,bufferw,L"pane/stream32.png"));
 	epg->guide.icons.updatePending = artManagerImageAdd(vp->am, buildSkinD(vp,bufferw,L"epg/epgpending.png"));
 
-	
 	return 1;
 }
 
@@ -1250,10 +1177,7 @@ static inline void page_epgRenderEnd (TEPG *epg, TVLCPLAYER *vp, int64_t destId,
 int page_epgCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TEPG *epg = (TEPG*)pageStruct;
-	
-	// if (msg != PAGE_CTL_RENDER)
-		// printf("# page_epgCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
-	
+
 	if (msg == PAGE_CTL_RENDER){
 		return page_epgRender(epg, epg->com->vp, dataPtr);
 

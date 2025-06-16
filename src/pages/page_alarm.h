@@ -234,12 +234,6 @@ void alarmRemove (TALARM *alarm, const int id);
 int alarmUiGetStatus (TALARM *alarm);
 int alarmUiGetAlarmTime (TALARM *alarm, char *buffer);
 
-//int alarmActionSet (TALARM *alarm, const int id, const int action, void *alarm_act);
-
-//int alarmEnable (TALARM *alarm, const int id);
-//void alarmDisable (TALARM *alarm, const int id);
-
-
 void timer_alarm (TVLCPLAYER *vp);
 
 const char *alarmCfgModeToPeriod (const int mode);

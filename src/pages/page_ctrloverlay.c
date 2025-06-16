@@ -25,18 +25,7 @@
 
 
 extern int SHUTDOWN;
-
-
-
-
-
 static inline int overlayPlaylistListboxFill (TVIDEOOVERLAY *plyctrl, PLAYLISTCACHE *plc);
-
-
-
-
-
-
 
 
 
@@ -75,8 +64,6 @@ void ctrlPlayback (TVLCPLAYER *vp, const int func)
 
 	switch (func){
 	  case VBUTTON_PLAY:
-	  	//printf("getPlayState(vp) %i\n", getPlayState(vp));
-
 		if (getPlayState(vp) == 2){ 		// is paused so unpause
 			trackPlay(vp);
 			return;
@@ -86,7 +73,6 @@ void ctrlPlayback (TVLCPLAYER *vp, const int func)
 	  			PLAYLISTCACHE *plc = getDisplayPlaylist(vp);
 				if (plc){
 					if (playlistGetCount(plc, PLAYLIST_OBJTYPE_TRACK))
-						//vp->queuedPlaylist = vp->displayPlaylist;
 						setQueuedPlaylist(vp, plc);
 					else
 						return;
@@ -159,14 +145,7 @@ static inline int64_t labelCcObject_cb (const void *object, const int msg, const
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 
-	//if (msg == CC_MSG_RENDER || obj->type != CC_BUTTON) return 1;
-	//printf("labelCcObject_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	if (msg == CC_MSG_RENDER){
-		/*if (obj->type == CC_LABEL){	// draw an outline around label before the blur is applied
-			TLABEL *label = (TLABEL*)obj;
-			drawButtonPanel(label->cc->vp, dataPtr, label->metrics.x+1, label->metrics.y+1, label->metrics.width-3, label->metrics.height-3);
-		}*/
 		return 1;
 	}
 
@@ -250,7 +229,6 @@ static inline void volumeRender (TVIDEOOVERLAY *plyctrl, TFRAME *frame, const in
 {
 	for (int i = 0; i < 10; i++){
 		plyctrl->volume.images[i] = imageManagerImageAcquire(plyctrl->com->vp->im, plyctrl->volume.imageIds[i]);
-		//printf("imageManagerImageAcquire %i\n", plyctrl->volume.imageIds[i]);
 	}
 
 	char buffer[8];
@@ -260,13 +238,11 @@ static inline void volumeRender (TVIDEOOVERLAY *plyctrl, TFRAME *frame, const in
 	int x = abs(frame->width - w)/2;
 	if (x < 0) x = 0;
 	int y = ((frame->height - volumeRenderStringGetHeight(plyctrl->volume.images))/2)-plyctrl->volume.verticalOffset;
-	//printf("clockRenderDigitStringDGetWidth %i %i\n", w, x);
 
 	volumeRenderString(plyctrl, plyctrl->volume.images, frame, x, y, buffer);
 
 	for (int i = 0; i < 10; i++){
 		imageManagerImageRelease(plyctrl->com->vp->im, plyctrl->volume.imageIds[i]);
-		//printf("imageManagerImageRelease %i\n", plyctrl->volume.imageIds[i]);
 	}
 }
 
@@ -308,9 +284,6 @@ int plyctrlButtonPress (TVIDEOOVERLAY *plyctrl, TCCBUTTON *btn, const int btnId,
 		break;
 	  }
 	  case VBUTTON_TIMESTMP:{
-	  	//printf("VBUTTON_TIMESTMP: %i %i %i\n", pos->id, pos->pen, pos->dt);
-
-
 	  	if (!ccGetState(plyctrl->listbox.lb))
 	  		ccEnable(plyctrl->listbox.lb);
 	  	else
@@ -429,7 +402,7 @@ static inline void drawTrackChapterMarks (TVLCPLAYER *vp, TFRAME *frame, TCHAPTE
 
 	TVLCCONFIG *vlc = getConfig(vp);
 	TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
-	const int markOffset = 1;//plyctrl->chapterMark->width>>1;
+	const int markOffset = 1;
 	uint64_t tOffset, cs;
 
 
@@ -479,7 +452,6 @@ static inline void drawButtonsVolume (TVLCPLAYER *vp, TCCBUTTONS *btns, TVIDEOOV
 	if (buttonsStateGet(btns, VBUTTON_VOLUME)){
 		TCCBUTTON *bvol = buttonsButtonGet(btns, VBUTTON_VOLUME);
 
-		//TFRAME *frm = labelImageGetSrc(bvol->active->label, bvol->active->itemId);
 		int imgId = labelImgcGetSrc(bvol->active->label, bvol->active->itemId);
 		TFRAME *img = imageManagerImageAcquire(vp->im, imgId);
 
@@ -681,18 +653,11 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 	//const int id = (int)data2;
 
 	if (ccGetUserDataInt(btn) == VBUTTON_TOUCHPAD){
-		//printf("VBUTTON_TOUCHPAD %i\n",msg);
-
 		if (msg == BUTTON_MSG_SELECTED_PRESS){
-			//printf("BUTTON_MSG_SELECTED_PRESS\n");
-
 			TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 			if (!pos) return 1;
 
@@ -703,8 +668,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 			overlayActivateOverlayResetTimer(btn->cc->vp);
 
 		}else if (msg == BUTTON_MSG_SELECTED_RELEASE){
-			//printf("BUTTON_MSG_SELECTED_RELEASE\n");
-
 			TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 			if (!pos) return 1;
 
@@ -722,7 +685,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 					dir = dx;
 				else
 					dir = dy;
-				//printf("dir %i, %i %i\n", dir, dx, dy);
 
 				if (dir > DEADZONE){
 					timerSet(btn->cc->vp, TIMER_PREVTRACK, 0);
@@ -755,8 +717,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 // TODO: UPDATE for new listbox
 void ctrlLbMetaCb (TVLCPLAYER *vp, const int itemId, const int uid, const int track, void *dataPtr1, void *dataPt2)
 {
-	//printf("metalbcb: %i, %X %i\n", itemId, uid, track);
-
 #if 1
 	if (SHUTDOWN) return;
 
@@ -838,8 +798,6 @@ static inline int _fillPlaylistListbox (TVIDEOOVERLAY *plyctrl, TLISTBOX *listbo
 			ct += listboxAddItem(listbox, item->obj.plc->title, 0, colour, child|0x3FFFF) > 0;
 
 		}else if (item->objType == PLAYLIST_OBJTYPE_TRACK){
-			//tagRetrieveByHash(vp->tagc, item->obj.track.hash, MTAG_Title, buffer, MAX_PATH_UTF8);
-
 			if (item->obj.track.title && item->obj.track.title[0]){
 				mcb.itemId = listboxAddItem(listbox, item->obj.track.title, 0/*item->obj.track.artId*/, CTRL_TRACK_COLOUR, plmIdx|(i&0x3FFFF));
 			}else{
@@ -903,7 +861,6 @@ static inline void timeStampSetTime (TVLCPLAYER *vp, const double position)
 	TCCBUTTON *btn = buttonsButtonGet(plyctrl->btns, VBUTTON_TIMESTMP);
 	buttonFaceTextUpdate(btn, BUTTON_PRI, str);
 	buttonFaceTextUpdate(btn, BUTTON_SEC, str);
-	//printf("timeStampSetTime: str '%s', '%s', '%s'\n", str, buffer[0], buffer[1]);
 }
 
 void overlayActivateOverlayResetTimer (TVLCPLAYER *vp)
@@ -914,7 +871,6 @@ void overlayActivateOverlayResetTimer (TVLCPLAYER *vp)
 
 void overlaySetOverlay (TVLCPLAYER *vp)
 {
-	//printf("overlaySetOverlay\n");
 	if (SHUTDOWN) return;
 
 	overlayActivateOverlayResetTimer(vp);
@@ -931,8 +887,6 @@ static inline void _overlaySetOverlay (void *pageStruct)
 // TIMER_CTRL_OVERLAYRESET
 void overlayResetOverlay (TVLCPLAYER *vp)
 {
-	//printf("@@@ TIMER_CTRL_OVERLAYRESET\n");
-
 	if (vp->applState){
 		if ((page2RenderGetState(vp->pages, PAGE_OVERLAY) || pageGet(vp) == PAGE_OVERLAY) && !kHookGetState() /*&& pageGetSec(vp) != PAGE_CHAPTERS*/){
 
@@ -951,9 +905,6 @@ void overlayResetOverlay (TVLCPLAYER *vp)
 // TIMER_CTRL_PLAYLISTLBREFRESH
 void timer_playlistListboxRefresh (TVLCPLAYER *vp)
 {
-
-	//printf("@@@ timer_playlistListboxRefresh\n");
-
 	timerSet(vp, TIMER_PLYPANE_REFRESH, 20);
 
 	TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
@@ -974,9 +925,6 @@ void timer_playlistListboxRefresh (TVLCPLAYER *vp)
 // TIMER_CTRL_UPDATETIMESTAMP
 void overlayTimeStampSetTime (TVLCPLAYER *vp)
 {
-	//printf("overlayTimeStampSetTime in\n");
-
-	//printf("overlayTimeStampSetTime %f %i \n", vp->vlc->position, (int)vp->vlc->length);
 	if (pageGet(vp) == PAGE_OVERLAY)
 		timeStampSetTime(vp, vp->vlc->position);
 	else if (pageGet(vp) == PAGE_PLY_PANE)
@@ -985,14 +933,11 @@ void overlayTimeStampSetTime (TVLCPLAYER *vp)
 	if (contextMenuIsTrackbarVisable(vp))
 		taskbarPostMessage(vp, WM_TRACKTIMESTAMPNOTIFY, 0, 0);
 
-	//printf("overlayTimeStampSetTime out\n");
 }
 
 // TIMER_CTRL_DISPLAYVOLRESET
 void overlayDisplayVolReset (TVLCPLAYER *vp)
 {
-	//printf("overlayDisplayVolReset\n");
-
 	TVIDEOOVERLAY *plyctrl = pageGetPtr(vp, PAGE_OVERLAY);
 	plyctrl->volume.doRender = 0;
 }
@@ -1010,7 +955,6 @@ static inline int scaleTextScaleSet (TLABEL *label, TFRAME *frame, TTEXTSCALE *s
 
 	dt /= 1000.0;	// scale
 	dt -= 1.0;		// normalize
-	//dt *= 0.90;		// set velocity factor
 
 	const double mod = computeModifier(scale, dt);
 	const double fw = frame->width;
@@ -1036,9 +980,7 @@ static inline int scaleTextScaleSet (TLABEL *label, TFRAME *frame, TTEXTSCALE *s
 
 static inline int scaleTextCount (TTEXTSCALELLIST *scaleList)
 {
-	//printf("scaleTextCount %i\n", scaleList->count);
 	return scaleList->count;
-	//return listCount(scaleList->head.next);
 }
 
 static inline void scaleTextDelete (TTEXTSCALE *scale)
@@ -1182,18 +1124,12 @@ static inline int page_plyctrlRender (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, TF
 			setTargetRate(vp, 25.0);
 	}
 
-	//ccRender(listbox, frame);
-
-	//printf("ctrlRender %i %i %i\n", listbox->enabled, listbox->pane->enabled, listboxGetTotal(listbox));
-
 	lSetRenderEffect(frame->hw, LTR_DEFAULT);
 	return 1;
 }
 
 void ctrlNewTrackEvent (TVIDEOOVERLAY *plyctrl, unsigned int uid, const int trackIdx)
 {
-	//printf("ctrlNewTrackEvent in\n");
-
 	char *title = getPlayingTitle(plyctrl->com->vp);
 	if (title){
 		char buffer[MAX_PATH_UTF8+1];
@@ -1215,17 +1151,10 @@ void ctrlNewTrackEvent (TVIDEOOVERLAY *plyctrl, unsigned int uid, const int trac
 		labelStrUpdate(plyctrl->title, " : ");
 		labelStrUpdate(plyctrl->album, "  ");
 	}
-
-	//printf("ctrlNewTrackEvent out\n");
 }
 
 static inline int64_t ctrl_listbox_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_HOVER || msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_SETPOSITION) return 1;
-	//if (msg == CC_MSG_HOVER || msg == CC_MSG_RENDER) return 1;
-
-	//printf("ctrl_listbox_cb. msg:%i, data1:%I64d, data2:%I64d,  ptr:%p\n", msg, data1, data2, dataPtr);
-
 	TLISTBOX *listbox = (TLISTBOX*)object;
 
 	switch (msg){
@@ -1252,10 +1181,7 @@ static inline int64_t ctrl_listbox_cb (const void *object, const int msg, const 
 		PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 		if (!plc){
 			plc = getDisplayPlaylist(vp);
-			if (!plc){
-				//printf("listbox playlist unavailable, Q:%i D:%i\n", vp->playlist.queued, vp->playlist.display);
-				break;
-			}
+			if (!plc) break;
 		}
 
 		if (renderLock(vp)){
@@ -1297,8 +1223,6 @@ static inline int64_t ctrl_listbox_cb (const void *object, const int msg, const 
 	  	break;
   	  }
 	case LISTBOX_MSG_ITEMSELECTED:{
-  	  	//printf("LISTBOX_MSG_ITEMSELECTED %i %X\n", (int)data1, (int)data2);
-
 		TVIDEOOVERLAY *plyctrl = ccGetUserData(listbox);
 		TVLCPLAYER *vp = listbox->cc->vp;
 
@@ -1368,8 +1292,6 @@ static inline int64_t ctrl_listbox_cb (const void *object, const int msg, const 
 
 static inline int page_plyctrlStartup (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, const int fw, const int fh)
 {
-	//printf("@ page_plyctrlStartup\n");
-
 	plyctrl->chapterMark = NULL;
 	plyctrl->chapterMarkFilled = NULL;
 	plyctrl->lbUID = 0;
@@ -1498,10 +1420,6 @@ static inline int page_plyctrlStartup (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, c
 
 static inline int64_t lbl_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT || msg == CC_MSG_SETPOSITION) return 1;
-
-	//printf("lbl_cb %i\n", msg);
-
 	TLABEL *label = (TLABEL*)object;
 
 	if (msg == CC_MSG_CREATE){
@@ -1552,12 +1470,8 @@ static inline TTEXTSCALE *scaleTextCreate (TVLCPLAYER *vp, const int displayType
 	setSigma(scale, scale->sigma);
 
 	scale->label = ccCreateEx(vp->cc, PAGE_OVERLAY, CC_LABEL, lbl_cb, &scale->lblId, 200, 32, scale);
-
-	//printf("addScale %i\n", scale->label->id);
-
 	//my_free(scale->text);
 	//scale->text = NULL;
-
 	return scale;
 }
 
@@ -1590,8 +1504,6 @@ void overlayAddTitle (TVIDEOOVERLAY *plyctrl, const char *text)
 	if (page2RenderGetState(plyctrl->com->pages, PAGE_OVERLAY))
 		setTargetRate(plyctrl->com->vp, 25);
 	renderSignalUpdate(plyctrl->com->vp);
-
-	//printf("addScale count %i\n", listCount(plyctrl->scale.list->head.next));
 }
 
 static inline int page_plyctrlInitalize (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, const int width, const int height)
@@ -1652,24 +1564,15 @@ static inline int page_plyctrlShutdown (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp)
 
 static inline int page_plyctrlRenderBegin (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, TFRAME *frame, void *opaquePtr)
 {
-	//printf("page_plyctrlRenderBegin\n");
-
 	plyctrl->chapterMark = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_CHAPTERMARK]);
 	plyctrl->chapterMarkFilled = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_CHAPTERMARKFILLED]);
 	plyctrl->lbUnderlayImgId = 0;// not used
-
-	/*for (int i = 0; i < 10; i++){
-		plyctrl->volume.images[i] = imageManagerImageAcquire(vp->im, plyctrl->volume.imageIds[i]);
-		printf("imageManagerImageAcquire %i\n", plyctrl->volume.imageIds[i]);
-	}*/
 
 	lSetCharacterEncoding(frame->hw, CMT_UTF8);
 
 	if (playlistManagerGetTotal(vp->plm) <= 1){
 		PLAYLISTCACHE *plc = playlistManagerGetPlaylist(vp->plm, 0);
 		if (!plc || playlistGetCount(plc, PLAYLIST_OBJTYPE_TRACK) < 1){
-			//printf("page_plyctrlRenderBegin\n");
-
 			page2Set(vp->pages, PAGE_HOME, 0);
 			page2RenderDisable(vp->pages, PAGE_OVERLAY);
 			timerReset(vp, TIMER_CTRL_OVERLAYRESET);
@@ -1686,8 +1589,6 @@ static inline int page_plyctrlRenderBegin (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *v
 
 static inline void page_plyctrlRenderEnd (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, int64_t destId, int64_t data2, void *opaquePtr)
 {
-	//printf("page_plyctrlRenderEnd\n");
-
 	ccHoverRenderSigDisable(vp->cc);
 
 	if (playlistManagerGetTotal(vp->plm) <= 1){
@@ -1699,16 +1600,10 @@ static inline void page_plyctrlRenderEnd (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp
 		overlayActivateOverlayResetTimer(vp);
 	}
 
-	/*for (int i = 0; i < 10; i++){
-		imageManagerImageRelease(vp->im, plyctrl->volume.imageIds[i]);
-		printf("imageManagerImageRelease %i\n", plyctrl->volume.imageIds[i]);
-	}*/
-
 	imageManagerImageRelease(vp->im, vp->gui.image[IMGC_CHAPTERMARK]);
 	imageManagerImageRelease(vp->im, vp->gui.image[IMGC_CHAPTERMARKFILLED]);
 	artManagerFlush(vp->im);
 	artManagerFlush(vp->am);
-	//vp->gui.frameCt = 0;
 }
 
 static void doRotary (TVIDEOOVERLAY *plyctrl, rotary_t *enc)
@@ -1745,8 +1640,6 @@ static void doRotary (TVIDEOOVERLAY *plyctrl, rotary_t *enc)
 
 static inline int page_plyctrlInput (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, const int msg, const int flags, TTOUCHCOORD *pos)
 {
-	//printf("@ page_plyctrlInput msg:%i %i %p\n", msg, flags, pos);
-
 	static unsigned int lastId = 0;
 
 	switch(msg){
@@ -1772,7 +1665,6 @@ static inline int page_plyctrlInput (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, con
 				int64_t max = 1;
 				sliderGetRange(slider, NULL, &max);
 				int64_t diff = max * 0.01;
-				//printf("forward: %I64d %I64d %I64d\n", max, diff, sliderGetValue(slider) + diff);
 				sliderSetValue(slider, sliderGetValue(slider) + diff);
 	  		}else{
 	  			TCCBUTTON *btn = buttonsButtonGet(plyctrl->btns, VBUTTON_VOLUME);
@@ -1799,7 +1691,6 @@ static inline int page_plyctrlInput (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp, con
 				int64_t max = 1;
 				sliderGetRange(slider, NULL, &max);
 				int64_t diff = max * 0.01;
-				//printf("back: %I64d %I64d %I64d\n", max, diff, sliderGetValue(slider) - diff);
 				sliderSetValue(slider, sliderGetValue(slider) - diff);
 	  		}else{
 	  			TCCBUTTON *btn = buttonsButtonGet(plyctrl->btns, VBUTTON_VOLUME);
@@ -1830,9 +1721,6 @@ static inline int page_plyctrlRenderInit (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp
 int page_plyctrlCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t dataInt2, void *dataPtr, void *opaquePtr)
 {
 	TVIDEOOVERLAY *plyctrl = (TVIDEOOVERLAY*)pageStruct;
-
-	// if (msg != PAGE_CTL_RENDER)
-	//	 printf("# page_plyctrlCallback: %p %i %I64d %I64d %p %p\n", pageStruct, msg, dataInt1, dataInt2, dataPtr, opaquePtr);
 
 	if (msg == PAGE_CTL_RENDER){
 		return page_plyctrlRender(plyctrl, plyctrl->com->vp, dataPtr, dataInt1/1000.0);
