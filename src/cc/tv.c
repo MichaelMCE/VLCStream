@@ -103,8 +103,6 @@ TTV_ITEM_DESC *tvTreeItemGetDesc (TTV_ITEM *item)
 
 static inline TTV_ITEM *tvTreeGetItem2 (TTV *tv, const int id, void *fromEntry)
 {
-	
-	//printf("tvTreeGetItem2 %i\n", id);
 	TTV_ITEM *item = NULL;
 
 	//if (ccLock(tv)){
@@ -118,8 +116,6 @@ static inline TTV_ITEM *tvTreeGetItem2 (TTV *tv, const int id, void *fromEntry)
 			item = my_malloc(sizeof(TTV_ITEM));
 			if (item){
 				item->entry = entry;
-
-
 				//item->name = my_strdup(entry->name);
 				item->storage = entry->storage;
 				item->id = entry->id;
@@ -157,9 +153,6 @@ static inline TTV_ITEM *tvTreeGetItem2 (TTV *tv, const int id, void *fromEntry)
 
 TTV_ITEM *tvTreeGetItem (TTV *tv, const int id, void *fromEntry)
 {
-	
-	//printf("tvTreeGetItem %i\n", id);
-	
 	TTV_ITEM *item = NULL;
 
 	//if (ccLock(tv)){
@@ -237,7 +230,6 @@ static inline int tvTreeAdd (TTV *tv, const int nodeId, char *name, const int id
 	if (ccLock(tv)){
 		TTREEENTRY *entry = treeAddItem(tv->tree, nodeId, name, id, type);
 		if (entry){
-			//printf("tvTreeAdd %i %p %p, '%s'\n", id, entry, desc, name);
 			if (desc)
 				treeEntrySetStorage(entry, desc);
 			ret = 1;
@@ -285,16 +277,8 @@ static inline void tvItemDescFree (TTV_ITEM_DESC *desc)
 	if (desc->objType == TV_TYPE_CCOBJECT){
 			
 	}else if (desc->objType == TV_TYPE_LABEL){
-		//if (desc->label.text)
-		//	my_free(desc->label.text);
-		//desc->label.text = NULL;
 
 	}else if (desc->objType == TV_TYPE_IMAGE){
-		//if (desc->varImage.img)
-		//	lDeleteFrame(desc->varImage.img);
-		
-		//if (desc->varImage.opaque)
-		//	my_free(desc->varImage.opaque);
 
 	}else if (desc->objType == TV_TYPE_INT32){
 		//desc->varInt32 = 0;
@@ -305,9 +289,6 @@ static inline void tvItemDescFree (TTV_ITEM_DESC *desc)
 
 	if (desc->image){
 		for (int i = 0; i < desc->imageTotal; i++){
-			//if (desc->image[i].img)
-				//lDeleteFrame(desc->image[i].img);
-		
 			if (desc->image[i].opaque)
 				my_free(desc->image[i].opaque);
 			//item->data.image[i].opaque = NULL;
@@ -386,8 +367,6 @@ static inline int64_t tv_scrollbar_cb (const void *object, const int msg, const 
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	if (msg == CC_MSG_RENDER) return 1;
-	
-	//printf("tv_scrollbar_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i\n", obj->id, obj->type, msg, data1, data2);
 
 	TSCROLLBAR *scrollbar = (TSCROLLBAR*)object;
 	TTV *tv = (TTV*)ccGetUserData(scrollbar);
@@ -409,17 +388,12 @@ static inline int64_t tv_scrollbar_cb (const void *object, const int msg, const 
 #if 0
 int tv_btn_cb (const TTOUCHCOORD *pos, TBUTTON *button, const int btn_id, const int flags, void *ptr)
 {
-	//printf("treeview_btn_cb: %i: %i,%i %i\n", btn_id, pos->x, pos->y, TV_BTN_PASTE);
-
 	TTV *tv = (TTV*)buttonGetUserData(button);
 	if (!tv) return 0;
 	
 	switch (btn_id){
 	  case TV_BTN_PASTE:{
-		/*if (!flags){
-			if (tv->drag.post.item)
-				printf("'%s'\n", tv->drag.post.item->data.label.text);
-		}*/
+
 		break;
 	  }
 	}
@@ -454,7 +428,6 @@ static inline TTV_RENDER_ITEM * tvRenderImage (TTV *tv, TFRAME *frame, TTV_ITEM_
 {
 	if (image->drawState == TV_DRAWIMAGE_DONTRENDER)
 		return NULL;
-		
 
 	int width, height;
 	artManagerImageGetMetrics(tv->cc->vp->am, image->artId, &width, &height);
@@ -476,16 +449,12 @@ static inline TTV_RENDER_ITEM * tvRenderImage (TTV *tv, TFRAME *frame, TTV_ITEM_
 	if (tv->renderFlags&TV_RENDER_IMAGES){
 		TFRAME *img = artManagerImageAcquireScaled(tv->cc->vp->am, image->artId, image->scale);
 		if (img){
-			//printf("tvRenderImage %X, %f, %i %i, %i %i %i\n", image->artId, image->scale, width, height, img->bpp, img->width, img->height);
-			
 			if (y1 || h != img->height-1 || img->bpp != LFRM_BPP_32)
 				copyArea(img, frame, post->pos.x1, post->pos.y1, 0, y1, img->width-1, h);
 			else
 				fastFrameCopy(img, frame, post->pos.x1, post->pos.y1);
 			
 			artManagerImageRelease(tv->cc->vp->am, image->artId);
-		//}else{
-			//printf("tvRenderImage failed %X, %f, %i %i\n", image->artId, image->scale, width, height);
 		}
 	}
 	return post;
@@ -969,8 +938,6 @@ static inline void tvDeleteRender (TTV_RENDER *render)
 
 static inline void tvDelete (void *object)
 {
-	//printf("tvDelete in %i\n", lockCt);
-	
 	TTV *tv = (TTV*)object;
 	if (!tv) return;
 	
@@ -1043,35 +1010,7 @@ static inline int tvSetCheckNodeDeselectParents (TTV *tv, TTV_ITEM *item)
 	}
 	return ct;
 }
-/*
-int tvExpandTo1 (TTV *tv, const int id)
-{
-	int stack[1024] = {0};
-	int sp = 0;
-	
-	TTV_ITEM *item = tvTreeGetItem(tv, id, NULL);
-	if (!item) return 0;
 
-	int parentId = item->parentId;
-	while (parentId){
-		stack[sp++] = parentId;
-
-		TTV_ITEM *subItem = tvTreeGetItem(tv, parentId, NULL);
-		if (subItem){
-			parentId = subItem->parentId;
-			tvTreeFreeItem(subItem);
-		}else{
-			break;
-		}
-	}
-	tvTreeFreeItem(item);
-	
-	for (int i = 0; i < sp; i++)
-		printf("%i %X\n", i, stack[i]);
-	
-	return sp;
-}
-*/
 static inline int getNextSiblingId (TTV *tv, TTV_ITEM *parent, const int id)
 {
 	int nextId = 0;
@@ -1080,7 +1019,6 @@ static inline int getNextSiblingId (TTV *tv, TTV_ITEM *parent, const int id)
 	while(parent->children[child]){
 		if (parent->children[child] == id){
 			nextId = parent->children[child+1];
-			//printf("nextId %i (%i)\n", nextId, id);
 			break;
 		}
 		child++;
@@ -1151,6 +1089,7 @@ static inline void tvDoActionOpen (TTV *tv, TTV_ITEM *item, const int id, TTV_IT
 	}
 }
 #endif
+
 #if 0
 static inline void tvDoActionClose (TTV *tv, TTV_ITEM *item, const int id, TTV_ITEM_DESC *desc)
 {
@@ -1214,45 +1153,28 @@ static inline void tvDoActionClose (TTV *tv, TTV_ITEM *item, const int id, TTV_I
 
 static inline int tvInputDoAction (TTV *tv, const int id, const int action, TTOUCHCOORD *pos, void *opaque)
 {
-	/*TTV_ITEM *item = tvTreeGetItem(tv, id);
-	if (!item) return 0;
-	TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
-	*/
-
-	//printf("tvInputDoAction %p\n", opaque);
-	
 	int freeItem = (opaque == NULL);
 	if (freeItem)
 		opaque = tvTreeGetItem(tv, id, NULL);
 		
 	
 	if (action == TV_ACTION_EXPANDER_OPEN){
-		//printf("action == TV_ACTION_EXPANDER_OPEN %i\n", id);
-		
 		TTV_ITEM *item = (TTV_ITEM*)opaque;
 		TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 
 		if (desc->expander.expanderState != TV_EXPANDER_OPEN){
 			desc->expander.expanderState = TV_EXPANDER_OPEN;
 			ccSendMessage(tv, TV_MSG_EXPANDERSTATE, desc->expander.expanderState, item->id, item);
-			//tvDoActionOpen(tv, item, item->id, desc);
-			//tvBuildPrerender(tv, tv->rootId);
 		}
 	}else if (action == TV_ACTION_EXPANDER_CLOSE){
-		//printf("action == TV_ACTION_EXPANDER_CLOSE %i\n", id);
-		
 		TTV_ITEM *item = (TTV_ITEM*)opaque;
 		TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 		
 		if (desc->expander.expanderState != TV_EXPANDER_CLOSED){
 			desc->expander.expanderState = TV_EXPANDER_CLOSED;
 			ccSendMessage(tv, TV_MSG_EXPANDERSTATE, desc->expander.expanderState, item->id, item);
-			//tvDoActionClose(tv, item, item->id, desc);
-			//tvBuildPrerender(tv, tv->rootId);
 		}
 	}else if (action == TV_ACTION_EXPANDER_TOGGLE){
-		//printf("action == TV_ACTION_EXPANDER_TOGGLE %i\n", id);
-		
 		TTV_ITEM *item = (TTV_ITEM*)opaque;
 		TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 		
@@ -1264,14 +1186,7 @@ static inline int tvInputDoAction (TTV *tv, const int id, const int action, TTOU
 		ccSendMessage(tv, TV_MSG_EXPANDERSTATE, desc->expander.expanderState, item->id, item);
 		
 		tvBuildPrerender(tv, tv->rootId);
-		/*if (desc->expander.expanderState == TV_EXPANDER_OPEN)
-			tvDoActionOpen(tv, item, item->id, desc);
-		else
-			tvDoActionClose(tv, item, item->id, desc);*/
-
 	}else if (action == TV_ACTION_CHECKBOX_TOGGLE){
-		//printf("action == TV_ACTION_CHECKBOX_TOGGLE %i\n", id);
-		
 		TTV_ITEM *item = (TTV_ITEM*)opaque;
 		TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 		
@@ -1293,8 +1208,6 @@ static inline int tvInputDoAction (TTV *tv, const int id, const int action, TTOU
 		ccSendMessage(tv, TV_MSG_ITEMSELECT, 0, id, opaque);
 		
 	}else if (action == TV_ACTION_IMAGE_SELECT){
-		//printf("action == TV_ACTION_IMAGE_SELECT %i, %p\n", id, opaque);
-		
 		TTV_ITEM *item = tvTreeGetItem(tv, id, NULL);
 		if (!item) return 0;
 		TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
@@ -1387,7 +1300,6 @@ static inline void tvSetExpandCloseAll (TTV *tv, TTV_ITEM *item, const int state
 					tvSetExpandCloseAll(tv, subItem, state);
 				}
 			}
-
 			tvTreeFreeItem(subItem);
 		}
 		child++;
@@ -1441,8 +1353,6 @@ void tvSetCheckNode (TTV *tv, TTV_ITEM *item, const int state)
 
 void tvCheckSetAll (TTV *tv)
 {
-	//printf("tvCheckSetAll\n");
-	
 	if (ccLock(tv)){
 		TTV_ITEM *item = tvTreeGetItem(tv, tv->rootId, NULL);
 		if (item){
@@ -1456,8 +1366,6 @@ void tvCheckSetAll (TTV *tv)
 
 void tvCheckClearAll (TTV *tv)
 {
-	//printf("tvCheckClearAll\n");
-	
 	if (ccLock(tv)){
 		TTV_ITEM *item = tvTreeGetItem(tv, tv->rootId, NULL);
 		if (item){
@@ -1487,7 +1395,6 @@ int tvRenameGetState (TTV *tv)
 
 void tvRenameSetState (TTV *tv, const int state)
 {
-	//printf("tvRenameSetState %i\n", state);
 	tv->renameEnabled = state;
 }
 
@@ -1507,8 +1414,6 @@ static inline int _tvHandleInput (TTV *tv, TTOUCHCOORD *pos, const int flags)
 	
 	for (int i = 0; i < tv->tPostItems; i++, post++){
 		if (isOverlap(pos, &post->pos)){
-			//printf("# down: post id %X, %i: %i %i, %i %i\n", post->id, tv->dragEnabled, pos->dt, (int)pos->time, flags, pos->pen);
-			
 			if (!flags){
 				TTV_ITEM *item = tvTreeGetItem(tv, post->id, NULL);
 				if (item){
@@ -1575,7 +1480,6 @@ int tvHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 				
 				TTV_INPUT_DROP *tvid = my_calloc(1, sizeof(TTV_INPUT_DROP));
 				if (tvid){
-					//printf("mouse up %X %i\n", tv->drag.post.id, tv->drag.state);
 					tvItemEnable(tv, tv->drag.post.id);
 					
 					tvid->from = tv->drag.post.id;
@@ -1631,15 +1535,12 @@ int tvHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 		}else if (flags == 1){		// detect and show keypad if being requested and allow editing of that item
 			int postId = tvInputGetTouchedPostId(tv, pos, flags);
 			if (postId){
-				//printf("state %i, %i %i\n", flags, tv->drag.state, pos->dt);
-
 				TTV_ITEM *item = tvTreeGetItem(tv, postId, NULL);
 				if (item){
 					TTV_ITEM_DESC *desc = tvTreeItemGetDesc(item);
 					if (desc->tState == 1){
 
 						const int dt = pos->time - desc->time;
-						//printf("move: post id %X, %i: %i %i %i\n", postId, tv->dragEnabled, (int)desc->time, (int)pos->time, dt);
 						if (dt >= 700){
 							desc->tState = 0;
 							if (dt <= 1250){
@@ -1674,8 +1575,6 @@ int tvHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 int tvSetPosition (void *object, const int x, const int y)
 {
-	//printf("treeviewSetPosition %i %i\n", x, y);
-	
 	TTV *tv = (TTV*)object;
 	tv->metrics.x = x;
 	tv->metrics.y = y;
@@ -1687,8 +1586,6 @@ int tvSetPosition (void *object, const int x, const int y)
 
 int tvSetMetrics (void *object, const int x, const int y, const int width, const int height)
 {
-	//printf("tvSetMetrics %p, %i %i %i %i\n",object, x, y, width, height);
-	
 	TTV *tv = (TTV*)object;
 	tv->metrics.width = width;
 	tv->metrics.height = height;
@@ -1720,13 +1617,9 @@ static inline TTV_RENDER *tv_renderPreCalc (TTV *tv, TTV_ITEM *item, TLPOINTEX *
 	
 	int child = 0;
 	while(item->children[child]){
-		//printf("tvTreeGetItem2 %X %i %p\n", item->children[child], item->children[child], item->entry);
-		
 		TTV_ITEM *subItem = tvTreeGetItem2(tv, item->children[child], item->entry);
 		if (subItem){
 			TTV_ITEM_DESC *desc = subItem->storage;//tvTreeItemGetDesc(subItem);
-
-			//printf("preCalc %i %i %p %p '%s', %i\n", child, item->children[child], subItem, desc, subItem->name, desc->expander.expanderState);
 
 			//if (desc->enabled){
 				TTV_RENDER *render = tvNewRender();
@@ -1739,8 +1632,6 @@ static inline TTV_RENDER *tv_renderPreCalc (TTV *tv, TTV_ITEM *item, TLPOINTEX *
 				render->rItem->height = (render->rItem->pos.y2 - render->rItem->pos.y1);
 				*height += render->rItem->height;
 				render->rItem->id = subItem->id;
-
-				// printf("%i, %i %i\n", subItem->id, render->rItem->pos.y1, render->rItem->height);
 
 				TTV_RENDER *subRender = NULL;
 
@@ -1793,7 +1684,6 @@ static inline TTV_RENDER *tv_PreRender (TTV *tv, const int id, TLPOINTEX *pos, c
 	box.x2 = box.x1 + ccGetWidth(tv) - 1;
 	box.y2 = box.y1 + ccGetHeight(tv) - 1;
 	
-	//*pos = *(TLPOINTEX*)(&box);
 	my_memcpy(pos, &box, sizeof(box));
 
 	TTV_ITEM *item = tvTreeGetItem(tv, id, NULL);
@@ -1813,16 +1703,11 @@ static inline TTV_RENDER *tv_PreRender (TTV *tv, const int id, TLPOINTEX *pos, c
 
 void tvBuildPrerender (TTV *tv, const int id)
 {
-	//printf("tvBuildPrerender %i\n", id);
-	
 	TLPOINTEX pos;
 	int height = 0;
 	TTV_RENDER *render = tv_PreRender(tv, id, &pos, TV_RENDER_INDENT, &height);
 	tvDeleteRender(tv->preRender);
 	tv->preRender = render;
-
-
-	//printf("height %i %i %f\n", height, h, t1-t0);
 
 	int first = scrollbarGetFirstItem(tv->sbVert);
 	scrollbarSetRange(tv->sbVert, 0, height-2, first, tv->metrics.height-2);
