@@ -84,7 +84,7 @@ void cmd_snapshot (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 
 // shouldn't be here
 int artworkFlush (TVLCPLAYER *vp, TARTMANAGER *am);
-void printAbout (TVLCPLAYER *vp);
+void cmdPrintAbout (TVLCPLAYER *vp);
 void playlistsForceRefresh (TVLCPLAYER *vp, const int when);
 
 void cmd_import (wchar_t *var, int vlen, void *uptr, int play, int unused2);

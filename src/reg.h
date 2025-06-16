@@ -32,7 +32,12 @@
 #define MY_DOCUMENTS_2K		"CLSID\\{450D8FBA-AD25-11D0-98A8-0800361B1103}\\"
 #define DESKTOP_2K			"CLSID\\{00021400-0000-0000-C000-000000000046}\\"
 
-#define LIBMYLCDVLCSTREAM	"Software\\libmylcd\\Vlcstream\\"
+
+// x32
+#define LIBMYLCDVLCSTREAM	"Software\\Wow6432Node\\libmylcd\\Vlcstream\\"
+
+// x64
+//#define LIBMYLCDVLCSTREAM	"Software\\libmylcd\\Vlcstream\\"
 
 #endif
 
