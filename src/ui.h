@@ -39,7 +39,6 @@
 #define CFGFILE					SKINDROOT "/config.cfg"
 #define KP_CONFIGFILE			SKINDROOT "/keypad.cfg"
 #define EXTS_CONFIGFILE			SKINDROOT "/fileext.cfg"
-#define MAPS(x)					FONTD(L"mapnik/")x
 #define SNAPSHOTFILE			L"vlcs_snapshot.png"
 
 #define VLCSPLAYLIST			L"vlcsplaylist.m3u8"
