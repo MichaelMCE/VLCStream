@@ -100,8 +100,6 @@ int ccLabelFlushAll (TCC *cc)
 	int ct = 0;
 
 	do{
-		//printf("%i %i\n", list->obj->type, list->obj->id);
-
 		TCCOBJECT *ccObj = list->obj;
 
 		if (ccObj /*&& ccObj->enabled == 1*/){
@@ -151,8 +149,6 @@ static inline TLISTITEM *labelObjsIdToItem (TLABELOBJLIST *objs, const int id)
 
 static inline void labelSetEnabledStateAll (TLABELOBJLIST *objs, const int state)
 {
-	//printf("labelSetEnabledStateAll %i\n", id);
-
 	TLISTITEM *item = objs->head;
 	while(item){
 		TLABELOBJ *obj = listGetStorage(item);
@@ -175,8 +171,6 @@ static inline void labelSetEnabledStateAll (TLABELOBJLIST *objs, const int state
 static inline TLABELOBJ *labelObjsIdToObj (TLABELOBJLIST *objs, const int id)
 {
 	if (id < 1) return NULL;
-
-	//printf("labelObjsIdToObj %i\n", id);
 
 	TLISTITEM *item = objs->head;
 	while(item){
@@ -326,7 +320,6 @@ static inline void labelTextFree (TLABELTEXT *text)
 static inline void labelArtcFree (TLABELARTCA *image, const int dontFreeDrawable)
 {
 	if (!dontFreeDrawable && image->drawable){
-		//printf("labelArtcFree %i: %X %i\n", image->groupId, image->imgId, image->drawable->groupId);
 		lDeleteFrame(image->drawable);
 	}
 
@@ -335,8 +328,6 @@ static inline void labelArtcFree (TLABELARTCA *image, const int dontFreeDrawable
 
 static inline void labelImageFree (TLABELIMAGE *image)
 {
-	//printf("labelImageFree %p %p\n", image->img, image->working);
-		
 	if (image->img) lDeleteFrame(image->img);
 	if (image->working) lDeleteFrame(image->working);
 	my_free(image);
@@ -384,7 +375,6 @@ static inline int labelTextGetMetrics (TLABELTEXT *text, int *x, int *y, int *wi
 	}else{	// attempt to calculate expected metrics
 		int w = 0, h = 0;
 		if (text->wrapText) w = (text->maxW - text->pos.x)-4;	//-4 fixes up a get metrics/render bug in libmylcd
-		//printf("text->offset.x %i %i %i %i\n", text->wrapText, text->offset.x, text->pos.x, w);
 		const int flags = text->flags|PF_FORCEAUTOWIDTH|PF_CLIPDRAW|PF_IGNOREFORMATTING | text->wrapText;
 
 		int ret = lGetTextMetrics(text->hw, text->string, flags, text->font, &w, &h);
@@ -473,7 +463,6 @@ static inline double labelTextGetScale (TLABELTEXT *text)
 static inline void labelTextSetScale (TLABELTEXT *text, const double scale)
 {
 	text->scale = scale;
-	//printf("labelTextSetScale %f\n", text->scale);
 }
 
 static inline void labelTextPositionGet (TLABELTEXT *text, int *xLocal, int *yLocal)
@@ -640,7 +629,6 @@ static inline int labelArtcCreateByAmId (TLABEL *label, TLABELARTCA *image, cons
 			height *= image->scaleAcquired;
 		}
 	}else{
-		//printf("labelArtcCreateByAmId: can not read %X\n", artId);
 		return 0;
 	}
 
@@ -694,8 +682,6 @@ static inline int labelArtcGetImageSrc (TLABEL *label, TLABELARTCA *image)
 
 static inline void labelArtcSetImage (TLABEL *label, TLABELARTCA *image, const int artId, const int resize)
 {
-	//printf("labelArtcSetImage %i\n", imgId);
-
 	if (image->imgId != artId){
 		//artManagerImageDelete(image->im, image->imgId);
 		//artManagerImageFlush(image->im, image->imgId);
@@ -716,8 +702,6 @@ static inline void labelArtcSetImage (TLABEL *label, TLABELARTCA *image, const i
 		height *= image->scaleAcquired;
 	}
 
-	//printf("labelArtcSetImage %i, %i %i\n", artId, width, height);
-
 	image->drawable = lNewFrame(label->cc->vp->ml->hw, width, height, SKINFILEBPP);
 	image->drawable->groupId = image->groupId;
 	image->drawableDrawn = 0;
@@ -733,7 +717,6 @@ static inline void labelArtcSetImage (TLABEL *label, TLABELARTCA *image, const i
 	}
 
 	//imageManagerImageRelease(image->im, image->imgId);
-
 }
 
 static inline void labelImageSetImage (TLABEL *label, TLABELIMAGE *image, TFRAME *img, const int resize)
@@ -803,9 +786,6 @@ static inline void labelArtcSetScale (TLABELARTCA *image, const double scale)
 
 	if (!img) return;
 
-	//printf("labelArtcSetScale %i %p %i, %f, %i %i, bpp %i\n", image->drawableDrawn, image->drawable, image->imgId, image->scaleAcquired, img->width, img->height, img->bpp);
-
-
 	if (image->drawable == NULL){
 		image->drawable = lNewFrame(img->hw, img->width, img->height, img->bpp);
 		image->drawable->groupId = image->groupId;
@@ -825,7 +805,6 @@ static inline void labelArtcSetScale (TLABELARTCA *image, const double scale)
 			//if (image->drawable->frameSize == img->frameSize)
 				my_memcpy(image->drawable->pixels, img->pixels, img->frameSize);
 		}else{
-			//printf("labelArtcSetScale: image->drawable %p %p %i %i %i\n", image->drawable, image->drawable->pixels, image->drawable->frameSize, image->drawable->width, image->drawable->height);
 			memset(image->drawable->pixels, 0, image->drawable->frameSize);
 			copyAreaNoBlend(img, image->drawable, 0, 0, 0, 0, img->width-1, img->height-1);
 		}
@@ -879,9 +858,6 @@ static inline int labelCCObjCreate (TLABEL *label, TLABELCCOBJ *cc, void *ccObje
  
 static inline int labelObjTextCreateDefault (TLABEL *label, TLABELTEXT *text, const char *str, const int flags, const int font, const int xLocal, const int yLocal, const int renderType)
 {
-	//printf("labelTextSet %i '%s'\n", hasText, str);
-
-
 	text->hw = label->cc->vp->ml->hw;
 	strncpy(text->string, str, MAX_PATH_UTF8);
 	//text->string[1][0] = 0;
@@ -907,7 +883,6 @@ static inline int labelObjTextCreateDefault (TLABEL *label, TLABELTEXT *text, co
 	labelTextSetBlurRadius(text, 2);
 	labelTextSetFilterType(text, renderType);
 	return 1;
-
 }
 
 char *labelStringGet (TLABEL *label, const int id)
@@ -1228,7 +1203,6 @@ static inline int labelObjSetPosition (TLABEL *label, const int id, const int xL
 	  	break;
 
 	  case LABEL_OBJTYPE_TEXT:
-	  	//printf("labelObjSetPosition %i %i %i\n", id, xLocal, yLocal);
 		labelTextPositionSet(label, item, xLocal, yLocal);
 		break;
 
@@ -1288,15 +1262,9 @@ static inline int labelObjGetPosition (TLABEL *label, const int id, int *xLocal,
 	return 1;
 }
 
-
-/*MYLCD_EXPORT void cpuid();
-MYLCD_EXPORT uint64_t rdtsc();
-extern TVLCPLAYER *g_vp;*/
-
 // must rewrite this...
 static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int y, const int isHovered, const int lWidth)
 {
-	//printf("labelTextRender %p %i %i %i %i\n", text, x, y, strIdx, (int)GetCurrentThreadId());
 
 	const char *labelStr = text->string;
 	if (!labelStr) return 0;
@@ -1305,8 +1273,6 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 	TFRAME *blur = text->blur;
 
 	if (str == NULL || blur == NULL){
-		//printf("str gen ##%s##\n", labelStr);
-
 		lSetCharacterEncoding(frame->hw, CMT_UTF8);
 		lSetForegroundColour(frame->hw, text->colInk);
 		lSetBackgroundColour(frame->hw, text->colBack);
@@ -1339,14 +1305,9 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 		const int renderFlags = text->flags|PF_CLIPDRAW|PF_CLIPTEXTV|PF_CLIPTEXTH | text->wrapText;
 		
 		//metrics.y = text->offset.y;
-		//printf("%i %i '%s'\n", y, text->offset.y, labelStr);
 		if (text->filterType == 0){
 			const int strCharOffset = text->charRenderOffset;
 			if (strCharOffset > 0){	// used only with the keypad editbox control
-				/*double t0 = getTime(g_vp);
-				int count = 100000;
-				while (count--){*/
-						
 #if 0			// disabled only because it is lesser performing
 				const int gtotal = strlen(labelStr);	// should use lCountCharacters() but for utf8 (and other 8bit encodings) strlen() is faster
 				UTF32 *glist = my_malloc(gtotal * sizeof(UTF32));
@@ -1365,17 +1326,10 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 					my_free(strw);
 				}
 #endif
-				/*if (count > 1 && str) lDeleteFrame(str);
-				};
-				double t1 = getTime(g_vp);
-				printf("time %.4f\n", (t1-t0)/(double)1000);*/
 			}
 
 			if (strCharOffset < 1 || !str)
 				str = newStringEx2(frame->hw, &metrics, LFRM_BPP_32A, renderFlags, text->font, labelStr, text->offset.x, text->offset.y, text->maxW, text->maxH, justified);
-
-			//printf("@@ %i %i #%s#\n", text->maxH, str->height, labelStr);
-			//lSaveImage(str, L"str.png", IMG_PNG, 0, 0);
 			
 			if (text->offset.y < 0) text->pos.y = 0;
 			if (text->offset.x < 0) text->pos.x = 0;
@@ -1402,8 +1356,6 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 		}
 
 		if (str){
-			//printf("%i %i :%s\n", text->maxH, str->height, labelStr);
-
 			blur = drawShadowedImageCreateBlurMask(str, text->colBack&0xFFFFFF, text->blurRadius);
 			int w = blur->width;
 			if (w >= text->maxW+8) w = text->maxW+8-1;
@@ -1472,7 +1424,6 @@ static inline int labelTextRender01 (TLABELTEXT *text, TFRAME *frame, int x, int
 
 			if (!isHovered){
 				if (!isScaled){
-					//printf("%i %i %i %i:%s\n", col, y, text->pos.y-1, str->height, labelStr);
 					drawShadowedImageComputed(str, frame, blur, col, row, 1, 0);
 
 				}else{
@@ -1518,7 +1469,6 @@ static inline int labelTextRender2 (TLABELTEXT *text, TFRAME *frame, int x, int 
 	THWD *hw = frame->hw;
 	int width = frame->width, height = 0;
 	lGetTextMetrics(hw, label, flags, text->font, &width, &height);
-	//printf("'%s' %i %i\n", label, width, height);
 	
 	if (text->flags&PF_MIDDLEJUSTIFY){
 		x += text->pos.x + abs(text->maxW - width)/2;
@@ -1588,8 +1538,6 @@ static inline int labelTextRender2 (TLABELTEXT *text, TFRAME *frame, int x, int 
 	text->offset.x = x - (bor/2);
 	text->offset.y = y - (bor/2);
 
-//printf("%i %i %i %i\n", text->offset.x, text->offset.y, text->offset.x+width+bor-1, text->offset.y+height+bor-1);
-
 #if DRAWTOUCHRECTS
 	lDrawRectangle(frame, text->offset.x, text->offset.y, text->offset.x+width+bor-1, text->offset.y+height+bor-1, DRAWTOUCHRECTCOL);
 #endif
@@ -1623,9 +1571,6 @@ static inline void labelCCObjRender (TLABELCCOBJ *ccObj, TFRAME *frame, int x, i
 
 static inline void labelArtcRenderSurface (TLABELARTCA *image, const int imgWidth, const int imgHeight, TFRAME *working, TFRAME *frame, int x, int y, const int renderHover)
 {
-
-	//printf("labelArtcRenderSurface %p %p\n", image, working);
-
 	if (!image->hasConstraints){
 		if (image->scaleImage){
 			int w = ((imgWidth)  * image->scaleBy);
@@ -1647,12 +1592,9 @@ static inline void labelArtcRenderSurface (TLABELARTCA *image, const int imgWidt
 		image->actual.y1 = y;
 
 		if (renderHover && image->canHover){
-			//printf("labelArtcRenderSurface hover %p %p\n", working, frame);
-			
 			drawShadowedImageAlpha(working, frame, x, y, image->hoverColour, 2, 1, 1, image->hoverAlpha);
 			drawShadowedImageAlpha(working, frame, x, y, image->hoverColour, 2, -1, -1, image->hoverAlpha);
 		}else{
-			//printf("labelArtcRenderSurface %i %i %p %p\n", x, image->imgId, working, frame);
 			drawImage(working, frame, x, y, working->width-1, working->height-1);
 		}
 	}else{
@@ -1688,15 +1630,12 @@ static inline void labelArtcRenderSurface (TLABELARTCA *image, const int imgWidt
 		if (renderHover && image->canHover){
 			TFRAME *tmp = lNewFrame(frame->hw, w, h, frame->bpp);
 			if (tmp){
-				//printf("labelRenderHover %i %X\n", pos.x1, image->imgId);
-				
 				copyAreaNoBlend(working, tmp, 0, 0, x, y, x+w-1, y+h-1);
 				drawShadowedImageAlpha(tmp, frame, pos.x1, pos.y1, image->hoverColour, 4, 3, 3, image->hoverAlpha);
 				drawShadowedImageAlpha(tmp, frame, pos.x1, pos.y1, image->hoverColour, 4, -3, -3, image->hoverAlpha);
 				lDeleteFrame(tmp);
 			}
 		}else{
-			//printf("labelRender %i %i %i %X\n", pos.x1, pos.x1+x+w-1, x+w-1, image->imgId);
 			copyArea(working, frame, pos.x1, pos.y1, x, y, x+w-1, y+h-1);
 		}
 
@@ -1713,9 +1652,8 @@ static inline void labelArtcRenderSurface (TLABELARTCA *image, const int imgWidt
 
 static inline void labelArtcRender (TLABELARTCA *image, TFRAME *frame, const int x, const int y, const int renderHover)
 {
-	//printf("labelArtcRender %i\n", image->imgId);
-
-	if (!image) return;
+	if (!image)
+		return;
 
 	if (!image->drawableDrawn){
 		image->drawableDrawn = 3;
@@ -1731,8 +1669,6 @@ static inline void labelArtcRender (TLABELARTCA *image, TFRAME *frame, const int
 			height *= image->scaleAcquired;
 		}
 
-		//printf("labelArtcRender %i %i\n", width, height);
-
 		if (image->drawable)
 			labelArtcRenderSurface(image, width, height, image->drawable, frame, x+image->pos.x, y+image->pos.y, renderHover);
 		//imageManagerImageRelease(image->im, image->imgId);
@@ -1741,9 +1677,6 @@ static inline void labelArtcRender (TLABELARTCA *image, TFRAME *frame, const int
 
 static inline void labelImageRenderSurface (TLABELIMAGE *image, TFRAME *img, TFRAME *working, TFRAME *frame, int x, int y, const int renderHover)
 {
-
-	//printf("labelImageRender %p %p\n", img, working);
-
 	if (!image->hasConstraints){
 		if (image->scaleImage){
 			int w = ((img->width)  * image->scaleBy);
@@ -1869,8 +1802,6 @@ double labelArtcScaleGet (TLABEL *label, const int id)
 
 int labelArtcScaleSet (TLABEL *label, const int id, const double scale)
 {
-	//printf("labelArtcScaleSet %f\n", scale);
-
 	int ret = 0;
 	if (ccLock(label)){
 		TLABELARTCA *image = labelGetItem(label, id);
@@ -1882,7 +1813,6 @@ int labelArtcScaleSet (TLABEL *label, const int id, const double scale)
 	}
 	return ret;
 }
-
 
 int labelArtcOpacityGet (TLABEL *label, const int id)
 {
@@ -1898,8 +1828,6 @@ int labelArtcOpacityGet (TLABEL *label, const int id)
 
 int labelArtcOpacitySet (TLABEL *label, const int id, const int opacity)
 {
-	//printf("labelArtcScaleSet %f\n", scale);
-
 	int ret = 0;
 	if (ccLock(label)){
 		TLABELARTCA *image = labelGetItem(label, id);
@@ -1919,8 +1847,6 @@ static inline int labelObjsRender (TLABEL *label, TLABELOBJLIST *objs, TFRAME *f
 	while(item){
 		TLABELOBJ *obj = listGetStorage(item);
 		if (obj && obj->enabled){
-			//printf("labelObjsRender %i: %i %p, %i\n", ct, obj->id, item, label->isHovered);
-
 			switch (obj->objType){
 	   		  case LABEL_OBJTYPE_IMGCACHEID:
 	   		  case LABEL_OBJTYPE_ARTCACHEID:
@@ -1977,9 +1903,7 @@ static inline int labelObjsRender (TLABEL *label, TLABELOBJLIST *objs, TFRAME *f
 	   		  				}
 	   		  			}
 	   		  			
-						//printf("labelObjsRender %i: %i, %i %i %i %i, %i %i\n", label->id, obj->id, label->metrics.x, label->metrics.y, label->metrics.width, label->metrics.height, obj->u.text->pos.x, obj->u.text->pos.y);
 						/*int ret =*/ labelTextRender(obj->u.text, frame, x, y, isHovered==2, label->metrics.width);
-						//printf("labelObjsRender ret %i %i: %i, %i %i %i %i, %i %i\n", ret, label->id, obj->id, label->metrics.x, label->metrics.y, label->metrics.width, label->metrics.height, obj->u.text->pos.x, obj->u.text->pos.y);
 					}
 					ct++;
 				}
@@ -2073,8 +1997,6 @@ static inline int labelObjDeleteObj (TLABEL *label, TLABELOBJLIST *objs, const i
 
 		labelObjsFreeObj(label, obj, 0);
 
-		//printf("count %i\n", listCount());
-
 		TLISTITEM *next = item->next;
 		TLISTITEM *prev = item->prev;
 
@@ -2092,8 +2014,6 @@ static inline int labelObjDeleteObj (TLABEL *label, TLABELOBJLIST *objs, const i
 
 static inline void labelObjsFreeObjs (TLABEL *label, TLABELOBJLIST *objs, const int dontFreeDrawable)
 {
-	//printf("labelObjsFreeObjs  in %p\n", objs);
-
 	TLISTITEM *item = objs->head;
 	while(item){
 		TLABELOBJ *obj = listGetStorage(item);
@@ -2192,7 +2112,6 @@ static int labelGenerateItemId (TLABEL *label)
 	if (++label->idSrc < 65535){
 		return label->idSrc;
 	}else{
-		//printf("labelGenerateItemId %i\n", label->idSrc);
 		return (label->idSrc = 101);
 	}
 }
@@ -2206,8 +2125,6 @@ static inline void *labelObjNew (TLABEL *label, const int type, int *id)
 			if (id) *id = obj->id;
 			return obj;
 		}
-		//else
-		//	printf("labelObjNew obj not added %i %i\n", type, obj->id);
 	}
 	if (id) *id = 0;
 	return NULL;
@@ -2221,7 +2138,6 @@ static inline int labelObjsTextCreate (TLABEL *label, const char *str, const int
 		TLABELTEXT *text = obj->u.obj; //labelGetItem(label, id);
 		if (text){
 			obj->dataInt64 = udata;
-			//printf("labelObjsTextCreate %i '%s'\n", id, str);
 			labelObjTextCreateDefault(label, text, str, renderflags, font, xLocal, yLocal, renderType);
 		}
 	}
@@ -2309,9 +2225,6 @@ static inline int labelObjsHandleInput (TLABEL *label, TLABELOBJLIST *objs, TTOU
 	const int x = ccGetPositionX(label);
 	const int y = ccGetPositionY(label);
 
-	//printf("labelObjsHandleInput %i: %i %i\n", label->id, pos->x, pos->y);
-
-
 	int ret = 0;
 	TLISTITEM *item = objs->tail;
 	//TLISTITEM *item = objs->head;
@@ -2322,87 +2235,53 @@ static inline int labelObjsHandleInput (TLABEL *label, TLABELOBJLIST *objs, TTOU
 			switch (obj->objType){
 	   		  case LABEL_OBJTYPE_IMGCACHEID:
 	   		  case LABEL_OBJTYPE_ARTCACHEID:
-	   		  	//printf("image: %i %i, %i %i\n", obj->image->actual.x1 - x, obj->image->actual.y1 - y, pos->x, pos->y);
 
 	   		  	if (isOverlap4(pos, &obj->u.artc->actual, x, y, 0, 0)){
 	   		  		const int cx = abs(obj->u.artc->actual.x1 - x - pos->x);
 	   		  		const int cy = abs(obj->u.artc->actual.y1 - y - pos->y);
 
 	   		  		if (!flags){				// press down
-	   		  			//printf("label img down %i\n", obj->id);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_PRESS, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 1 && pos->id == label->touchInputId){	// drag
-	   		  			//printf("label img slide %i\n", obj->id);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_SLIDE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 3){	// up/release
-	   		  			//printf("label img up %i\n", obj->id);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_RELEASE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}
-
-	   		  		//printf("imgc ccHandleInput %i\n", obj->id);
-	   		  		//ret = 1;
 				}
 				break;
 
 	   		  case LABEL_OBJTYPE_TEXT:
-	   		  	//printf("text: %i %i, %i %i, %i, %p %p\n", obj->u.text->offset.x, obj->u.text->offset.y, pos->x, pos->y, flags, obj->u.text->frame[0], obj->u.text->frame[1]);
-	   		  	//if (obj->u.text->string[0])
-	   		  	//	printf(":0: '%s'\n",obj->u.text->string[0]);
-	   		  	//if (obj->u.text->string[1])
-	   		  	//	printf(":1: '%s'\n",obj->u.text->string[1]);
-
-	   		  	//if (flags) break;
-
 				if ((obj->u.text->frame && isOverlap(pos, &obj->u.text->offset, 0, 0, obj->u.text->frame->width, obj->u.text->frame->height))
-				/* || (obj->u.text->frame[1] && isOverlap(pos, &obj->u.text->offset, 0, 0, obj->u.text->frame[1]->width, obj->u.text->frame[1]->height))*/
 				){
 					int cx = abs(obj->u.text->offset.x - pos->x);
 					int cy = abs(obj->u.text->offset.y - pos->y);
 
-					//printf("text ccHandleInput %i %i %i %i\n", obj->id, x, y, flags);
-
-					//ret = ccSendMessage(label, LABEL_MSG_TEXT_SELECTED, ((cx&0xFFFF)<<16)|(cy&0xFFFF), obj->id, pos);
-					//printf("text ccHandleInput %i\n", obj->id);
-					//ret = 1;
-
 					if (!flags){				// press down
-						//printf("label txt down %i\n", obj->id);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_TEXT_SELECTED_PRESS, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 1 && pos->id == label->touchInputId){	// drag
-	   		  			//printf("label txt slide %i, %i\n", obj->id, pos->pen);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_TEXT_SELECTED_SLIDE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 3){	// up/release
-	   		  			//printf("label txt up %i\n", obj->id);
 	   		  			ret = ccSendMessage(label, LABEL_MSG_TEXT_SELECTED_RELEASE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}
 				}
 				break;
 
 	   		  case LABEL_OBJTYPE_IMAGE:
-	   		  	//printf("image: %i %i, %i %i\n", obj->image->actual.x1 - x, obj->image->actual.y1 - y, pos->x, pos->y);
-
 	   		  	if (isOverlap4(pos, &obj->u.image->actual, x, y, 0, 0)){
 	   		  		const int cx = abs(obj->u.image->actual.x1 - x - pos->x);
 	   		  		const int cy = abs(obj->u.image->actual.y1 - y - pos->y);
 
 	   		  		if (!flags){				// press down
-	   		  			//printf("label down\n");
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_PRESS, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 1 && pos->id == label->touchInputId){	// drag
-	   		  			//printf("label slide\n");
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_SLIDE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}else if (flags == 3){	// up/release
-	   		  			//printf("label up\n");
 	   		  			ret = ccSendMessage(label, LABEL_MSG_IMAGE_SELECTED_RELEASE, (cx<<16)|(cy&0xFFFF), obj->id, pos);
 	   		  		}
-
-	   		  		//printf("image ccHandleInput %i\n", obj->id);
-	   		  		//ret = 1;
 				}
 				break;
 
 	   		  case LABEL_OBJTYPE_CCOBJECT:
-	   		  	//printf("object: %i %i, %i %i, %i %i\n", obj->u.ccObj->pos.x, obj->u.ccObj->pos.y, x, y, pos->x, pos->y);
 				if (isOverlap(pos, &obj->u.ccObj->pos, 0, 0, ccGetWidth(obj->u.ccObj->cc), ccGetHeight(obj->u.ccObj->cc))){
 					int cx = abs(obj->u.ccObj->pos.x - pos->x);
 					int cy = abs(obj->u.ccObj->pos.y - pos->y);
@@ -2413,9 +2292,6 @@ static inline int labelObjsHandleInput (TLABEL *label, TLABELOBJLIST *objs, TTOU
 					dpos.x = abs(obj->u.ccObj->pos.x - (pos->x + ccGetPositionX(obj->u.ccObj->cc)));
 					dpos.y = abs(obj->u.ccObj->pos.y - (pos->y + ccGetPositionY(obj->u.ccObj->cc)));
 					ret = ccHandleInput(obj->u.ccObj->cc, &dpos, flags);
-
-					//printf("ccObj ccHandleInput %i %i %i, %i %i\n", obj->id, x, y, dpos.x, dpos.y);
-					//ret = 1;
 				}
 				break;
 			};
@@ -2587,8 +2463,6 @@ int labelArtcGetMetrics (TLABEL *label, const int id, int *width, int *height)
 				if (width) *width *= image->scaleAcquired;
 				if (height) *height *= image->scaleAcquired;
 			}
-
-			//printf("labelArtcGetMetrics %i %i\n", *width, *height);
 		}
 		ccUnlock(label);
 	}
@@ -2606,8 +2480,6 @@ int labelArtcGetWidth (TLABEL *label, const int id)
 			artManagerImageGetMetrics(image->im, image->imgId, &width, NULL);
 			if (image->scaleAcquired > 0.0)
 				width *= image->scaleAcquired;
-
-			//printf("labelArtcGetWidth %i\n", width);
 		}
 		ccUnlock(label);
 	}
@@ -2625,8 +2497,6 @@ int labelArtcGetHeight (TLABEL *label, const int id)
 			artManagerImageGetMetrics(image->im, image->imgId, NULL, &height);
 			if (image->scaleAcquired > 0.0)
 				height *= image->scaleAcquired;
-
-			//printf("labelArtcGetMetrics %i\n", height);
 		}
 		ccUnlock(label);
 	}
@@ -2762,8 +2632,6 @@ int labelCCCreate (TLABEL *label, void *ccObject, const int xLocal, const int yL
 
 int labelItemDelete (TLABEL *label, const int id)
 {
-	//printf("labelItemDelete %i\n", id);
-	
 	int ret = 0;
 	if (ccLock(label)){
 		ret = labelObjDeleteObj(label, label->objs, id);
@@ -2830,8 +2698,6 @@ static inline int labelHandleInput (void *object, TTOUCHCOORD *pos, const int fl
 					ret = ccSendMessage(label, LABEL_MSG_BASE_SELECTED_SLIDE, ((x&0xFFFF)<<16)|(y&0xFFFF), flags, &dpos);
 				else if (flags == 3)									// up/release
 					ret = ccSendMessage(label, LABEL_MSG_BASE_SELECTED_RELEASE, ((x&0xFFFF)<<16)|(y&0xFFFF), flags, &dpos);
-					
-				//printf("labelHandleInput ret %i, %i\n", ret, flags);
 			//}
 
 			if (ret == 2) return 0;
@@ -2841,7 +2707,6 @@ static inline int labelHandleInput (void *object, TTOUCHCOORD *pos, const int fl
 				dpos.x = abs(x1 - pos->x);
 				dpos.y = abs(y1 - pos->y);
 				/*int ret =*/ labelObjsHandleInput(label, label->objs, &dpos, flags);
-				//printf("labelObjsHandleInput ret = %i, %i\n", ret, label->id);
 			}
 			return 1;
 		}
@@ -2851,8 +2716,6 @@ static inline int labelHandleInput (void *object, TTOUCHCOORD *pos, const int fl
 
 static inline int labelSetPosition (void *object, const int x, const int y)
 {
-	//printf("treeviewSetPosition %i %i\n", x, y);
-
 	TLABEL *label = (TLABEL*)object;
 	label->metrics.x = x;
 	label->metrics.y = y;
@@ -2926,8 +2789,6 @@ static inline void labelObjsResize (TLABELOBJLIST *objs, const int width, const 
 
 static inline int labelSetMetrics (void *object, const int x, const int y, const int width, const int height)
 {
-	//printf("tvSetMetrics %p, %i %i %i %i\n",object, x, y, width, height);
-
 	TLABEL *label = (TLABEL*)object;
 
 	ccSetPosition(label, x, y);
@@ -2991,8 +2852,6 @@ static inline void labelDisable (void *object)
 static inline void labelDelete (void *object)
 {
 	TLABEL *label = (TLABEL*)object;
-	//printf("labelDelete in %p %i (%i)\n", label, label->id, label->pageOwner);
-
 	labelObjsFree(label);
 }
 
@@ -3044,8 +2903,6 @@ int labelNew (TCCOBJECT *object, void *unused, const int pageOwner, const int ty
 		 70<<24 | COL_BLUE_SEA_TINT
 		};
 	labelBorderSetProfile(&label->border, LABEL_BORDER_SET_POST, col_post, 3);
-
-	//printf("ccLabelNew %p %i (%i)\n", label, label->id, label->pageOwner);
 
 	return 1;
 }

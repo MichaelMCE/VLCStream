@@ -84,8 +84,6 @@ static inline int lbButtonSumFaceWidth (TLB *lb, TCCBUTTON *btn)
 
 static inline int lbBuildMetrics (TLB *lb, int64_t value)
 {
-	//printf("lbBuildMetrics %I64d\n", value);
-	
 	const int total = buttonsTotalGet(lb->ccbtns);
 	value = scrollbarSetFirstItem(lb->scrollbar.vert, value);
 	if (value < 0 || (value > total * lb->verticalPadding)) value = 0;
@@ -96,10 +94,6 @@ static inline int lbBuildMetrics (TLB *lb, int64_t value)
 	const int btnBtm = btnTop + ((lb->metrics.height / lb->verticalPadding) + 1);
 	const int yAdjust = value % lb->verticalPadding;
 	int y = (lb->metrics.y + 1) - yAdjust;
-
-	
-	//printf("@@ lbBuildMetrics %i %i %i %i %I64d, %i\n", btnTop, btnBtm, yAdjust, y, value, total);
-	
 
 	for (int i = 0; i < total; i++){
 		TCCBUTTON *btn = buttonsButtonGet(lb->ccbtns, i);
@@ -115,18 +109,13 @@ static inline int lbBuildMetrics (TLB *lb, int64_t value)
 			else
 				x = lb->metrics.x + 1;
 
-			//printf("lb width %i %i %i\n", width, x, btn->metrics.width);
-
 			ccSetPosition(btn, x, y);
 			y += lb->verticalPadding;
 			
 			ccEnable(btn);
-			//printf("enable %i\n", btn->id);
 		}else{
 			ccDisable(btn);
-			//printf("disable %i\n", btn->id);
 		}
-
 		//buttonFaceConstraintsSet(btn, lb->metrics.x, lb->metrics.y, lb->metrics.x+lb->metrics.width-1, lb->metrics.y+lb->metrics.height-1);
 		//buttonFaceConstraintsEnable(btn);
 	}
@@ -150,7 +139,6 @@ int64_t lbGetFocus (TLB *lb)
 	int64_t ret = 0;
 	if (ccLock(lb)){
 		ret = scrollbarGetFirstItem(lb->scrollbar.vert);
-		//printf("lbGetFocus %i\n", (int)ret);
 		ccUnlock(lb);
 	}
 	return ret;
@@ -160,7 +148,6 @@ int lbSetFocus (TLB *lb, const int64_t value)
 {
 	int ret = 0;
 	if (ccLock(lb)){
-		//printf("lbSetFocus %i\n", (int)value);
 		ret = lbBuildMetrics(lb, value/* * lb->verticalPadding*/);
 		ccUnlock(lb);
 	}
@@ -189,15 +176,12 @@ static inline int64_t btn_item_cb (const void *object, const int msg, const int6
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-	
-	//printf("btn_item_cb: %p id:%i, objType:%i, msg:%i, data1:%I64d, data2:%I64d\n", btn_item_cb,obj->id, obj->type, msg, data1, data2);
-	
+
 	TCCBUTTON *btn = (TCCBUTTON*)obj;
 	
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
 		TLB *lb = ccGetUserData(btn);
 		int idx = buttonsButtonToIdx(lb->ccbtns, btn);
-		//printf("button %i, %i\n", btn->id, idx);
 		ccSendMessage(lb, LISTBOX_MSG_ITEMSELECTED, idx, buttonDataGet(btn), NULL);
 	}
 	
@@ -230,19 +214,8 @@ static inline TCCBUTTON *lbAddItemImage (TLB *lb, TFRAME *pri, TFRAME *sec, cons
 static inline TCCBUTTON *lbItemBuildString (TLB *lb, TCCBUTTON *btn, char *pri, char *sec, int font, int colour)
 {
 	if (!font) font = lb->font;
-	//if (!colour) colour = (255<<24) | COL_WHITE;
 
-
-	//if string is too short it may be difficult to press/activate, so incease it's width
-	/*int priLen = strlen(pri);
-	if (priLen < 6){
-		char buffer[priLen+32];
-		snprintf(buffer, priLen+8, "%s      ", pri);
-		buttonFaceTextSet(btn, BUTTON_PRI, buffer, PF_MIDDLEJUSTIFY, font, 0, 2);
-	}else{*/
-		buttonFaceTextSet(btn, BUTTON_PRI, pri, PF_MIDDLEJUSTIFY, font, 0, 2);
-	//}
-		
+	buttonFaceTextSet(btn, BUTTON_PRI, pri, PF_MIDDLEJUSTIFY, font, 0, 2);
 	if (lb->flags.justify == PF_LEFTJUSTIFY)
 		buttonFaceTextFlagsSet(btn, BUTTON_PRI, PF_LEFTJUSTIFY);
 	
@@ -266,8 +239,7 @@ static inline TCCBUTTON *lbItemBuildString (TLB *lb, TCCBUTTON *btn, char *pri, 
 		x = lb->metrics.x + (abs(width - lb->metrics.width)/2);
 	else
 		x = 1;
-	
-	//printf("additem %i %i %i '%s'\n", btn->id, x, width, pri);
+
 	ccSetMetrics(btn, x, lb->metrics.y, width, height);
 	buttonFaceHoverSet(btn, 1, COL_HOVER, 0.8);
 
@@ -392,9 +364,7 @@ static inline int64_t lb_scrollbar_cb (const void *object, const int msg, const 
 {
 	//TCCOBJECT *obj = (TCCOBJECT*)object;
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
-	
-	//printf("lb_scrollbar_cb. id:%i, objType:%i, msg:%i, data1:%I64d, data2:%I64d\n", obj->id, obj->type, msg, data1, data2);
-	
+
 	//if (obj->type == CC_SCROLLBAR_VERTICAL){
 		TSCROLLBAR *scrollbar = (TSCROLLBAR*)object;
 		TLB *lb = ccGetUserData(scrollbar);
@@ -402,8 +372,6 @@ static inline int64_t lb_scrollbar_cb (const void *object, const int msg, const 
 		switch (msg){
 	  	  case SCROLLBAR_MSG_VALCHANGED:{
 	  	  	int64_t *item = (int64_t*)dataPtr;
-	  	  	//printf("lb_scrollbar_cb %I64d\n", *item);
-
 	  	  	//int value = listboxGetFocus(lb);
 			//lbSetFocus(lb, *item);
 			lbBuildMetrics(lb, *item);
@@ -456,7 +424,6 @@ int lbRender (void *object, TFRAME *frame)
 	copyAreaNoBlend(lb->surface, frame, lb->metrics.x, lb->metrics.y, lb->metrics.x, lb->metrics.y, lb->metrics.x+lb->metrics.width-1, lb->metrics.y+lb->metrics.height-1);
 	//fastFrameCopy(lb->surface, frame, lb->metrics.x, lb->metrics.y);
 
-
 	if (lb->flags.drawBaseGfx){
 		int swidth = ccGetWidth(lb->scrollbar.vert)+2;
 		//if (!lb->flags.drawScrollbar){
@@ -489,7 +456,6 @@ int lbHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 	TLB *lb = (TLB*)object;
 	
 	int ret = ccHandleInput(lb->scrollbar.vert, pos, flags);
-	//printf("lbhandleinput sb %i, %i %i %i %i\n", ret, lb->metrics.x, lb->metrics.y, lb->metrics.width, lb->metrics.height);
 	if (ret) return ret;
 
 	if (lb->enabled /*&& isOverlap(pos, object)*/){
@@ -498,7 +464,6 @@ int lbHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 		
 		for (int i = 0; i < total; i++){
 			TCCBUTTON *btn = buttonsButtonGet(lb->ccbtns, i);
-			//printf("lbHandleInput %i: %i %i %i\n", i, btn->enabled, btn->metrics.y, pos->y);
 			if (btn->enabled){
 				my_memcpy(&local, pos, sizeof(TTOUCHCOORD));
 				int ret = ccHandleInput(btn, &local, flags);

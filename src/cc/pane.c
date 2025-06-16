@@ -78,19 +78,9 @@ static inline void paneSetValidated (TPANE *pane)
 	pane->isInvalidated = 0;
 }
 
-/*
-
-set pagination off
-set target-async on
-
-*/
 static inline unsigned int __stdcall panePreloadObjectsThread (void *data)
 {
 	img_readhead *cache = (img_readhead*)data;
-
-	//const int tid = GetCurrentThreadId();
-	//printf("readAhead %i %X\n", cache->total, tid);
-	//double t0 = getTime(cache->vp);
 
 	for (int i = 0; i < cache->total; i++){
 		if (lockWait(cache->am->hLock, 10000)){
@@ -98,8 +88,7 @@ static inline unsigned int __stdcall panePreloadObjectsThread (void *data)
 
 			// if image is already loaded; don't waste the lock but try another
 			while (ret == 2 && ++i < cache->total){
-				/*ret = */artManagerImagePreload(cache->am, cache->imgIds[i]);
-				//printf("preload %i %X, %i\n", i, cache->imgIds[i], ret);
+				artManagerImagePreload(cache->am, cache->imgIds[i]);
 			}
 			lockRelease(cache->am->hLock);
 		}else{
@@ -107,11 +96,7 @@ static inline unsigned int __stdcall panePreloadObjectsThread (void *data)
 		}
 	}
 
-	//double t1 = getTime(cache->vp);
-	//printf("readAhead %i %.4f \n\n", cache->total, t1-t0);
-
 	my_free(cache);
-	//printf("readAhead Exit %X %i\n", tid, activeThreadCount);
 	activeThreadCount--;
 	_endthreadex(1);
 	return 1;
@@ -137,8 +122,6 @@ static inline void panePreloadObjectsForward (TPANE *pane, TLISTITEM *item, cons
 	cache->am = pane->cc->vp->am;
 	cache->vp = pane->cc->vp;
 
-	//double t0 = getTime(cache->vp);
-
 	for (int i = 0; i < preloadCount && item; i++){
 		TPANEOBJ *obj = listGetStorage(item);
 		if (!obj) return;
@@ -150,9 +133,6 @@ static inline void panePreloadObjectsForward (TPANE *pane, TLISTITEM *item, cons
 		}
 		item = listGetNext(item);
 	}
-
-	//double t1 = getTime(cache->vp);
-	//printf("panePreloadObjectsForward %i %.4f\n", cache->total, t1-t0);
 
 	if (cache->total){
 		unsigned int tid;
@@ -174,8 +154,6 @@ static inline void panePreloadObjectsBack (TPANE *pane, TLISTITEM *item, const i
 	cache->am = pane->cc->vp->am;
 	cache->vp = pane->cc->vp;
 
-	//double t0 = getTime(cache->vp);
-
 	for (int i = 0; i < preloadCount && item; i++){
 		TPANEOBJ *obj = listGetStorage(item);
 		if (!obj) return;
@@ -187,9 +165,6 @@ static inline void panePreloadObjectsBack (TPANE *pane, TLISTITEM *item, const i
 		}
 		item = listGetPrev(item);
 	}
-
-	//double t1 = getTime(cache->vp);
-	//printf("panePreloadObjectsBack %i %.4f\n", cache->total, t1-t0);
 
 	if (cache->total){
 		unsigned int tid;
@@ -210,8 +185,6 @@ static inline void panePreloadObjects (TPANE *pane, TLISTITEM *backItem, TLISTIT
 
 void panePreloadItems (TPANE *pane, const int count)
 {
-	//printf("panePreloadItems %i\n", count);
-
 	if (ccLock(pane)){
 		if (!pane->lastEnabledItem) pane->lastEnabledItem = pane->items;
 		panePreloadObjects(pane, pane->firstEnabledItem, pane->lastEnabledItem, count);
@@ -230,7 +203,6 @@ static inline int paneCalcDirection (TPANE *pane)
 	else if (deltaY < 0) pane->direction = PANE_DIRECTION_DOWN;
 	else pane->direction = PANE_DIRECTION_STOP;
 
-	//printf("paneVert %i, %i %i %i\n", pane->pos.x, pane->offset.x, pane->previous.x, pane->direction);
 	pane->previous.x = pane->offset.x;
 	pane->previous.y = pane->offset.y;
 
@@ -240,8 +212,6 @@ static inline int paneCalcDirection (TPANE *pane)
 static inline void paneValidateImage (TPANE *pane, TPANEOBJ *obj, TMETRICS *metrics)
 {
 	labelArtcGetMetrics(pane->base, obj->image.itemId, &obj->image.metrics.width, &obj->image.metrics.height);
-
-	//printf("paneValidateImage: %i %i %i\n", obj->image.itemId, obj->image.metrics.width, obj->image.metrics.height);
 
 	switch (obj->image.dir){
 	case PANE_IMAGE_CENTRE:
@@ -273,7 +243,6 @@ static inline void paneValidateImage (TPANE *pane, TPANEOBJ *obj, TMETRICS *metr
 		obj->image.metrics.x += obj->image.offset.x;
 		obj->image.metrics.y = abs(metrics->height - obj->image.metrics.height)/2;
 		obj->image.metrics.y += obj->image.offset.y;
-		//printf("%i %i\n", metrics->height, obj->image.metrics.height);
 		break;
 	case PANE_IMAGE_NW:
 		//obj->image.metrics.x = 0;
@@ -311,9 +280,6 @@ static inline void paneValidateImage (TPANE *pane, TPANEOBJ *obj, TMETRICS *metr
 
 static inline int paneValidateVertMiddle (TPANE *pane)
 {
-
-	//printf("paneValidateVertMiddle %i %i\n", pane->offset.x, pane->offset.y);
-
 	if (pane->offset.y > 0) pane->offset.y = 0;
 	const int yOffset = -pane->offset.y;
 
@@ -332,10 +298,6 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 	labelItemsDisable(pane->base);
 	int aveLineHeight = 0;
 	int aveLineHeightTotal = 0;
-
-
-	//printf("pane paneValidateVertMiddle %i, %i %i, objGuess:%i\n", vertLineHeight, y1, yOffset, yOffset/pane->vertLineHeight);
-
 
 	TLISTITEM *item = pane->items;
 
@@ -383,7 +345,6 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 				obj->text.metrics.width = pane->metrics.width - obj->text.metrics.x;
 				labelStringGetMetrics(pane->base, obj->text.itemId, NULL, NULL, &obj->text.metrics.width, &obj->text.metrics.height);
 				//if (obj->text.metrics.width > maxW) obj->text.metrics.width = maxW;
-				//printf("obj->text.metrics.height %i, %i: %i\n",ct, obj->text.itemId, obj->text.metrics.height);
 			}
 
 			obj->text.metrics.x = col - (obj->text.metrics.width/2);
@@ -406,17 +367,14 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 				if (!obj->text.overlapIcon){
 					obj->text.metrics.x += obj->image.metrics.width/2;
 					obj->image.metrics.x = obj->text.metrics.x - imageTextSpace - obj->image.metrics.width;
-					//printf("obj->image.metrics.x a %i\n", obj->image.metrics.x);
 				}else{
 					//obj->image.metrics.x = obj->text.metrics.x;
 					obj->text.metrics.x += obj->image.metrics.width/2;
 					obj->image.metrics.x = obj->text.metrics.x - obj->image.metrics.width;
 					obj->text.metrics.x = obj->image.metrics.x;
-					//printf("obj->image.metrics.x b %i\n", obj->image.metrics.x);
 				}
 				obj->image.metrics.y = y1;
 				//labelItemPositionSet(pane->base, obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y);
-
 				//if (!obj->text.overlapIcon)
 				//	col = x1 + obj->image.metrics.width;
 			}
@@ -444,12 +402,10 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 				aveLineHeight += vertLineHeight;
 			}else{
 				int height = obj->text.metrics.height;
-				//printf("height %i %i, %i\n", ct, height, vertLineHeight);
 
 				if (height < 4 && obj->text.hasIcon) height = obj->image.metrics.height;
 				lineHeight = height + 4;
 
-				//printf("ct %i %i %i\n", ct, lineHeight, vertLineHeight);
 				if (lineHeight < obj->image.metrics.height)
 					lineHeight = obj->image.metrics.height+2;
 				y1 += lineHeight;
@@ -457,8 +413,6 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 			}
 
 			if (!obj->text.overlapIcon){
-				//printf("vert: metrics %i %i %i\n", tItemWidth, obj->text.metrics.width, obj->image.metrics.width);
-
 				int itemWidth = 0;
 				if (obj->text.hasIcon) itemWidth = obj->image.metrics.width;
 				if (obj->text.metrics.width + itemWidth > tItemWidth)
@@ -474,16 +428,11 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 		}else if (obj->type == PANE_OBJ_IMAGE){
 			labelItemEnable(pane->base, obj->image.itemId);
 			paneValidateImage(pane, obj, &pane->metrics);
-			//printf("vertMiddle pane->metrics %i: %i %i %i %i\n", obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y, obj->image.metrics.width, obj->image.metrics.height);
-
 			ct++;
 #endif
 		}
-//next:
 		item = listGetNext(item);
 	}
-
-	//printf("endofLoop objs:%i, y1:%i\n", ct, y1);
 
 	tItemHeight = y1;
 	pane->totalHeight = aveLineHeight;
@@ -501,9 +450,6 @@ static inline int paneValidateVertMiddle (TPANE *pane)
 
 static inline int paneValidateVert (TPANE *pane)
 {
-
-	//printf("paneValidateVert %i %i\n", pane->offset.x, pane->offset.y);
-
 	if (pane->offset.y > 0) pane->offset.y = 0;
 	const int yOffset = -pane->offset.y;
 
@@ -520,10 +466,6 @@ static inline int paneValidateVert (TPANE *pane)
 	int firstEnabledItemId = 0;
 
 	labelItemsDisable(pane->base);
-
-
-	//printf("pane vertLineHeight %i\n", vertLineHeight);
-
 	TLISTITEM *item = pane->items;
 
 	// ensure PANE_OBJ_IMAGE is processed and not skipped over
@@ -600,14 +542,12 @@ static inline int paneValidateVert (TPANE *pane)
 			if (!obj->text.metrics.height){
 				obj->text.metrics.width = pane->metrics.width - obj->text.metrics.x;
 				labelStringGetMetrics(pane->base, obj->text.itemId, NULL, NULL, &obj->text.metrics.width, &obj->text.metrics.height);
-				//printf("obj->text.metrics.height %i, %i: %i\n",ct, obj->text.itemId, obj->text.metrics.height);
 			}
 
 			// don't enable invisible items
 			if ((obj->text.metrics.y > -obj->text.metrics.height) || (obj->text.hasIcon && obj->text.metrics.y > -obj->image.metrics.height)){
 				if (baseRenderFlags&LABEL_RENDER_TEXT){
 					labelItemPositionSet(pane->base, obj->text.itemId, obj->text.metrics.x, obj->text.metrics.y);
-					//printf("%i %i %i\n", obj->text.itemId, y1, obj->text.metrics.y);
 					labelItemEnable(pane->base, obj->text.itemId);
 				}
 				if (obj->text.hasIcon){
@@ -623,12 +563,9 @@ static inline int paneValidateVert (TPANE *pane)
 			}
 
 			int height = obj->text.metrics.height;
-			//printf("height %i %i, %i\n", ct, height, vertLineHeight);
-
 			if (height < 4 && obj->text.hasIcon) height = obj->image.metrics.height;
 			lineHeight = height + 4;
 
-			//printf("ct %i %i %i\n", ct, lineHeight, vertLineHeight);
 			if (lineHeight < obj->image.metrics.height)
 				lineHeight = obj->image.metrics.height+2;
 
@@ -641,8 +578,6 @@ static inline int paneValidateVert (TPANE *pane)
 				//break;
 			//}
 			if (!obj->text.overlapIcon){
-				//printf("vert: metrics %i %i %i\n", tItemWidth, obj->text.metrics.width, obj->image.metrics.width);
-
 				int itemWidth = 0;
 				if (obj->text.hasIcon) itemWidth = obj->image.metrics.width;
 				if (obj->text.metrics.width + itemWidth > tItemWidth)
@@ -659,12 +594,10 @@ static inline int paneValidateVert (TPANE *pane)
 			ct++;
 #endif
 		}
-//next:
 		item = listGetNext(item);
 	}
 
 	tItemHeight = y1;
-	//printf("vert: metrics %i %i\n", tItemWidth, tItemHeight);
 
 	paneCalcDirection(pane);
 	pane->tItemWidth = tItemWidth;
@@ -690,8 +623,6 @@ static inline void paneSendMessageItemStateChange (TPANE *pane, const int objTyp
 
 static inline int paneValidateHoriMiddle (TPANE *pane)
 {
-	//printf("paneValidateHori Middle %i %i\n", pane->offset.x, pane->offset.y);
-
 	if (pane->offset.x > pane->base->metrics.width-1)
 		pane->offset.x = pane->base->metrics.width-1;
 	const int xOffset = -pane->offset.x;
@@ -760,15 +691,12 @@ static inline int paneValidateHoriMiddle (TPANE *pane)
 
 				if (basePosX + obj->image.metrics.x + obj->image.metrics.width < pane->metrics.x){
 					paneSendMessageItemStateChange(pane, PANE_OBJ_IMAGE, obj->image.itemId, &obj->image.metrics, 0);
-					//printf("a %i %i, %i %i\n", obj->image.itemId, imgX, obj->image.metrics.width, pane->metrics.x);
 
 				}else if (basePosX + obj->image.metrics.x >= pane->metrics.x + pane->metrics.width){
 					paneSendMessageItemStateChange(pane, PANE_OBJ_IMAGE, obj->image.itemId, &obj->image.metrics, 0);
-					//printf("b %i %i, %i %i\n", obj->image.itemId, imgX, obj->image.metrics.width, pane->metrics.x);
 
 				}else{
 					paneSendMessageItemStateChange(pane, PANE_OBJ_IMAGE, obj->image.itemId, &obj->image.metrics, 1);
-					//printf("c %i %i, %i %i\n", obj->image.itemId, imgX, obj->image.metrics.width, pane->metrics.x);
 
 					if (!firstEnabledItem)
 						pane->firstEnabledItem = firstEnabledItem = item;
@@ -811,7 +739,6 @@ static inline int paneValidateHoriMiddle (TPANE *pane)
 			paneSendMessageItemStateChange(pane, PANE_OBJ_IMAGE, obj->image.itemId, &obj->image.metrics, 1);
 			ct++;
 		}
-//next:
 		item = listGetNext(item);
 	}
 
@@ -824,18 +751,11 @@ static inline int paneValidateHoriMiddle (TPANE *pane)
 	pane->firstEnabledStrIdx = firstEnabledStrIdx;
 	paneSetValidated(pane);
 
-	//printf("pane->pos.x %i %i\n", pane->pos.x, pane->tItemWidth);
-
 	return ct;
 }
 
-/*
-"C:\Program Files (x86)\SeacrhMyFiles\SearchMyFiles.exe" /BaseFolder "K:\search headers\"  /FindFiles 1 /FileContains 1 /FileContainsText ""
-*/
 static inline int paneValidateHori (TPANE *pane)
 {
-	//printf("paneValidateHori %i, %i %i\n", FilesFilesFiles->id, pane->offset.x, pane->pos.y);
-
 	if (pane->offset.x > 0) pane->offset.x = 0;
 	const int xOffset = -pane->offset.x;
 
@@ -882,7 +802,6 @@ static inline int paneValidateHori (TPANE *pane)
 				labelStringGetMetrics(pane->base, obj->text.itemId, NULL, NULL, &obj->text.metrics.width, &obj->text.metrics.height);
 				if (obj->text.metrics.width > maxW) obj->text.metrics.width = maxW;
 				if (obj->text.metrics.height < 16 && obj->text.metrics.width > 1 && obj->text.hasIcon){	// fix zero height strings, eg; a single space
-					//printf("paneValidateHori %i: %i %i\n", ct, obj->text.metrics.width, obj->text.metrics.height);
 					obj->text.metrics.height = 32;
 				}
 			}
@@ -916,10 +835,8 @@ static inline int paneValidateHori (TPANE *pane)
 
 				if (pane->metrics.x+obj->image.metrics.x + obj->image.metrics.width < pane->metrics.x){
 					//labelItemPositionSet(pane->base, obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y);
-					//printf("hori a: %i %i\n", obj->image.itemId, obj->image.metrics.x);
 				}else if (pane->metrics.x+obj->image.metrics.x >= pane->metrics.x + pane->metrics.width){
 					//labelItemPositionSet(pane->base, obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y);
-					//printf("hori b: %i %i\n", obj->image.itemId, obj->image.metrics.x);
 				}else{
 					labelItemPositionSet(pane->base, obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y);
 					labelItemEnable(pane->base, obj->image.itemId);
@@ -933,13 +850,11 @@ static inline int paneValidateHori (TPANE *pane)
 			}
 
 			//labelItemPositionSet(pane->base, obj->text.itemId, col, y1);
-
 			if (obj->text.hasIcon)
 				obj->text.metrics.y = y1 + globalOffsetY + (abs(obj->image.metrics.height - obj->text.metrics.height)/2)-1;
 			else
 				obj->text.metrics.y = y1 + globalOffsetY;
 			obj->text.metrics.x = col + globalOffsetX;
-			//printf("%i: %i %i %i\n", ct, obj->text.itemId, col, y1);
 
 			if (pane->metrics.x+obj->text.metrics.x + obj->text.metrics.width < pane->metrics.x){
 				//labelItemPositionSet(pane->base, obj->text.itemId, obj->text.metrics.x, obj->text.metrics.y);
@@ -973,7 +888,6 @@ static inline int paneValidateHori (TPANE *pane)
 				height = obj->text.metrics.height + 4;
 
 			y1 += height;
-			//printf("y1 %i %i, %i %i\n", ct, y1, pane->metrics.y, pane->metrics.height);
 			if (y1+height-4 >= pane->metrics.height){
 				x1 = maxX + horiItemSpace;
 				y1 = 0;
@@ -993,13 +907,10 @@ static inline int paneValidateHori (TPANE *pane)
 		item = listGetNext(item);
 #if 0
 		if (!item){
-			//printf("validateHori %i %i %i\n", x1, col, pane->pos.x);
 			break;
 		}
 #endif
 	}
-
-	//printf("hor: firstEnabledItemIdx %i\n", firstEnabledItemIdx);
 
 	paneCalcDirection(pane);
 	pane->firstEnabledImgIdx = firstEnabledItemIdx;
@@ -1316,8 +1227,6 @@ void paneSetAcceleration (TPANE *pane, double x, double y)
 		if (y < 1.0) y = 1.0;
 		pane->input.acceleration.x = x;
 		pane->input.acceleration.y = y;
-
-		//printf("pane->input.acceleration.x %i %f %f\n", pane->id, pane->input.acceleration.x, pane->input.acceleration.y);
 		ccUnlock(pane);
 	}
 }
@@ -1340,8 +1249,6 @@ static inline int _paneScrollXY (TPANE *pane, const int xPixels, const int yPixe
 		pane->offset.y += yPixels;
 		if (-pane->offset.y >= pane->pos.y) pane->offset.y = -pane->pos.y;
 	}
-
-	//printf("paneSCroll %i %i\n", pane->pos.y, pane->offset.y);
 	paneSetInvalidated(pane);
 
 	return 1;
@@ -1356,8 +1263,6 @@ static inline int _paneScrollN (TPANE *pane, const int nPixels)
 		pane->offset.y += nPixels;
 		if (-pane->offset.y >= pane->pos.y) pane->offset.y = -pane->pos.y;
 	}
-
-	//printf("paneSCroll %i %i\n", pane->pos.y, pane->offset.y);
 	paneSetInvalidated(pane);
 
 	return 1;
@@ -1378,7 +1283,6 @@ int paneScrollSet (TPANE *pane, const int x, const int y, const int invalidate)
 	if (ccLock(pane)){
 		pane->offset.x = x;
 		pane->offset.y = y;
-		//printf("paneScrollSet %i,%i\n", pane->offset.x, pane->offset.y, invalidate);
 
 		if (invalidate) paneSetInvalidated(pane);
 
@@ -1391,7 +1295,6 @@ int paneScroll (TPANE *pane, const int nPixels)
 {
 	if (ccLock(pane)){
 		_paneScrollN(pane, nPixels);
-		//printf("paneScroll %i  %i,%i\n", nPixels, pane->offset.x, pane->offset.y);
 		ccUnlock(pane);
 	}
 	return 1;
@@ -1415,8 +1318,6 @@ int paneScrollReset (TPANE *pane)
 
 static inline int paneValidateLayout (TPANE *pane)
 {
-	//const double t0 = getTime(pane->cc->vp);
-
 	int count = 0;
 	if (pane->layoutMode == PANE_LAYOUT_HORI)
 		count = paneValidateHori(pane);
@@ -1429,9 +1330,6 @@ static inline int paneValidateLayout (TPANE *pane)
 	else
 		return 0;
 
-	//const double t1 = getTime(pane->cc->vp);
-	//printf("paneValidate layout:%i, time:%.1f\n", pane->layoutMode, t1-t0);
-
 	ccSendMessage(pane, PANE_MSG_VALIDATED, count, 0, 0);
 	return count;
 }
@@ -1440,7 +1338,6 @@ static inline int paneFocusSetHoriMiddle (TPANE *pane, const int itemId)
 {
 	int x = 0;
 	if (labelItemPositionGet(pane->base, itemId, &x, NULL)){
-		//printf("paneFocusSetHoriMiddle: offset %i %i\n", pane->offset.x, x);
 		x += abs(pane->offset.x);
 		//x -= (pane->metrics.width - labelImgcGetWidth(pane->base, itemId))/2;	// will center item
 
@@ -1454,8 +1351,6 @@ static inline int paneFocusSetVert (TPANE *pane, const int itemId)
 {
 	int y = 0;
 	if (labelItemPositionGet(pane->base, itemId, NULL, &y)){
-		//printf("paneFocusSetVert: offset %i %i\n", pane->offset.y, y);
-		
 		y += abs(pane->offset.y);
 		//x -= (pane->metrics.width - labelImgcGetWidth(pane->base, itemId))/2;	// will center item
 
@@ -1468,8 +1363,6 @@ static inline int paneFocusSetVert (TPANE *pane, const int itemId)
 // TODO: add other focus views
 int paneFocusSet (TPANE *pane, const int itemId)
 {
-	//printf("paneFocusSet in %X\n", itemId);
-
 	if (ccLock(pane)){
 		if (paneValidateLayout(pane)){
 			if (pane->layoutMode == PANE_LAYOUT_HORICENTER || pane->layoutMode == PANE_LAYOUT_HORI)
@@ -1477,10 +1370,8 @@ int paneFocusSet (TPANE *pane, const int itemId)
 			else if (pane->layoutMode == PANE_LAYOUT_VERT)
 				paneFocusSetVert(pane, itemId);
 
-
 			/*if (pane->layoutMode == PANE_LAYOUT_HORI){
 				TPANEOBJ *obj = paneItemIdxToObject(pane, itemId);
-				printf("paneItemIdxToObject %i %i\n", obj->text.itemId, obj->image.itemId);
 				if (obj){
 					int x = 0;
 					if (obj->text.itemId)
@@ -1490,7 +1381,6 @@ int paneFocusSet (TPANE *pane, const int itemId)
 						labelItemPositionGet(pane->base, obj->image.itemId, &x, NULL);
 
 					if (x){
-						printf("focusSet x:%i\n", x);
 						x += abs(pane->offset.x);
 						pane->offset.x = -x;
 					}
@@ -1500,15 +1390,11 @@ int paneFocusSet (TPANE *pane, const int itemId)
 		}
 		ccUnlock(pane);
 	}
-
-	//printf("paneFocusSet out\n");
 	return 1;
 }
 
 int paneRender (void *object, TFRAME *frame)
 {
-	//printf("paneRender\n");
-
 	TPANE *pane = (TPANE*)object;
 
 	if (paneGetInvalidated(pane)){
@@ -1516,11 +1402,7 @@ int paneRender (void *object, TFRAME *frame)
 			return 0;
 	}
 
-	//double t0 = getTime(pane->cc->vp);
 	ccRender(pane->base, frame);
-	//double t1 = getTime(pane->cc->vp);
-	//printf("paneRender %.4f\n", t1-t0);
-
 	TPANEINPUT *input = &pane->input;
 
 	if (input->slideMode == PANE_SLIDEMODE_ITEM/* && input->drag.state == PANE_SLIDE_SLIDE*/){
@@ -1587,11 +1469,6 @@ int paneSetMetrics (void *object, const int x, const int y, const int width, con
 
 static inline void paneObjDelete (TPANEOBJ *obj)
 {
-	//if (obj->text.string)
-	//	my_free(obj->text.string);
-//	if (obj->cc.ctrl)
-//		ccDelete(obj->cc.ctrl);
-
 	my_free(obj);
 }
 
@@ -1663,12 +1540,6 @@ void paneRemoveAll (TPANE *pane)
 		pane->firstEnabledImgIdx = 0;
 		pane->firstEnabledStrIdx = 0;
 
-		/*printf("\noverall: %.5f for pane:%i/label:%i items\n", t3-t0, totala, totalb);
-		printf("paneObjDelete: %.5f\n", t1-t0);
-		printf("listDestroyAll: %.5f\n", t2-t1);
-		printf("labelItemsDelete: %.5f\n", t3-t2);
-		printf("%f per item\n\n", (t3-t2)/(double)totalb);*/
-
 #if 0
 		pane->offset.x = 0;
 		pane->offset.y = 0;
@@ -1712,7 +1583,6 @@ static inline int paneSendPageSelectedHover (TPANE *pane, const int msg, const i
 	else
 		return 0;
 
-	//return pageDispatchMessage(pane->cc->vp->pages, PAGE_MSG_OBJ_HOVER, state, id, pos);
 	return pageSendMessage(pane->cc->vp->pages, pane->pageOwner, PAGE_MSG_OBJ_HOVER, state, id, ptr);
 }
 
@@ -1724,9 +1594,7 @@ static inline int paneDoSelected (TPANE *pane, int msg, const int dx, const int 
 	if (0 || (dx < 9 && dy < 9)){
 		pos->dt = dt;
 
-		//printf("pane press time %i %i - %.2f\n", msg, id, dt);
-
-		if (dt < 220.0){
+		if (dt < 150.0){
 			ccSendMessage(pane, msg, id, dataInt64, pos);
 			//renderSignalUpdate(pane->cc->vp);
 			pane->isHovered = 0;
@@ -1781,8 +1649,6 @@ static inline int64_t cclblDrag_cb (const void *object, const int msg, const int
 		TPANE *pane = ccGetUserData(label);
 		TPANEINPUT *input = &pane->input;
 
-		//printf("# ccdrag input->drag.state %i\n", input->drag.state);
-
 		if (input->drag.state != PANE_SLIDE_DISABLED){
 			TPANE *pane = ccGetUserData(label);
 			TPANEINPUT *input = &pane->input;
@@ -1815,8 +1681,6 @@ static inline int64_t cclblDrag_cb (const void *object, const int msg, const int
 
 static inline int paneSelectPress (TPANE *pane, const int x, const int y, TTOUCHCOORD *pos)
 {
-	//printf("paneSelectPress %i %i\n", x, y);
-
 	TPANEINPUT *input = &pane->input;
 
 	input->state = PANE_INPUTSTATE_PRESSED;
@@ -1845,8 +1709,6 @@ static inline int paneSelectSlide (TPANE *pane, const int x, const int y, TTOUCH
 	const float dt = getTime(pane->cc->vp) - pane->input.start.time;
 	if (input->state == PANE_INPUTSTATE_SLIDE && dt < 50.0f) return 0;
 
-	//printf("*** paneSelectSlide state:%i %i, dt:%.1f, %i/%i, %i/%i\n", input->state, input->drag.state, dt, x, y, pos->x, pos->y);
-
 	input->state = PANE_INPUTSTATE_SLIDE;
 	input->delta.x = (x - input->last.x) * input->acceleration.x;
 	input->delta.y = (y - input->last.y) * input->acceleration.y;
@@ -1874,7 +1736,6 @@ static inline int paneSelectSlide (TPANE *pane, const int x, const int y, TTOUCH
 			int dy = abs(input->travelled.y);
 			if (dy < 1) dy = 1;
 			const int area =  dx * dy;
-			//printf("paneDragSelectSlide area %i\n", area);
 
 			if (area >= PANE_GRAB_AREA){
 				input->drag.state = PANE_SLIDE_SLIDE;
@@ -1885,15 +1746,11 @@ static inline int paneSelectSlide (TPANE *pane, const int x, const int y, TTOUCH
 			}
 		}
 	}
-
-	//printf("paneSelectSlide delta %i %i\n", input->delta.x, input->delta.y);
 	return ret;
 }
 
 static inline int paneSelectRelease (TPANE *pane, const int x, const int y, TTOUCHCOORD *pos)
 {
-	//printf("paneSelectReleasse %i %i\n", x, y);
-
 	TPANEINPUT *input = &pane->input;
 
 	// tmp
@@ -1924,13 +1781,11 @@ static inline int paneSelectRelease (TPANE *pane, const int x, const int y, TTOU
 		ccSendMessage(pane, PANE_MSG_BASE_SELECTED_RELEASE, ((int64_t)input->released.travelled.area<<32)|(x<<16|y), input->released.dt, pos);
 
 		if (input->released.dt < 400 && input->released.travelled.area <= 64){
-			//printf("input->drag.state %i: %i %i\n", input->drag.state, input->drag.id,  pos->id);
 			if (input->released.id != input->drag.id)
 				ccSendMessage(pane, PANE_MSG_BASE_SELECTED, x<<16|y, t1, pos);
 		}
 	}
 
-	//printf("release delta %.0f %i,%i %i,%i, area:%i\n", input->released.dt, input->start.x, input->start.y, dx, dy, input->released.travelled.area);
 	if (input->released.dt < 400.0 && input->released.travelled.area <= 64)
 		return 1;
 	else
@@ -1948,7 +1803,6 @@ static inline int paneSelectItemSelected (TPANE *pane, const int whichEvent, con
 void paneDragSelectPress (TPANE *pane, TLABEL *lbl, const int itemId, const int itemType, const int x, const int y, TTOUCHCOORD *pos)
 {
 	TPANEINPUT *input = &pane->input;
-	//printf("@@@ paneDragSelectPress %i %i %i,%i %i,%i\n", itemId, itemType, x, y, input->start.x, input->start.y);
 
 	char *str = labelStringGet(lbl, itemId);
 	if (str){
@@ -1960,8 +1814,6 @@ void paneDragSelectPress (TPANE *pane, TLABEL *lbl, const int itemId, const int 
 		input->drag.dy = y;
 		input->drag.heldId = itemId;
 		input->drag.heldType = itemType; //(labelItemDataGet(lbl,itemId)&0xF0000)>>16;
-
-		//printf("held %i '%s'\n", (int)input->drag.heldType, str);
 
 		labelStringRenderFlagsSet(input->drag.label, input->drag.itemId, PF_MIDDLEJUSTIFY);
 		labelStringSet(input->drag.label, input->drag.itemId, str);
@@ -1993,7 +1845,6 @@ void paneDragSelectSlide (TPANE *pane, TLABEL *lbl, const int itemId, const int 
 		if (dy < 1) dy = 1;
 		const int area = dx * dy;
 
-		//printf("paneDragSelectSlide area %i\n", area);
 		if (area >= PANE_GRAB_AREA){
 			input->drag.state = PANE_SLIDE_SLIDE;
 
@@ -2009,7 +1860,6 @@ void paneDragSelectSlide (TPANE *pane, TLABEL *lbl, const int itemId, const int 
 void paneDragSelectRelease (TPANE *pane, TLABEL *lbl, const int itemId, const int itemType, const int x, const int y)
 {
 	TPANEINPUT *input = &pane->input;
-	//printf("@@@ paneDragSelectRelease %i %i %i,%i %i,%i\n", itemId, itemType, x, y, input->start.x, input->start.y);
 
 	if (input->drag.state == PANE_SLIDE_PRESS || input->drag.state == PANE_SLIDE_SLIDE){
 		//input->drag.state = PANE_SLIDE_RELEASE;
@@ -2043,11 +1893,9 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 		return paneSelectRelease(pane, (data1>>16)&0xFFFF, data1&0xFFFF, (TTOUCHCOORD*)dataPtr);
 
 	case LABEL_MSG_TEXT_SELECTED_PRESS:
-		//printf("LABEL_MSG_TEXT_SELECTED_PRESS\n");
 		paneDragSelectPress(pane, lbl, data2, labelItemGetType(lbl,data2), (data1>>16)&0xFFFF, data1&0xFFFF, (TTOUCHCOORD*)dataPtr);
 		break;
 	case LABEL_MSG_IMAGE_SELECTED_PRESS:{
-		//printf("LABEL_MSG_IMAGE_SELECTED_PRESS\n");
 		TPANEINPUT *input = &pane->input;
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 		input->start.id = pos->id;
@@ -2055,26 +1903,18 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 		break;
 	}
 	case LABEL_MSG_TEXT_SELECTED_SLIDE:
-		//printf("LABEL_MSG_TEXT_SELECTED_SLIDE\n");
 		paneDragSelectSlide(pane, lbl, data2, labelItemGetType(lbl,data2), (data1>>16)&0xFFFF, data1&0xFFFF);
 		break;
 
 	case LABEL_MSG_IMAGE_SELECTED_SLIDE:{
-		//printf("LABEL_MSG_IMAGE_SELECTED_SLIDE\n");
-		/*TPANEINPUT *input = &pane->input;
-		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		input->drag.id = pos->id;*/
 		break;
 	}
 	case LABEL_MSG_TEXT_SELECTED_RELEASE:
-		//TPANEINPUT *input = &pane->input;
-		//printf("LABEL_MSG_TEXT_SELECTED_RELEASE\n");
 		paneDragSelectRelease(pane, lbl, data2, labelItemGetType(lbl,data2), (data1>>16)&0xFFFF, data1&0xFFFF);
 
 		return paneSelectItemSelected(pane, PANE_MSG_TEXT_SELECTED, data2, labelItemDataGet(lbl,data2), dataPtr);
 
 	case LABEL_MSG_IMAGE_SELECTED_RELEASE:
-		//printf("LABEL_MSG_IMAGE_SELECTED_RELEASE\n");
 		return paneSelectItemSelected(pane, PANE_MSG_IMAGE_SELECTED, data2, labelItemDataGet(lbl,data2), dataPtr);
 	}
 	return 1;
@@ -2099,9 +1939,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 	case LABEL_MSG_TEXT_SELECTED_PRESS:
 	case LABEL_MSG_IMAGE_SELECTED_PRESS:{
 		TTOUCHCOORD *pos = dataPtr;
-
-		//printf("pane press %i %i, %i %i %i\n", input->state, pos->pen, input->start.x, input->start.y, input->slideEnabled);
-
 		if (input->state == 3 && !pos->pen){
 			if (input->slideEnabled) input->state = 1;
 
@@ -2116,8 +1953,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 
 			const int srcItemId = data2;
 			if (labelItemGetType(lbl, srcItemId) == LABEL_OBJTYPE_TEXT){
-				//printf("PANE_SLIDE_PRESS %I64d \n", data2);
-
 				char *str = labelStringGet(lbl, srcItemId);
 				if (str){
 					TMETRICS metrics;
@@ -2127,8 +1962,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 					input->drag.dy = abs(pos->y - metrics.y);
 					input->drag.heldId = srcItemId;
 					input->drag.heldType = (labelItemDataGet(lbl,input->drag.heldId)&0xF0000)>>16;
-
-					//printf("held %i\n", (int)input->drag.heldType);
 
 					labelStringRenderFlagsSet(input->drag.label, pane->input.drag.itemId, PF_MIDDLEJUSTIFY);
 					labelStringSet(input->drag.label, pane->input.drag.itemId, str);
@@ -2143,11 +1976,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 	}
 	case LABEL_MSG_TEXT_SELECTED_SLIDE:
 	case LABEL_MSG_IMAGE_SELECTED_SLIDE:
-	  {
-	  //TTOUCHCOORD *pos = dataPtr;
-	  //printf("pane slide %i %i, %i %i %i\n", input->state, pos->pen, input->start.x, input->start.y, input->slideEnabled);
-	  }
-
 	  if (input->slideEnabled == 1){
 		TTOUCHCOORD *pos = dataPtr;
 
@@ -2183,9 +2011,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 
 			if (input->drag.state == PANE_SLIDE_PRESS){
 				input->drag.state = PANE_SLIDE_SLIDE;
-				//input->drag.heldId = data2;
-				//printf("PANE_SLIDE_SLIDE %I64d %i\n", data2, input->drag.heldId);
-
 				ccSendMessage(pane, PANE_MSG_SLIDE_HELD, data2, labelItemDataGet(lbl,data2), pos);
 				paneSendPageSelectedHover(pane, PANE_SLIDE_PRESS, data2<<32|input->drag.heldId, lbl);
 
@@ -2212,7 +2037,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 	case LABEL_MSG_IMAGE_SELECTED_RELEASE:{
 		paneMsg = PANE_MSG_IMAGE_SELECTED;
 skipMe:
-		//printf("pane release %i %i %i\n", input->state, input->start.x, input->start.y);
 
 		if (input->drag.state != PANE_SLIDE_DISABLED){
 			if (input->drag.state == PANE_SLIDE_SLIDE){
@@ -2293,17 +2117,6 @@ skipMe:
 
 			ccSendMessage(pane, PANE_MSG_BASE_SELECTED_RELEASE, data1, data2, dataPtr);
 		//}
-	 // }//else{	// input->slideEnabled)
-		/*int penState = data2;
-		if (input->state == 3 && !penState){
-	  		input->state = 1;
-			ccSendMessage(pane, PANE_MSG_BASE_SELECTED_PRESS, data1, data2, dataPtr);
-		}else if (penState == 3){
-			input->state = 3;
-			ccSendMessage(pane, PANE_MSG_BASE_SELECTED_RELEASE, data1, data2, dataPtr);
-		}*/
-
-	 // }
 	  break;
 	}
 	case CC_MSG_HOVER:{

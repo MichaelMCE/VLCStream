@@ -68,18 +68,15 @@ int ccButton2GetXHeight (TCCBUTTON2 *btn)
 
 static inline int button2SetActive (TCCBUTTON2 *button, const int idx)
 {
-	//printf("button2SetActive %i, %i\n", button->id, idx);
 	if (idx == BUTTON_PRI || idx == BUTTON_SEC){
 		TBUTTON2LABEL *bl = buttonLabelGet(button, idx);
 		if (bl){
 			if (bl->itemId){
 				button->active = bl;
-				//printf("active = %i\n", idx);
 				return bl->itemId;
 
 			}else if (bl->itemStrId){
 				button->active = bl;
-				//printf("active = %i\n", idx);
 				return bl->itemStrId;
 			}
 		}
@@ -89,7 +86,6 @@ static inline int button2SetActive (TCCBUTTON2 *button, const int idx)
 
 int button2FaceActiveSet (TCCBUTTON2 *button, const int idx)
 {
-	//printf("button2FaceActiveSet %i, %i\n", button->id, idx);
 	int ret = 0;
 	if (ccLock(button)){
 		ret = button2SetActive(button, idx);
@@ -141,8 +137,6 @@ void button2FaceAutoSwapDisable (TCCBUTTON2 *button)
 
 void (CALLBACK timerBtn2SetPri)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	//printf("@@@ timerBtn2SetPri\n");
-
 	TCCBUTTON2 *btn = (TCCBUTTON2*)dwUser;
 	btn->timerId = 0;
 	button2SetActive(btn, BUTTON_PRI);
@@ -154,9 +148,6 @@ static inline int64_t btn_label_cb (const void *object, const int msg, const int
 	if (msg == CC_MSG_RENDER/* || msg == CC_MSG_INPUT*/) return 1;
 
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-
-	//printf("btn_label_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 
 	TLABEL *label = (TLABEL*)obj;
 	TCCBUTTON2 *btn = (TCCBUTTON2*)ccGetUserData(label);
@@ -195,12 +186,10 @@ static inline int64_t btn_label_cb (const void *object, const int msg, const int
   			if (bl){
   				if (btn->timerId) timeKillEvent(btn->timerId);
   				button2SetActive(btn, BUTTON_SEC);
-  				//printf("btn_label_cb timeSetEvent %p %i\n", btn, btn->id);
   				btn->timerId = (int)timeSetEvent(HIGHLIGHTPERIOD, 20, timerBtn2SetPri, (DWORD_PTR)btn, TIME_ONESHOT);
   			}
   		}
 
-	  	//printf("btn_label_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 	  	ccSendMessage(btn, BUTTON_MSG_SELECTED_PRESS, data1, data2, dataPtr);
 	  	break;
 	  }
@@ -462,9 +451,6 @@ void button2BorderDisable (TCCBUTTON2 *button)
 static inline int button2SetImageId (TCCBUTTON2 *button, const int idx, const int imgId, const double scale, const int x, const int y)
 {
 	TBUTTON2LABEL *bl = buttonLabelGet(button, idx);
-
-	//printf("button2SetImageId %p\n", bl);
-
 	if (!bl){
 		bl = buttonLabelCreate(button);
 		if (!bl) return 0;
@@ -665,8 +651,6 @@ int button2FaceHoverSet (TCCBUTTON2 *button, const int state, const unsigned int
 
 static inline int ccbutton2SetPosition (void *object, const int x, const int y)
 {
-	//printf("treeviewSetPosition %i %i\n", x, y);
-
 	TCCBUTTON2 *button = (TCCBUTTON2*)object;
 	button->metrics.x = x;
 	button->metrics.y = y;
@@ -711,8 +695,6 @@ static inline int button2HandleInput (void *object, TTOUCHCOORD *pos, const int 
 
 static inline int button2SetMetrics (void *object, const int x, const int y, const int width, const int height)
 {
-	//printf("tvSetMetrics %p, %i %i %i %i\n",object, x, y, width, height);
-
 	TCCBUTTON2 *button = (TCCBUTTON2*)object;
 
 	ccSetPosition(button, x, y);
@@ -760,8 +742,6 @@ static inline void ccbutton2Disable (void *object)
 
 static inline int button2RenderLabel (TCCBUTTON2 *btn, TLABEL *label, TFRAME *frame)
 {
-	//printf("button2RenderLabel, %i %i %i\n", btn->isHovered, label->isHovered, btn->flags.canHover);
-
 	if (btn->isHovered && btn->flags.canHover){
 		unsigned int flags = labelRenderFlagsGet(label);
 		labelRenderFlagsSet(label, flags|LABEL_RENDER_HOVER);
@@ -843,12 +823,10 @@ static inline int64_t btn_cb (const void *object, const int msg, const int64_t d
 
 	if (msg == CC_MSG_HOVER && data2 == 1){			// hover begun
 		if (btn->flags.autoFaceSwap == 1 && btn->flags.canHover){
-			//printf("face set %i, %i\n", btn->id, btn->flags.autoFaceSwap);
 			button2FaceActiveSet(btn, BUTTON_SEC);
 		}
 	}else if (msg == CC_MSG_HOVER && data2 == 0){	// hover ended
 		if (btn->flags.autoFaceSwap == 1 && btn->flags.canHover){
-			//printf("face reset %i, %i\n", btn->id, btn->flags.autoFaceSwap);
 			button2FaceActiveSet(btn, BUTTON_PRI);
 		}
 	}
@@ -878,7 +856,6 @@ int ccbutton2New (TCCOBJECT *object, void *unused, const int pageOwner, const in
 	const int width = 8;
 	const int height = 8;
 
-	//button->imageManager = imageManager;
 	button->canDrag = 0;
 	button->metrics.x = x;
 	button->metrics.y = y;
@@ -900,8 +877,6 @@ int ccbutton2New (TCCOBJECT *object, void *unused, const int pageOwner, const in
 
 	button2FaceAutoSwapDisable(button);
 	ccSetPosition(button, x, y);
-
-	//printf("ccbutton2New %p %i (%i)\n", button, button->id, button->pageOwner);
 
 	return 1;
 }

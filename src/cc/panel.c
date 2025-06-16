@@ -164,15 +164,13 @@ void panelListDelete (TPANEL *panel)
 		panel->itemTotal = 0;
 
 	}else if (panel->list || panel->listSize){
-		//printf("panel->list %p %i\n", panel->list, panel->listSize);
+
 	}
 
 }
 
 int panelListResize (TPANEL *panel, const int newSize, const int keep)
 {
-	//printf("panelListResize %i %i\n", newSize, keep);
-
 	if (!keep/* && panel->itemTotal*/)
 		panelListDelete(panel);
 
@@ -183,14 +181,12 @@ int panelListResize (TPANEL *panel, const int newSize, const int keep)
 			for (int i = 0; i < newSize; i++){
 				panel->list[i] = (TPANELIMG*)my_calloc(1, sizeof(TPANELIMG));
 				if (!panel->list[i]){
-					//printf("panelListResize: error allocating memory %i\n", sizeof(TPANELIMG));
 					return 0;
 				}
 			}
 
 			panel->itemTotal = newSize;
 			panel->listSize = newSize;
-			//printf("panelList resized to %i (%i)\n", newSize, keep);
 			return 1;
 		}
 	}else{
@@ -200,13 +196,11 @@ int panelListResize (TPANEL *panel, const int newSize, const int keep)
 			for (int i = panel->listSize; i < newSize; i++){
 				panel->list[i] = (TPANELIMG*)my_calloc(1, sizeof(TPANELIMG));
 				if (!panel->list[i]){
-					//printf("panelListResize: error allocating memory (%i)\n", sizeof(TPANELIMG));
 					return 0;
 				}
 			}
 			panel->itemTotal = newSize;
 			panel->listSize = newSize;
-			//printf("panelList resized to %i (%i)\n", newSize, keep);
 			return 1;
 		}
 	}
@@ -232,14 +226,10 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 
 	TCCBUTTON *button = (TCCBUTTON*)object;
-	//const int id = (int)data2;
-
-
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
 		TPANEL *panel = (TPANEL*)ccGetUserData(button);
 		TPANELIMG *item = panelGetItem(panel, button->id);
-		
-		//printf("panel ccbtn_cb, msg:%i, data1:%i, data2:%i, ptr:%p, %i %i\n", msg, (int)data1, (int)data2, dataPtr, button->id, item->id);
+
 		ccSendMessage(panel, PANEL_MSG_ITEMSELECTED, item->id, item->attributes, item->udataPtr);
 		return 1;
 	}else {
@@ -251,8 +241,6 @@ static inline int panelListInsertLast (TPANEL *panel, const int artId, const int
 {
 	if (!panel->itemTotal)
 		panelListResize(panel, 1, 0);
-
-	//printf("panel->itemTotal %i %i '%s'\n", panel->itemTotal, panel->listSize, label);
 
 	if (panel->itemTotal){
 		TPANELIMG *item = NULL;
@@ -295,8 +283,6 @@ static inline int panelListInsertLast (TPANEL *panel, const int artId, const int
 
 				memset(&item->area, 0, sizeof(item->area));
 				item->btn = ccCreate(panel->cc, panel->pageOwner, CC_BUTTON2, ccbtn_cb, &item->id, panel->itemOffset->x, panel->itemOffset->y);
-				//printf("create: %p, %i\n", item->button, item->button->id);
-				
 				item->btn->isChild = 1;
 				ccSetUserData(item->btn, panel);
 								
@@ -311,22 +297,15 @@ static inline int panelListInsertLast (TPANEL *panel, const int artId, const int
 				//if (artIdAlt)
 				//	buttonFaceAutoSwapDisable(item->button);
 				ccEnable(item->btn);
-
-				//wprintf(L"panelListAdd %i: '%s'\n", item->id, path);
-
 				return item->id;
 			}
 		}
 	}
-
-	//wprintf(L"panelListAdd failed %i '%s'\n", panel->listSize, path);
 	return 0;
 }
 
 void panelImgTextMetricsCalc (TPANEL *panel, THWD *hw, const int font, TPANELIMG **list, const int total)
 {
-	//printf("panelImgPositionCalc %i %i %i %i\n", metrics->x, metrics->y, metrics->width, metrics->height);
-
 	for (int i = 0; i < total; i++){
 		TPANELIMG *img = list[i];
 		
@@ -349,8 +328,6 @@ void panelImgTextMetricsCalc (TPANEL *panel, THWD *hw, const int font, TPANELIMG
 
 int panelImgPositionMetricsCalc (TPANELIMG **list, const int total, TMETRICS *metrics, const int horiSpace, const int vertSpace)
 {
-	//printf("panelImgPositionCalc %i %i %i %i\n", metrics->x, metrics->y, metrics->width, metrics->height);
-
 	//T4POINT pos = {metrics->x, metrics->y, metrics->x+metrics->width-1, 0};
 	T4POINT pos = {0, 0, metrics->x+metrics->width-1, 0};
 
@@ -394,8 +371,6 @@ int panelImgPositionMetricsCalc (TPANELIMG **list, const int total, TMETRICS *me
 			label->metrics.x = img->area.x1 + abs((img->area.x2-img->area.x1) - label->metrics.width)/2;
 			label->metrics.y = img->area.y1 + bheight + h;
 			h += label->metrics.height;
-
-			//printf("met calc: %i '%s' %i %i\n", l, label->text, label->metrics.x, label->metrics.y);
 		}
 
 
@@ -441,7 +416,6 @@ int panelImgAddSubtext (TPANEL *panel, const int id, char *text, const int colou
 int panelImgAdd (TPANEL *panel, const int artId, char *label, void *udataPtr)
 {
 	int id = panelListInsertLast(panel, artId, 0, 1.0, label, udataPtr);
-	//wprintf(L"panelImgAdd id:%i '%s'\n", id, path);
 
 	return id;
 }
@@ -449,8 +423,6 @@ int panelImgAdd (TPANEL *panel, const int artId, char *label, void *udataPtr)
 int panelImgAddEx (TPANEL *panel, const int artId, const int artIdAlt, const double scale, char *label, void *udataPtr)
 {
 	int id = panelListInsertLast(panel, artId, artIdAlt, scale, label, udataPtr);
-	//wprintf(L"panelImgAddEx id:%i '%s'\n", id, path);
-
 	return id;
 }
 
@@ -534,7 +506,6 @@ int panelRender (void *object, TFRAME *frame)
 			ccSetPosition(img->btn, posX + img->area.x1 + xOffset, y);
 			
 			if (y1 >= 0 && y < panel->metrics.height+panel->metrics.y){
-				//printf("render: %i %i, %i %i, %i %i, %i\n", idx, img->btn->id, img->area.y1, y, y+panel->itemOffset->y, panel->itemOffset->y, (y + img->btn->metrics.height)-panel->metrics.y);
 				ccRender(img->btn, frame);
 			}
 
@@ -608,44 +579,26 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 	TPANEL *panel = (TPANEL*)object;
 	if (!panel->inputEnabled) return 0;
 
-	//const int x = pos->x - panel->metrics.x;
-	//const int y = pos->y - panel->metrics.y;
-	//printf("panelInput %i %i, %i %i\n", x, y, panel->canDrag, panel->dragEnabled);
-
 	TTOUCHSWIPE *swipe = &panel->swipe;
-	//static double preDt;
-
-	/*if (!isInPanel(panel, pos->x, pos->y) && !flags){
-		int ret = buttonsCheckButtonPress(panel->buttons, panel->cc->vp, pos, flags);
-
-		if (ret) swipeReset(swipe);
-		return 0;
-	}*/
-
 	if (panel->dragEnabled){
 		if (!pos->pen && flags == 0 && pos->dt > 80){			// pen down
 			swipe->state = 1;
-			swipe->t0 = pos->time;//getTime(panel->cc->vp);
+			swipe->t0 = pos->time;
 			swipe->sx = pos->x;
 			swipe->sy = pos->y;
 			swipe->adjust = 0.0;
 			swipe->decayAdjust = 0.0;
 			swipe->i32value = panel->itemOffset->y;
 
-			//printf("\npen down\n");
-
 		}else if (!pos->pen && swipe->state == 1 && flags == 1){	// dragging
 			if (swipe->t0 < 1.0)
-				swipe->t0 = pos->time;//getTime(panel->cc->vp);
+				swipe->t0 = pos->time;
 			swipe->ex = pos->x;
 			swipe->ey = pos->y;
 			swipe->dx = swipe->ex - swipe->sx;
 			swipe->dy = swipe->ey - swipe->sy;
-			swipe->dt = pos->time /*getTime(panel->cc->vp)*/ - swipe->t0;
+			swipe->dt = pos->time - swipe->t0;
 
-			//dbprintf(panel->cc->vp, "%f, %.4f %.4f\n", swipe->t0, swipe->dt, swipe->dt-preDt);
-			//preDt = swipe->dt;
-			
 			if (swipe->dt > 0.0){
 				double velocity = swipe->dy / swipe->dt;
 				swipe->velocity = velocity;
@@ -656,7 +609,6 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 				swipe->adjust = swipe->dy;
 				swipe->decayFactor = fabs(swipe->velocity * 10.0);
 
-				//printf("drag: %.1f %i %.4f\n", swipe->adjust, dt, swipe->velocity);
 				renderSignalUpdate(panel->cc->vp);
 				return 0;
 			}
@@ -680,8 +632,6 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 				swipe->decayFactor = fabs(swipe->velocity * 10.0);
 			}
 
-			//printf("pen up\n");
-			
 			if (abs(swipe->dy) > swipe->dragMinV){
 				renderSignalUpdate(panel->cc->vp);
 				//swipeReset(swipe);
@@ -694,7 +644,6 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 
 	if (!ccPositionIsOverlapped(panel, pos->x, pos->y)){
-		//printf("panelInput ccPositionIsOverlapped == 0\n");
 		return 0;
 	}
 #if 1
@@ -702,9 +651,6 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 	TPANELIMG *img;
 	while((img=panelImgGetFirst(panel, &idx))){
 		idx++;
-
-		//printf("input in: %p, %i\n", img->btn, img->btn->id);
-
 		if (!flags && img->btn && img->btn->enabled){
 			int ret = ccHandleInput(img->btn, pos, flags);
 			if (ret > 0){
@@ -715,8 +661,6 @@ int panelInput (void *object, TTOUCHCOORD *pos, const int flags)
 				return ret;
 			}
 		}
-		
-		//printf("input out b: %p, %i\n", img->button, img->button->id);
 	}
 #endif
 	return 0;

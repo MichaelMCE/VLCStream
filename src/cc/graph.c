@@ -85,8 +85,6 @@ static inline int graphSheetDataGet (TGRAPHSHEET *sheet, const int pointIdx)
 		
 static inline void graphSheetClear (TGRAPHSHEET *sheet)
 {
-	//memset(sheet->graph.data, 0, sheet->graph.insertPosition*sizeof(int));
-	//memset(&sheet->stats, 0, sizeof(TGRAPHSTATS));
 	if (sheet->render.mode&GRAPH_AUTOSCALE){
 		sheet->stats.min = 9999999;
 		sheet->stats.max = 0;
@@ -151,8 +149,6 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 	const int total = sheet->graph.insertPosition;
 	if (total < 2) return;
 
-	//lDrawRectangle(frame, metrics->x, metrics->y, metrics->x+metrics->width-1, metrics->y+metrics->height-1, 0xFFFF00FF);
-		
 	double min = sheet->stats.min;
 		
 	if (sheet->render.mode&GRAPH_AUTOSCALE){
@@ -166,7 +162,6 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 			range = fabs(max - min)+1.0;
 		}
 		sheet->render.scale = (metrics->height / range) * 0.98;
-		//printf("%f %i %f, %i %i\n", sheet->render.scale, metrics->height, range, sheet->stats.max, sheet->stats.min);
 	}
 	
 	const double scaleX = metrics->width / (double)(total-1);
@@ -179,8 +174,6 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 		const int btmY = metrics->y + metrics->height-1;
 		int lastX = -999;
 		//x = metrics->x;
-		
-		//printf("scaleX %f, %i\n", scaleX, total);
 
 #if 1
 		for (int x = metrics->x; x < metrics->x + metrics->width; x++){
@@ -233,8 +226,6 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 		int y2 = metrics->y + (metrics->height - ((graphSheetDataGet(sheet,i+1) - /*sheet->stats.*/min) * scaleY));
 		drawLine(frame, x, y1, x+scaleX, y2, col);
 	}
-
-
 }
 
 static inline void graphSheetRender_Points (TGRAPHSHEET *sheet, TFRAME *frame, TMETRICS *metrics)
@@ -283,8 +274,6 @@ static inline void graphSheetRender_Polyline (TGRAPHSHEET *sheet, TFRAME *frame,
 	
 	}
 
-	//printf("graphSheetRender_Polyline %i %i %i %i\n", firstPt, firstX, total, metrics->width);
-
 	int x = firstX;
 	
 	if (sheet->render.hints&(GRAPH_HINT_SHADOW1|GRAPH_HINT_SHADOW2)){
@@ -314,8 +303,6 @@ static inline void graphSheetRender_Polyline (TGRAPHSHEET *sheet, TFRAME *frame,
 		int y2 = metrics->y + (metrics->height - (graphSheetDataGet(sheet, i+1) * scaleY));
 		drawLine(frame, x, y1, x+1, y2, sheet->render.palette[GRAPH_PAL_POLYLINE]);
 	}
-
-	//lDrawRectangle(frame, metrics->x, metrics->y, metrics->x+metrics->width-1, metrics->y+metrics->height-1, 0xFF00FFFF);
 }
 
 // display right (most recent data) to left (oldest), but render left to right
@@ -345,9 +332,6 @@ static inline void graphSheetRender_Spectrum (TGRAPHSHEET *sheet, TFRAME *frame,
 		int y2 = metrics->y + (metrics->height - (graphSheetDataGet(sheet, i) * scaleY));
 		drawLine(frame, x, y2, x, y1, col);
 	}
-
-	
-	//lDrawRectangle(frame, metrics->x, metrics->y, metrics->x+metrics->width-1, metrics->y+metrics->height-1, 0xFF00FFFF);
 }
 
 static inline void graphSheetRender_Bar (TGRAPHSHEET *sheet, TFRAME *frame, TMETRICS *metrics)
@@ -377,9 +361,8 @@ static inline void graphSheetRender_Bar (TGRAPHSHEET *sheet, TFRAME *frame, TMET
 	}
 	x += barSpace/2.0;
 	
-	//printf("barWidth %f, x:%f\n", barWidth, x);
+
 	const double barWidthMinus1 = barWidth-1.0;
-	
 	for (int i = startPt; i < totalPts; i++, x+=barWidth+barSpace){
 		int y2 = metrics->y + (metrics->height - (graphSheetDataGet(sheet, i) * scaleY));
 		lDrawRectangleFilled(frame, x, y2, x+barWidthMinus1, y1, col);
@@ -459,7 +442,6 @@ static inline TGRAPHSHEET *graphSheetFromName (TGRAPH *graph, const char *name)
 		TGRAPHSHEET *sheet = graph->sheets[i];
 		
 		if (!stricmp(sheet->name, name)){
-			//printf("graphSheetFromName idx:%i '%s' '%s' %i\n", i, sheet->name, name, sheet->id);
 			return sheet;
 		}
 	}
@@ -555,7 +537,6 @@ static inline void updateHovered (TGRAPH *graph)
 	graph->hoveredPt.x = posX / (double)(metrics.width/range);
 	int posY = graph->cc->cursor->dy - metrics.y;
 	graph->hoveredPt.y = (metrics.height - posY) / (double)(metrics.height/range);
-	//printf("graphRender %i %.3f %.3f\n", posY, graph->hoveredPt.x, graph->hoveredPt.y);
 }
 
 int graphRenderGetSheetCount (void *object)
@@ -579,9 +560,7 @@ int graphRender (void *object, TFRAME *frame)
 
 	//if (ccIsHovered(graph))
 		updateHovered(graph);
-	
-	//lDrawRectangleFilled(frame, metrics.x, metrics.y, metrics.x+metrics.width-1, metrics.y+metrics.height-1, 50<<24 | 0x111111);
-				
+
 	for (int i = 0; i < graph->sheetsTotal; i++){
 		TGRAPHSHEET *sheet = graph->sheets[i];
 		if (!sheet->render.enabled) continue;
@@ -637,7 +616,6 @@ void graphDisable (void *object)
 int graphInput (void *object, TTOUCHCOORD *pos, const int flags)
 {
 	TGRAPH *graph = (TGRAPH*)object;
-	//printf("graphInput %i %i %X\n", pos->x, pos->y, flags);
 	
 	updateHovered(graph);
 	

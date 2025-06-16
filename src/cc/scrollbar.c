@@ -58,17 +58,11 @@ int64_t scrollbarGetFirstItem (TSCROLLBAR *scrollbar)
 
 int64_t scrollbarSetFirstItem (TSCROLLBAR *scrollbar, int64_t item)
 {
-	//printf("scrollbarSetFirstItem %I64d\n", item);
-	
 	if (item < scrollbar->rangeMin)
 		item = scrollbar->rangeMin;
 	else if (item > scrollbar->rangeMax - scrollbar->displayedItems)
 		item = scrollbar->rangeMax - scrollbar->displayedItems;
 	scrollbar->firstItem = item;
-	
-	//double fvalue = (item - scrollbar->rangeMin) / (double)(scrollbar->rangeMax - scrollbar->rangeMin);
-	//scrollbarSetValueFloat(scrollbar, fvalue);
-	
 	return item;
 }		
 
@@ -78,8 +72,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT/* || msg == CC_MSG_SETPOSITION*/) return 1;
 		
 	TCCBUTTON *btn = (TCCBUTTON*)object;
-	//printf("sb ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", btn->id, btn->type, msg, (int)data1, (int)data2, dataPtr);
-	//const int id = (int)data2;
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS || msg == BUTTON_MSG_SELECTED_SLIDE){
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
@@ -183,37 +175,13 @@ int _scrollbarHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 void scrollbarSetRange (TSCROLLBAR *scrollbar, const int64_t min, const int64_t max, const int64_t first, const int64_t viewable)
 {
-	//printf("scrollbarSetRange min:%I64d max:%I64d first:%I64d\n", min, max, first);
-	
 	scrollbar->rangeMin = min;
 	scrollbar->rangeMax = max;
 	scrollbar->firstItem = first;
 	scrollbar->displayedItems = viewable;
 	scrollbar->scalePos = 0.0;
-//	printf("%I64d %I64d %I64d %I64d\n", min, max, first, viewable);
 }
-/*
-double scrollbarSetValueFloat (TSCROLLBAR *scrollbar, const double value)
-{
-	if (value > 1.0)
-		scrollbar->scalePos = 1.0;
-	else if (value < 0.0)
-		scrollbar->scalePos = 0.0;
-	else
-		scrollbar->scalePos = value;
-	
-	int64_t item = (double)(scrollbar->rangeMax - scrollbar->rangeMin) * value;
-	item += scrollbar->rangeMin;
-	
-	if (item < scrollbar->rangeMin)
-		item = scrollbar->rangeMin;
-	else if (item > scrollbar->rangeMax - scrollbar->displayedItems)
-		item = scrollbar->rangeMax - scrollbar->displayedItems;
-	printf("scrollbarSetValueFloat %f %I64d\n", value, item);
-	//scrollbar->firstItem = item;
-	return scrollbar->scalePos;
-}
-*/
+
 int _scrollbarSetPosition (void *object, const int x, const int y)
 {
 	TSCROLLBAR *scrollbar = (TSCROLLBAR*)object;

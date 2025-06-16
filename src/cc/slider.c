@@ -93,8 +93,6 @@ void sliderGetRange (TSLIDER *slider, int64_t *min, int64_t *max)
 
 int64_t sliderSetValueInt (TSLIDER *slider, const int64_t value)
 {
-	//printf("%I64i %I64i %I64i\n", value, slider->rangeMin, slider->rangeMax);
-
 	if (value < slider->rangeMin)
 		slider->value = slider->rangeMin;
 	//else if ((int64_t)value == (int64_t)-1)
@@ -224,17 +222,13 @@ static inline int64_t slider_label_cb (const void *object, const int msg, const 
 	if (slider)
 		slider->touchInputId = label->touchInputId;
 		
-	//printf("slider_label_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	if (msg == LABEL_MSG_BASE_SELECTED_PRESS/* || msg == LABEL_MSG_BASE_SELECTED_SLIDE*/){	// base callback so adjust for image offset(s) then simulate a press
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 		if (pos->pen) return 1;
 		
 		int x = (data1>>16)&0xFFFF;
 		int y = data1&0xFFFF;
-		
-		//printf("slider_label_cb, id:%i %i %i\n", slider->id, pos->pen, pos->dt);
-		
+
 		if (slider->type == CC_SLIDER_HORIZONTAL){
 			int w = labelImageGetWidth(label, slider->faceIds[SLIDER_FACE_MID]);
 			
@@ -268,15 +262,10 @@ static inline int64_t slider_label_cb (const void *object, const int msg, const 
 		}
 	}else if (msg == LABEL_MSG_IMAGE_SELECTED_PRESS || msg == LABEL_MSG_IMAGE_SELECTED_SLIDE){
 		const int id = data2;
-		//TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-		//printf("slider_label_cb, %i id:%i %i %i, \n", pageGet(obj->cc->cc->vp), id, slider->touchInputId, pos->id);
-	
-	
 		if (id == slider->faceIds[SLIDER_FACE_TIP]) return 0;
 
 		int x = (data1>>16)&0xFFFF;
 		int y = data1&0xFFFF;
-
 		int64_t value = 0;
 		
 		if (id == slider->faceIds[SLIDER_FACE_LEFT]){
@@ -304,8 +293,6 @@ static inline int64_t slider_label_cb (const void *object, const int msg, const 
 			sliderSetValue(slider, value);
 	  		ccSendMessage(slider, SLIDER_MSG_VALCHANGED, (x<<16)|y, value, NULL);
 		}
-		
-		//printf("%i: %i %i, %I64d\n", id, x, y, slider->value);
 	}
 	return 1;
 }
@@ -431,9 +418,6 @@ int sliderFaceSet (TSLIDER *slider, int face, wchar_t *path)
 		}else{
 			slider->imgIds[face] = imageManagerImageAdd(slider->cc->vp->im, path);
 			ret = labelImgcSet(slider->base, slider->faceIds[face], slider->imgIds[face], 0);
-			//int w, h;
-			//labelImgcGetMetrics(slider->base, slider->faceIds[face], &w, &h);
-			//printf("%i %i %i %i %i\n", slider->id, face, slider->faceIds[face], w, h);
 		}
 
 		ccUnlock(slider);
@@ -445,8 +429,6 @@ static inline void sliderFacesApplyMetrics (void *object, const int x, const int
 {
 	TSLIDER *slider = (TSLIDER*)object;
 	
-	//printf("sliderFacesApplyMetrics %i: %i %i %i %i\n", slider->id, x, y, width, height);
-
 	ccSetMetrics(slider->base, x, y, width, height);
 	sliderBuildMid(slider, width - (slider->pad.left+slider->pad.right), height - (slider->pad.top + slider->pad.btm));
 	sliderAlignFaces(slider);
@@ -458,9 +440,7 @@ static inline void sliderFacesApplyMetrics (void *object, const int x, const int
 static inline int sliderSetMetrics (void *object, const int x, const int y, int width, int height)
 {
 	TSLIDER *slider = (TSLIDER*)object;
-	
-	
-	//printf("sliderSetMetrics %i %i %i %i:: %i\n", x, y, width, height, slider->base->metrics.height);
+
 	ccSetPosition(slider, x, y);
 	slider->metrics.width = width;
 	slider->metrics.height = height;
@@ -520,7 +500,6 @@ void sliderFacesApply (TSLIDER *slider)
 		sliderAlignFaces(slider);
 		ccUnlock(slider);
 	}
-	
 	//ccSendMessage(slider->base, LABEL_MSG_IMAGE_SELECTED_PRESS, 0, slider->faceIds[SLIDER_FACE_LEFT], 0);
 }
 

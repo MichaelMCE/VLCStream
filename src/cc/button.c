@@ -58,17 +58,14 @@ int ccButtonGetXHeight (TCCBUTTON *btn)
 
 static inline int buttonSetActive (TCCBUTTON *button, const int idx)
 {
-	//printf("buttonSetActive %i, %i\n", button->id, idx);
 	if (idx == BUTTON_PRI || idx == BUTTON_SEC){
 		if (button->btnlbl[idx]){
 			if (button->btnlbl[idx]->itemId){
 				button->active = button->btnlbl[idx];
-				//printf("active = %i\n", idx);
 				return button->btnlbl[idx]->itemId;
 			
 			}else if (button->btnlbl[idx]->itemStrId){
 				button->active = button->btnlbl[idx];
-				//printf("active = %i\n", idx);
 				return button->btnlbl[idx]->itemStrId;
 			}
 		}
@@ -79,7 +76,6 @@ static inline int buttonSetActive (TCCBUTTON *button, const int idx)
 
 int buttonFaceActiveSet (TCCBUTTON *button, const int idx)
 {
-	//printf("buttonFaceActiveSet %i, %i\n", button->id, idx);
 	int ret = 0;
 	if (ccLock(button)){
 		ret = buttonSetActive(button, idx);
@@ -131,8 +127,6 @@ void buttonFaceAutoSwapDisable (TCCBUTTON *button)
 
 void (CALLBACK timerBtnSetPri)(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	//printf("@@@ timerBtnSetPri\n");
-
 	TCCBUTTON *btn = (TCCBUTTON*)dwUser;
 	btn->timerId = 0;
 	buttonSetActive(btn, BUTTON_PRI);
@@ -144,8 +138,6 @@ static inline int64_t btn_label_cb (const void *object, const int msg, const int
 	if (msg == CC_MSG_RENDER/* || msg == CC_MSG_INPUT*/) return 1;
 	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("btn_label_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-	
 
 	TLABEL *label = (TLABEL*)obj;
 	TCCBUTTON *btn = (TCCBUTTON*)ccGetUserData(label);
@@ -169,8 +161,7 @@ static inline int64_t btn_label_cb (const void *object, const int msg, const int
 	  	break;
 
 	  case LABEL_MSG_TEXT_SELECTED_PRESS:{
-	  	//TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
-	  	//if (pos->pen != 0 || pos->dt < 120) break;	// continue only if its a press/pen down and not a slide/drag
+
 	  }
 	  case LABEL_MSG_IMAGE_SELECTED_PRESS:{
   		if (btn->flags.canAnimate){
@@ -184,12 +175,10 @@ static inline int64_t btn_label_cb (const void *object, const int msg, const int
   			if (bl){
   				if (btn->timerId) timeKillEvent(btn->timerId);
   				buttonSetActive(btn, BUTTON_SEC);
-  				//printf("btn_label_cb timeSetEvent %p %i\n", btn, btn->id);
   				btn->timerId = (int)timeSetEvent(HIGHLIGHTPERIOD, 20, timerBtnSetPri, (DWORD_PTR)btn, TIME_ONESHOT);
   			}
   		}
 
-	  	//printf("btn_label_cb. id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
 	  	ccSendMessage(btn, BUTTON_MSG_SELECTED_PRESS, data1, data2, dataPtr);
 	  	break;
 	  }
@@ -381,9 +370,6 @@ TFRAME *buttonFaceImageGet (TCCBUTTON *button)
 		}
 		ccUnlock(button);
 	}
-
-	//printf("@@ buttonFaceImageGet %i %p\n", button->id, ret);
-
 	return ret;
 }
 
@@ -732,7 +718,6 @@ TCCBUTTONS *buttonsCreate (TCC *cc, const int pageOwner, const int total, const 
 			for (int i = 0; i < total; i++){
 				btns->list[i] = ccCreate(cc, pageOwner, CC_BUTTON, btn_cb, NULL, 0, 0);
 				if (btns->list[i]){
-					//printf("buttonsCreate %i: %i %i %i\n", i, pageOwner, btns->list[i]->type, btns->list[i]->id);
 					ccSetUserData(btns->list[i], btns);
 					ccSetUserDataInt(btns->list[i], i);
 				}
@@ -859,8 +844,7 @@ int buttonsButtonToIdx (TCCBUTTONS *btns, TCCBUTTON *btn)
 void buttonsStateSet (TCCBUTTONS *btns, const int id, const int state)
 {
 	if (!btns) return;
-	
-	//printf("buttonSetState %i %i\n", id, state);
+
 	if (state)
 		ccEnable(buttonsButtonGet(btns, id));
 	else
@@ -922,8 +906,6 @@ unsigned int buttonsRenderAll (TCCBUTTONS *btns, TFRAME *frame, const int flags)
 				btn->flags.canHover = 0;
 			
 			ccRender(btn, frame);
-			//printf("btnrenderall: %i, %i %i %i %i\n", btn->enabled, btn->metrics.x, btn->metrics.y, btn->metrics.width, btn->metrics.height);
-			
 			btn->flags.canAnimate = canAnimate;
 			btn->flags.canHover = canHover;
 			
@@ -940,8 +922,6 @@ unsigned int buttonsRenderAll (TCCBUTTONS *btns, TFRAME *frame, const int flags)
 	if (dt < UPDATERATE_LENGTH){
 		setTargetRate(_btn->cc->vp, 25);
 	}else{
-		//setTargetRate(_btn->cc->vp, UPDATERATE_BASE);
-
 		TPAGE2 *page = pageRenderGetTopMostPage(_btn->cc->vp->pages);		
 		if (page && page->updateRate)
 			setTargetRate(_btn->cc->vp, page->updateRate);
@@ -974,8 +954,6 @@ unsigned int buttonsRenderAllEx (TCCBUTTONS *btns, TFRAME *frame, const int flag
 				btn->flags.canHover = 0;
 			
 			ccRenderEx(btn, frame, cx, cy);
-			//printf("btnrenderall: %i %i %i %i\n", btn->metrics.x, btn->metrics.y, btn->metrics.width, btn->metrics.height);
-			
 			btn->flags.canAnimate = canAnimate;
 			btn->flags.canHover = canHover;
 			
@@ -1024,30 +1002,10 @@ static inline int ccbuttonSetPosition (void *object, const int x, const int y)
 
 static inline int buttonHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 {
-	
 	TCCBUTTON *btn = (TCCBUTTON*)object;
 
-	//printf("%p %i %i %i\n",btn->active, btn->active->itemId, btn->active->itemStrId, btn->flags.disableInput);
-
 	if (btn->active && (btn->active->itemId || btn->active->itemStrId) && !btn->flags.disableInput){
-		/*if (btn->flags.disableRender){
-			const int x1 = ccGetPositionX(btn);
-			const int x2 = x1 + ccGetWidth(btn)-1;
-			const int y1 = ccGetPositionY(btn);
-			const int y2 = y1 + ccGetHeight(btn)-1;
-
-			printf("disabled %i, %i %i %i %i, %i %i\n", btn->id, x1, y1, x2, y2, pos->x, pos->y);
-			
-			if (pos->y >= y1 && pos->y <= y2){
-				if (pos->x >= x1 && pos->x <= x2){
-					return ccSendMessage(btn, BUTTON_MSG_SELECTED_PRESS, ((pos->x&0xFFFF)<<16)|(pos->y&0xFFFF), btn->id, pos);
-				}
-			}
-		}*/
-
 		int ret = ccHandleInput(btn->active->label, pos, flags);
-		//printf("ishovered %i, %i %i, %p %p %p\n", btn->id, btn->isHovered, btn->active->label->isHovered, btn->active, btn->btnlbl[0], btn->btnlbl[1]);
-		//printf("button ret = %i\n", ret);
 		return ret;
 	}
 	return 0;
@@ -1055,8 +1013,6 @@ static inline int buttonHandleInput (void *object, TTOUCHCOORD *pos, const int f
 
 static inline int buttonSetMetrics (void *object, const int x, const int y, const int width, const int height)
 {
-	//printf("tvSetMetrics %p, %i %i %i %i\n",object, x, y, width, height);
-	
 	TCCBUTTON *button = (TCCBUTTON*)object;
 	
 	ccSetPosition(button, x, y);
@@ -1101,8 +1057,6 @@ static inline void ccbuttonDisable (void *object)
 
 static inline int buttonRenderLabel (TCCBUTTON *btn, TLABEL *label, TFRAME *frame)
 {
-	//printf("buttonRenderLabel, %i %i %i\n", btn->isHovered, label->isHovered, btn->flags.canHover);
-	
 	if (btn->isHovered && btn->flags.canHover){
 		unsigned int flags = labelRenderFlagsGet(label);
 		labelRenderFlagsSet(label, flags|LABEL_RENDER_HOVER);
@@ -1122,17 +1076,6 @@ static inline int ccbuttonRender (void *object, TFRAME *frame)
 		return 0;
 	else if (btn->flags.disableRender)
 		return 1;
-		
-	//int activeFace = buttonFaceActiveGet(btn);	
-	/*int activeFace = -1;
-	
-	if (btn->isHovered && !buttonFaceAutoSwapGet(btn)){
-		activeFace = buttonFaceActiveGet(btn);
-		if (activeFace == BUTTON_SEC)
-			buttonFaceActiveSet(btn, BUTTON_PRI);
-		else if (activeFace == BUTTON_PRI)
-			buttonFaceActiveSet(btn, BUTTON_SEC);
-	}*/
 
 	TLABEL *label = btn->active->label;
 
@@ -1147,10 +1090,6 @@ static inline int ccbuttonRender (void *object, TFRAME *frame)
 			if (btn->zoom.scaleBy >= 1.0){
 				btn->zoom.scaleBy = 1.0;		// 1.0 will disable scaling
 				btn->zoom.direction = 0;
-				
-				//TBUTTONLABEL *bl = btn->btnlbl[BUTTON_SEC];
-				//printf("buttonSetActive zoom %i\n", btn->id);
-	  			//if (bl) buttonSetActive(btn, BUTTON_PRI);
 			}
 		}
 		setTargetRate(btn->cc->vp, btn->zoom.updateRate);
@@ -1163,10 +1102,7 @@ static inline int ccbuttonRender (void *object, TFRAME *frame)
 #if 1
 
 	int ret = buttonRenderLabel(btn, label, frame);
-
 #else
-	//return buttonRenderLabel(btn, label, frame);
-
 	TLABEL *labelP = btn->btnlbl[BUTTON_PRI]->label;
 
 	if (!btn->btnlbl[BUTTON_SEC] || !btn->btnlbl[BUTTON_SEC]->itemId || btn->active->label == labelP || !btn->btnlbl[BUTTON_PRI]->itemStrId){
@@ -1195,12 +1131,9 @@ static inline void ccbuttonDelete (void *object)
 {
 	TCCBUTTON *button = (TCCBUTTON*)object;
 
-	//printf("ccbuttonDelete in %p %i, %p %p\n", button, button->id, button->btnlbl[0], button->btnlbl[1]);
-	
 	for (int i = 0; i < 2; i++){
 		if (button->btnlbl[i]){
 			if (button->btnlbl[i]->label){
-				//printf("::: ccbuttonDelete %i %p %i\n", i, button->btnlbl[i]->label, button->btnlbl[i]->label->id);
 				ccDelete(button->btnlbl[i]->label);
 				button->btnlbl[i]->label = NULL;
 			}
@@ -1223,12 +1156,10 @@ static inline int64_t btn_cb (const void *object, const int msg, const int64_t d
 	
 	if (msg == CC_MSG_HOVER && data2 == 1){			// hover begun
 		if (btn->flags.autoFaceSwap == 1 && btn->flags.canHover){
-			//printf("face set %i, %i\n", btn->id, btn->flags.autoFaceSwap);
 			buttonFaceActiveSet(btn, BUTTON_SEC);
 		}
 	}else if (msg == CC_MSG_HOVER && data2 == 0){	// hover ended
 		if (btn->flags.autoFaceSwap == 1 && btn->flags.canHover){
-			//printf("face reset %i, %i\n", btn->id, btn->flags.autoFaceSwap);
 			buttonFaceActiveSet(btn, BUTTON_PRI);
 		}
 	}
@@ -1300,8 +1231,6 @@ int ccbuttonNew (TCCOBJECT *object, void *unused, const int pageOwner, const int
 	buttonFaceAutoSwapDisable(button);
 	buttonSetActive(button, BUTTON_PRI);
 	ccSetPosition(button, x, y);
-
-	//printf("ccbuttonNew %p %i (%i)\n", button, button->id, button->pageOwner);
 
 	return 1;
 }

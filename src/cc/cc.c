@@ -56,8 +56,6 @@ int ccLock (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
-	
 	return lockWait(obj->lock, INFINITE);
 }
 
@@ -65,16 +63,12 @@ void ccUnlock (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
-	
 	lockRelease(obj->lock);
 }
 
 int ccGenerateId (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	return ++obj->cc->ccIdIdx;
 }
@@ -89,16 +83,12 @@ int64_t ccSendMessage (void *object, const int msg, const int64_t data1, const i
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%i %s:%i %p\n", msg, __func__, __LINE__, obj);
-	
 	return obj->cb.msg(obj, msg, data1, data2, dataPtr);
 }
 
 int ccSetOwner (void *object, const int newOwner)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	int oldOwner = -1;
 	if (ccLock(obj)){
@@ -112,7 +102,6 @@ int ccSetOwner (void *object, const int newOwner)
 int ccGetOwner (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	int owner = -1;
 	if (ccLock(obj)){
@@ -139,16 +128,12 @@ void ccSetUserData (void *object, void *data)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
-	
 	obj->userPtr = data;
 }
 
 void *ccGetUserData (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	return obj->userPtr;
 }
@@ -157,8 +142,6 @@ void ccSetUserDataInt (void *object, const int64_t data)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
-	
 	obj->userInt64 = data;
 }
 
@@ -166,18 +149,12 @@ int64_t ccGetUserDataInt (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
-	
 	return obj->userInt64;
 }
 
 int ccSetPosition (void *object, const int x, const int y)
 {
-	//printf("ccSetPosition %p %i %i\n",object, x, y);
-	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	int ret = 0;
 	if (ccLock(obj)){
@@ -193,8 +170,6 @@ int ccSetPosition (void *object, const int x, const int y)
 int ccPositionIsOverlapped (void *object, const int x, const int y)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 	
 	const int ccx = obj->metrics.x;
 	const int ccy = obj->metrics.y;
@@ -229,11 +204,7 @@ void ccGetMetrics (void *object, TMETRICS *metrics)
 
 int ccSetMetrics (void *object, int x, int y, int width, int height)
 {
-	//printf("ccSetMetrics %p, %i %i %i %i\n",object, x, y, width, height);
-	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("%s:%i %p\n", __func__, __LINE__, obj);
 
 	int ret = 0;
 	if (ccLock(obj)){
@@ -262,7 +233,6 @@ int ccCanDrag (const TCC *cc, const TTOUCHCOORD *pos, int pageOwner)
 		TCCOBJECT *obj = list->obj;
 		if (obj && pageOwner == obj->pageOwner){
 			if (!obj->isChild && obj->canDrag){
-				//printf("%s:%i %i %i\n", __func__, __LINE__, list->obj->id, ct);
 				return 1;
 			}
 		}
@@ -332,17 +302,10 @@ static inline TCCOBJECT *ccListGetObject (TCCOBJECT *obj, const int id)
 
 int ccHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 {
-	// printf("%s %p\n", __func__, object);
-	
 	int ret = 0;
 	TCCOBJECT *obj = (TCCOBJECT*)object;
 
-
-	//printf("ccHandleInput %i: %i %i, %i\n", obj->id, obj->enabled, obj->processInput, isOverlap(pos, obj));
-
 	if (obj->enabled && obj->processInput && isOverlap(pos, obj)){
-		//printf("ccHandleInput %i %i, %i %i, %i %i %i %i\n", pos->id, obj->touchInputId, pos->pen, flags, obj->id, obj->type, obj->canDrag, obj->isChild);
-		
 		if (!pos->pen && flags == 1){		// drag/slide
 			if (pos->id != obj->touchInputId)
 				return -1;
@@ -355,8 +318,6 @@ int ccHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 		//if (ccSendMessage(object, CC_MSG_INPUT, (pos->x<<16)|(pos->y&0xFFFF), flags, pos))
 			ret = ccSendInput(object, pos, flags);
-			
-		//printf("send response %i\n", ret);
 	}
 	return ret;
 }
@@ -386,8 +347,6 @@ int ccGetModal (TCC *cc, int *id)
 
 static inline void ccListAddObject (TCCOBJ **list, TCCOBJECT *obj)
 {
-	//printf("adding %p %i %i\n", *list, obj->type, obj->id);
-	
 	if (!*list){
 		*list = my_malloc(sizeof(TCCOBJ));
 		if (!*list) return;
@@ -425,8 +384,6 @@ static inline void ccListRemoveObject (TCCOBJ *list, const int id)
 
 static inline void ccFreeCommon (TCCOBJECT *obj)
 {
-	//printf("ccFreeCommon %i    %i\t%i\n", obj->type, obj->id, obj->lockCount);
-	 
 	//if (obj->ccbtns)
 	//	buttonsDeleteAll(obj->ccbtns);
 	
@@ -435,11 +392,7 @@ static inline void ccFreeCommon (TCCOBJECT *obj)
 
 static inline void deleteObj (TCCOBJECT *obj, const int genEvent)
 {
-	//int id = obj->id;
-	//printf("deleteObj in: id %i, %i %i %i\n", obj->id, genEvent, obj->type, obj->isChild);
-	 
 	if (genEvent){
-		//printf("deleteObj id %i\n", obj->id);
 		ccSendMessage(obj, CC_MSG_DELETE, obj->id, 0, NULL);
 	}
 	
@@ -448,9 +401,6 @@ static inline void deleteObj (TCCOBJECT *obj, const int genEvent)
 	obj->cb.free(obj);
 	ccFreeCommon(obj);
 	my_free(obj);
-	
-	//printf("deleteObj out\n");
-	//if (id == 166) abort();
 }
 
 #if 0
@@ -470,8 +420,6 @@ static inline int deleteStackObjs (TCC *cc)
 		}
 		my_free(ids);
 	}
-	
-	//stackClear(cc->deleteStack);
 	return total;
 }
 
@@ -481,7 +429,6 @@ static inline int ccDeleteStackObjs (TCC *cc)
 	int total = deleteStackObjs(cc);
 	while (total > 0){
 		sum += total;
-		//printf("ccDestroy deleteStackObjs %i\n", total);
 		total = deleteStackObjs(cc);
 	}
 	return sum;
@@ -495,9 +442,6 @@ void ccCleanupMemory(TCC *cc)
 
 int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 {
-	
-	//printf("### ccHandleInputAll %i %i ###\n", page, flags);
-	
 	const TCCOBJ *list = cc->objs; 
 	if (!list) return 0;
 	
@@ -511,8 +455,6 @@ int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 				if (ccLock(obj)){
 					my_memcpy(&poscpy, pos, sizeof(TTOUCHCOORD));
 					ret = ccHandleInput(obj, &poscpy, flags);
-					//if (!obj->enabled) cc->modal.state = 0;
-
 					ccUnlock(obj);
 				}
 			}
@@ -525,23 +467,16 @@ int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 #if 1
 	do{
 		if ((volatile TCCOBJECT*)list->obj && list->obj->processInput && list->obj->pageOwner == page && !list->obj->isChild && list->obj->enabled){
-			//printf("%i: checking input for page %i: %i %i, (%i,%i %i,%i)\n", pos->id, page, list->obj->id, list->obj->type, list->obj->metrics.x, list->obj->metrics.y, list->obj->metrics.width, list->obj->metrics.height);
-			
 			if (isOverlap(pos, list->obj)){
-				//printf("is under: %i: %i\n", pos->id, list->obj->id);
-				
 				if (ccLock(list->obj)){
 					my_memcpy(&poscpy, pos, sizeof(TTOUCHCOORD));
 					ret = ccHandleInput((TCCOBJECT*)list->obj, &poscpy, flags);
-					//printf("%i: unlocking %p\n", pos->id, list->obj);
-				
 					if ((volatile TCCOBJECT*)list->obj)
 						ccUnlock(list->obj);
 				}
 			}
 			
 			if (ret > 0){
-				//printf("input for page %i: %i %i handled\n", page, list->obj->type, list->obj->id);
 				break;
 			}
 		}
@@ -563,7 +498,6 @@ int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 
 	if (!flags){		// free objects on any touch down event
 		/*int total = */deleteStackObjs(cc);
-		//printf("deleteStackObjs %i\n", total);
 	}
 #endif
 	return ret;
@@ -571,11 +505,7 @@ int ccHandleInputAll (TCC *cc, TTOUCHCOORD *pos, const int flags, int page)
 
 void ccEnable (void *object)
 {
-	//printf("ccEnable %p\n",object);
-	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	// printf("%s %p\n", __func__, object);
 	
 	if (ccLock(obj)){
 		obj->cb.enable(obj);
@@ -587,12 +517,8 @@ void ccEnable (void *object)
 
 void ccDisable (void *object)
 {
-	//printf("ccDisable %p\n",object);
-	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	// printf("%s %p\n", __func__, object);
-	
+
 	if (ccLock(obj)){
 		obj->cb.disable(object);
 		obj->enabled = 0;
@@ -647,8 +573,6 @@ double ccHoverRenderSigGetFPS (TCC *cc)
 //MouseMove
 int ccIsHoveredMM (TCC *cc, const int owner, const int x, const int y, const int setIfTrue)
 {
-	// printf("%s %p\n", __func__, object);
-
 	int ret = 0;
 	TCCOBJ *list = cc->objs;
 	do{
@@ -678,40 +602,29 @@ int ccIsHoveredMM (TCC *cc, const int owner, const int x, const int y, const int
 int ccRender (void *object, TFRAME *frame)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	// printf("%s %p\n", __func__, object);
-	
-	if (!obj->enabled) return 0;
 
-	//printf("ccRender %i %i %i\n",obj->id, obj->type, obj->pageOwner);
+	if (!obj->enabled) return 0;
 	int ret = 0;
 	
 	if (ccLock(obj)){
-		//printf("obj->input_dd_mm %i\n", obj->input_dd_mm);
-		//const double t1 = getTime(obj->cc->vp);
-			
 		if (obj->cc->cursor->slideHoverEnabled || obj->input_dd_mm || obj->cc->cursor->isHooked){
 			const int cx = obj->cc->cursor->dx;
 			const int cy = obj->cc->cursor->dy;
 
 			if (/*obj->input_dd_mm || */ccPositionIsOverlapped(obj, cx, cy)){
-				//obj->hoverT0 = t1;
 				if (!obj->isHovered){
 					obj->isHovered = 1;
 					ccSendMessage(obj, CC_MSG_HOVER, (cx<<16)|cy, obj->isHovered, NULL);
 				}
-				//printf("render isHovered %i\n", obj->id);
 			}else{
 				if (obj->isHovered/* && (t1-obj->hoverT0 > CC_HOVER_PERIOD)*/){
 					obj->isHovered = 0;
-					//obj->hoverT0 = 0;
 					ccSendMessage(obj, CC_MSG_HOVER, (cx<<16)|cy, obj->isHovered, NULL);
 				}
 			}
 		}else if (obj->isHovered){
 			if (obj->isHovered/* && (t1-obj->hoverT0 > CC_HOVER_PERIOD)*/){
 				obj->isHovered = 0;
-				//obj->hoverT0 = 0;
 				const int cx = obj->cc->cursor->dx;
 				const int cy = obj->cc->cursor->dy;
 				ccSendMessage(obj, CC_MSG_HOVER, (cx<<16)|cy, obj->isHovered, NULL);
@@ -728,30 +641,21 @@ int ccRender (void *object, TFRAME *frame)
 int ccRenderEx (void *object, TFRAME *frame, const int cx, const int cy)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	// printf("%s %p\n", __func__, object);
-	
 	if (!obj->enabled) return 0;
 
-	//printf("ccRenderEx %i %i %i\n",obj->id, obj->type, obj->pageOwner);
 	int ret = 0;
 	
 	if (ccLock(obj)){
-		//const double t1 = getTime(obj->cc->vp);
-			
 		if (obj->cc->cursor->slideHoverEnabled || obj->input_dd_mm || obj->cc->cursor->isHooked){
 			//if (obj->input_dd_mm) obj->input_dd_mm = 0;
 			if (ccPositionIsOverlapped(obj, cx, cy)){
-				//obj->hoverT0 = t1;
 				if (!obj->isHovered){
 					obj->isHovered = 1;
 					ccSendMessage(obj, CC_MSG_HOVER, (cx<<16)|cy, obj->isHovered, NULL);
 				}
-				//printf("render isHovered %i\n", obj->id);
 			}else{
 				if (obj->isHovered/* && (t1-obj->hoverT0 > CC_HOVER_PERIOD)*/){
 					obj->isHovered = 0;
-					//obj->hoverT0 = 0;
 					ccSendMessage(obj, CC_MSG_HOVER, (cx<<16)|cy, obj->isHovered, NULL);
 				}
 			}
@@ -766,8 +670,6 @@ int ccRenderEx (void *object, TFRAME *frame, const int cx, const int cy)
 
 int ccRenderAll (TCC *cc, TFRAME *frame, const int owner, const int cx, const int cy)
 {
-	// printf("%s %p\n", __func__, object);
-
 	int ct = 0;
 
 	TCCOBJ *list = cc->objs;
@@ -784,39 +686,25 @@ int ccRenderAll (TCC *cc, TFRAME *frame, const int owner, const int cx, const in
 
 int ccGetState (void *object)
 {
-	//printf("ccGetStatus %p\n",object);
-	
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	// printf("%s %p\n", __func__, object);
-	
 	return obj->enabled;
 }
 
 int ccGetWidth (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccGetWidth %p\n", obj);
-	
 	return obj->metrics.width;
 }
 
 int ccGetHeight (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccGetHeight %p\n", obj);
-	
 	return obj->metrics.height;
 }
 
 void ccGetPosition (void *object, int *x, int *y)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccGetPosition %p\n", obj);
-	
 	//ccSendMessage(object, CC_MSG_GETPOSITION, x, y, NULL);
 	if (x) *x = obj->metrics.x;
 	if (y) *y = obj->metrics.y;
@@ -825,18 +713,12 @@ void ccGetPosition (void *object, int *x, int *y)
 int ccGetPositionX (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccGetPositionX %p\n", obj);
-	
 	return obj->metrics.x;
 }
 
 int ccGetPositionY (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccGetPositionY %p\n", obj);
-	
 	return obj->metrics.y;
 }
 
@@ -850,24 +732,7 @@ TCCOBJECT *ccGetObject (TCCOBJECT *obj, const int id)
 	return ret;
 }
 
-/*
-void swapInt (int *a, int *b)
-{
-	*a ^= *b;
-	*b ^= *a;
-	*a ^= *b;
-}
-
-static inline int isInside (const int x, const int y, int x1, int y1, int x2, int y2)
-{
-	if (x >= x1 && x <= x2){
-		if (y >= y1 && y <= y2)
-			return 1;
-	}
-	return 0;
-}
-
-
+#if 0
 int ccDumpRect (TCCOBJ *list, const int page, int x1, int y1, int x2, int y2)
 {
 	if (x1 > x2) swapInt(&x2, &x1);
@@ -889,8 +754,8 @@ int ccDumpRect (TCCOBJ *list, const int page, int x1, int y1, int x2, int y2)
 	
 	
 	return ct;
-}*/
-
+}
+#endif
 
 
 int ccSetImageManager (TCC *cc, const unsigned int managerId, TARTMANAGER *manager)
@@ -917,8 +782,6 @@ void *ccCreate (TCC *cc, const int pageOwner, const int type, const TCommonCrtlC
 
 static inline int ccInitCommon (TCC *cc, TCCOBJECT *obj, const TCCREG *reg, const int pageOwner)
 {
-	//printf("ccInitCommon: '%s'\n", reg->name);
-	
 	obj->cc = cc;
 	obj->type = reg->type;
 	obj->lock = lockCreate(reg->name);
@@ -930,12 +793,9 @@ static inline int ccInitCommon (TCC *cc, TCCOBJECT *obj, const TCCREG *reg, cons
 }
 
 #if 1
-
 void ccDelete (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	
-	//printf("ccDelete %p %i\n", obj, obj->id);
 
 	ccSendMessage(obj, CC_MSG_DELETE, obj->id, 0, NULL);
 	ccLock(obj);
@@ -949,13 +809,11 @@ void ccDelete (void *object)
 void ccDelete (void *object)
 {
 	TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccDelete %p %i\n", obj, obj->id);
 
 	ccSendMessage(obj, CC_MSG_DELETE, obj->id, 0, NULL);
 	ccLock(obj);
 	obj->cb.free(obj);
 	ccUnlock(obj);
-	//stackPush(obj->cc->deleteStack, obj->id);
 	
 	if (!stackPush(obj->cc->deleteStack, obj->id))
 		printf("ccDelete stack PUSH failed id:%i\n", obj->id);
@@ -969,7 +827,6 @@ static inline void ccFreeObjects (const TCC *cc)
 	
 	while(list){
 		if (list->obj){
-			//printf("ccFreeObjects: freeing %p, %i %i\n", list->obj, list->obj->type, list->obj->id);
 			if (!list->obj->isChild)
 				deleteObj(list->obj, 1);
 		}
@@ -992,7 +849,6 @@ void *ccCreateEx (TCC *cc, const int pageOwner, const int type, const TCommonCrt
 		if (ccRegList[i].type == type){
 			obj = my_calloc(1, ccRegList[i].dataLength);
 			if (obj){
-				//printf("ccCreateEx a: %p, %i\n", obj, type);
 				ccInitCommon(cc, obj, &ccRegList[i], pageOwner);
 				ccSetUserData(obj, udataPtr);
 				
@@ -1001,7 +857,6 @@ void *ccCreateEx (TCC *cc, const int pageOwner, const int type, const TCommonCrt
 					my_free(obj);
 					return NULL;
 				}else{
-					//printf("ccCreateEx b: %p, %i %i\n", obj, type, obj->id);
 					ccListAddObject(&cc->objs, obj);
 					obj->objRoot = cc->objs;
 					ccSendMessage(obj, CC_MSG_CREATE, var1, var2, udataPtr);
@@ -1021,17 +876,11 @@ TCC *ccInit (TVLCPLAYER *vp, TGUIINPUT *input)
 		cc->ccIdIdx = 0;
 		cc->vp = vp;
 		cc->cursor = input;
-		//cc->deleteStack = stackCreate(128);
-		
-		//cc->im[CC_IMAGEMANAGER_ART] = vp->am;
-		//cc->im[CC_IMAGEMANAGER_IMAGE] = vp->im;
 	}
 	return cc;
 }
 
 void ccDestroy (TCC *cc)
 {
-	//ccDeleteStackObjs(cc);
 	ccFreeObjects(cc);
-	//stackDestroy(cc->deleteStack);
 }

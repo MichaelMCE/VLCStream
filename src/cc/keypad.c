@@ -117,13 +117,8 @@ static inline int keypadAddButton (TKEYPAD *kp, const int padId, const int keyTy
 
 static inline int keypadAddKey (TKEYPAD *kp, const int padId, const int keyType, const TPOINT *posOffset, const int canAnimate, UTF32 codePoint, wchar_t *imageFacePath)
 {
-
-	//printf("keypadAddKey(): %i,<%i,%i>\t '%ls'\n", codePoint, posOffset->x, posOffset->y, imageFacePath);
-	//printf("<%i,%i,%i>\n", codePoint, posOffset->x, posOffset->y);
-
 	TKP_PAD *pad = keypadGetPad(kp, padId);
 	if (!pad){
-		//printf("no pads or pad %i not found\n", padId);
 		return 0;
 	}
 
@@ -185,8 +180,6 @@ int keypadCfgBuildPad (TKEYPAD *kp, TVKSETTINGS *cfg, const int padNo)
 	int tKeys = 0;
 
 	TKPCFG_PADS *padKeys = keypadCfgGetPad(cfg, padNo);
-	//printf("keypadCfgBuildPad %i\n", padKeys->total);
-	
 	wchar_t image[MAX_PATH+1];
 	TPOINT pos = {0,0};
 	
@@ -205,16 +198,10 @@ int keypadCfgBuildPad (TKEYPAD *kp, TVKSETTINGS *cfg, const int padNo)
 			printf("uc missing for %i %i\n", i, key->code);
 			continue;
 		}
-		
-		//printf("## key '%ls'\n", uc->image);
-		
 		_snwprintf(image, MAX_PATH, L"vkeyboard/%ls", uc->image);
 
 		int id = keypadAddKey(kp, pad->id, uc->type, &key->pos, uc->type != KP_KEYS_ENTER, uc->code, image);
 		if (id) tKeys++;
-
-		//if (uc->type != 1)
-		//	printf("%i: %i, %i %i %i %i\n", i, id, uc->type, uc->code, key->pos.x, key->pos.y);
 	}
 
 	return tKeys;
@@ -258,9 +245,6 @@ static inline int getPadStrListTotal (const char *str)
 		my_free(dup);
 		return 0;
 	}
-		
-	//printf("getPadStrListTotal %i %i %i, %i\n", tOpen, tClose, total, strlen(dup));
-	
 	my_free(dup);
 	return total;
 }
@@ -294,9 +278,6 @@ static inline int getKeyStrListTotal (const char *str)
 			}
 		}
 	}
-	
-	//printf("%p %p\n", start, end);
-	
 	my_free(dup);
 	return total;
 }
@@ -316,7 +297,6 @@ static inline TKPCFG_KEYCODE *vkbParseStringKey (const char *str)
 		if (strct((char*)str, ',') != 2) goto end;
 		
 		/*int ret = */sscanf(str, "%i,%i,%s", &uc->type, &uc->code, image);
-		//printf("type 2: %i %i '%s', %i ##%s##\n", uc->type, uc->code, image, ret, str);
 		uc->image = converttow(image);
 		return uc;
 		
@@ -328,7 +308,6 @@ static inline TKPCFG_KEYCODE *vkbParseStringKey (const char *str)
 		if (!uc->list.val) goto end;
 		
 		/*int ret =*/ sscanf(str, "%i,%i,%s", &uc->type, &uc->list.val[0], image);
-		//printf("type 2: %i %i '%s', %i ##%s##\n", uc->type, uc->code, image, ret, str);
 		uc->image = converttow(image);
 		uc->code = uc->type;
 		return uc;
@@ -343,14 +322,11 @@ static inline TKPCFG_KEYCODE *vkbParseStringKey (const char *str)
 		/*ret =*/ sscanf(str, "%i,<%i,%i>,%s", &uc->type, &uc->list.val[0], &uc->list.val[1], image);
 		uc->image = converttow(image);
 		uc->code = uc->type;
-		//printf("@ %i %i %i '%s', %i ##%s##\n", uc->type, uc->list.val[0], uc->list.val[1], image, ret, str);
 		return uc;
 		
 	}else if (type == KP_KEYS_CYCLE){
 		const int total = getKeyStrListTotal(str);
 		if (total){
-			//printf("type 4 total %i\n", total);
-		
 			uc->list.valTotal = total;
 			uc->list.val = my_calloc(uc->list.valTotal, sizeof(int));
 			if (!uc->list.val) goto end;
@@ -367,7 +343,6 @@ static inline TKPCFG_KEYCODE *vkbParseStringKey (const char *str)
 			sscanf(start, "%s", image);
 			uc->image = converttow(image);
 			uc->code = uc->type;
-			//printf("@ %i %i %i '%s', %i ##%s##\n", uc->type, uc->list.val[0], uc->list.val[1], image, total, str);
 			return uc;
 		}
 	}else if (type == KP_KEYS_ENTER || type == KP_KEYS_RETURN || type == KP_KEYS_BACKSPACE){
@@ -376,7 +351,6 @@ static inline TKPCFG_KEYCODE *vkbParseStringKey (const char *str)
 		/*ret = */sscanf(str, "%i,%s", &uc->type, image);
 		uc->image = converttow(image);
 		uc->code = uc->type;
-		//printf("@ %i '%s', %i ##%s##\n", uc->type, image, ret, str);
 		return uc;
 	}
 
@@ -406,7 +380,6 @@ static inline TKPCFG_PADS *vkbParseStringPad (const char *str)
 		if (!start) break;
 
 		int ltotal = getKeyStrListTotal(start);
-		//printf("## ltotal: %i %i\n", i, ltotal);
 		if (ltotal != 3) break;
 
 		pad->list[i] = my_calloc(total, sizeof(TKPCFG_KEYPOS));
@@ -422,8 +395,6 @@ static inline TKPCFG_PADS *vkbParseStringPad (const char *str)
 		
 			start = ++end;
 			end = strchr(start, '>');
-
-			//printf("%i %i %i %i\n", i, pad->list[i]->code, pad->list[i]->pos.x, pad->list[i]->pos.y);
 		}else{
 			break;
 		}
@@ -487,9 +458,6 @@ static inline TKP_LISTENER *keypadListenerNew (TKP_LISTENERS *listeners)
 			return listener;
 		}
 	}
-	
-	//printf("keypadListenerNew: listen space exhusted\n");
-	
 	my_free(listener);
 	return NULL;
 }
@@ -798,8 +766,7 @@ int keypadEditboxCaretMoveEnd (TKP_EDITBOX *eb)
 			end += ((spaceWidth*4) + cspace);
 		else
 			end += (glyph->w + glyph->xoffset + cspace);
-		
-		//printf("%i '%c' %i %i\n", i, wc, width, end);
+
 		if (end >= boxWidth){
 			labelStringSetLeftOffsetIndex(label, eb->labelId, i+1);
 			break;
@@ -957,8 +924,6 @@ int keypadClipBoardSet (TKEYPAD *kp, HWND hwnd, const wchar_t *buffer)
 {
 	DWORD len = wcslen(buffer);
 	if (!len) return 0;
-
-	//wprintf(L"@@ keypadClipBoardSet '%ls'\n", buffer);
 
     // Allocate string
     HGLOBAL hdst = GlobalAlloc(GMEM_ZEROINIT|GMEM_MOVEABLE|GMEM_DDESHARE, (len + 10) * sizeof(wchar_t));
@@ -1176,7 +1141,6 @@ static inline int64_t ebbtn_cb (const void *object, const int msg, const int64_t
 
 	int lw = 0;
 	labelStringGetMetrics(label, data2, NULL, NULL, &lw, NULL);
-	//printf("label: %i - %i\n", x, lw);
 	
 	int cspace = lGetFontCharacterSpacing(label->cc->vp->ml->hw, KEYPAD_INPUT_FONT);
 	//int width= 0;
@@ -1203,7 +1167,6 @@ static inline int64_t ebbtn_cb (const void *object, const int msg, const int64_t
 		UTF32 wc = buffer[i];
 		TWCHAR *glyph = lGetGlyph(label->cc->vp->ml->hw, NULL, wc, KEYPAD_INPUT_FONT);
 		if (!glyph) glyph = glyphA;
-		//printf("%i %i %i %i %i, %i %i\n", i, wc, end, glyph->w, glyph->w + glyph->xoffset, glyph->xoffset, cspace);
 		
 		if (wc == 32)
 			//end += (spaceWidth + cspace);
@@ -1232,8 +1195,6 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 {
 	if (keyType == KP_KEYS_CHAR){
 		// add key chars to buffer
-		//printf("keypad pressed: %p %p %p\n", kp, pad, key);
-		//printf("\t\t: kp:%i pad:%i key:%i, code:%u\n", kp->id, pad->id, key->id, key->code);
 		
 		TKP_EDITBOX *eb = &kp->editbox;
 		keypadEditboxAddChar(eb, key->code);
@@ -1242,7 +1203,6 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 		keypadInputDispatchChar(kp, &kp->listener, key->code);
 		
 	}else if (keyType == KP_KEYS_SWITCH){		// eg; digits
-		//printf("key switch\n");
 		TKPCFG_KEYCODE *uc = keypadCfgGetKey(&kp->cfg, key->code);
 		
 		int padId = keypadGetPadIdByIdx(kp, uc->list.val[0]-1);
@@ -1268,11 +1228,7 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 		keypadSetActive(kp, nextId);
 					
 	}else if (keyType == KP_KEYS_TOGGLE){		// eg; shift
-		//printf("key toggle\n");
 		TKPCFG_KEYCODE *uc = keypadCfgGetKey(&kp->cfg, key->code);
-		
-		//printf("%i %i\n", uc->list.val[0], uc->list.val[0]);
-		
 		int padIdA = keypadGetPadIdByIdx(kp, uc->list.val[0]-1);
 		int padIdB = keypadGetPadIdByIdx(kp, uc->list.val[1]-1);
 		
@@ -1287,8 +1243,6 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 		keypadSetActive(kp, nextId);
 			
 	}else if (keyType == KP_KEYS_CYCLE){		// eg; cycling through pads
-		//printf("key cycle\n");
-		
 		TKPCFG_KEYCODE *uc = keypadCfgGetKey(&kp->cfg, key->code);
 
 		for (int i = 0; i < uc->list.valTotal; i++){
@@ -1299,15 +1253,11 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 					nextId = keypadGetPadIdByIdx(kp, uc->list.val[i+1]-1);
 				else
 					nextId = keypadGetPadIdByIdx(kp, uc->list.val[0]-1);
-
-				//printf("nextId %i, %i %i\n", nextId, uc->list.val[i+1]-1, uc->list.val[0]-1);
-
 				keypadSetActive(kp, nextId);
 				break;
 			}
 		}
 	}else if (keyType == KP_KEYS_ENTER){
-		//printf("key enter\n");
 		keypadInputDispatchString(kp, &kp->listener);
 		
 		if (keypadListenerGetTotal(kp)){
@@ -1319,20 +1269,15 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 			}
 		}
 	}else if (keyType == KP_KEYS_RETURN){
-		//printf("key return\n");
 		keypadInputDispatchString(kp, &kp->listener);
 		
 	}else if (keyType == KP_KEYS_BACKSPACE){
-		//printf("key backspace/left delete\n");
-		
 		TKP_EDITBOX *eb = &kp->editbox;
 		keypadEditboxDeleteCharLeft(eb);
 		keypadEditboxAddCaret(eb, eb->buffer, eb->caret, eb->caretChr);
 		keypadEditboxUpdateLabel(eb, eb->caret);
 
 	}else if (keyType == KP_KEYS_DELETE){
-		//printf("key right delete \n");
-		
 		TKP_EDITBOX *eb = &kp->editbox;
 		keypadEditboxDeleteCharRight(eb);
 		keypadEditboxAddCaret(eb, eb->buffer, eb->caret, eb->caretChr);
@@ -1343,8 +1288,6 @@ static inline int keypadInputKeyPress (TKEYPAD *kp, TKP_PAD *pad, const int keyT
 
 int keypadInputKeyPressCb (TKEYPAD *kp, const int keyChar, const int64_t data)
 {
-	//printf("keypadInputKeyPressCb %i\n", keyChar);
-	
 	if (keyChar == VK_RETURN){		// enter
 		keypadInputKeyPress(kp, NULL, KP_KEYS_ENTER, NULL);
 		return 1;
@@ -1361,29 +1304,20 @@ int keypadInputKeyPressCb (TKEYPAD *kp, const int keyChar, const int64_t data)
 		TKP_PAD *pad = keypadGetPad(kp, keypadGetPadIdByIdx(kp,i));
 		TKP_KEY *key = keypadGetKeyByCode(pad, keyChar);
 		if (key){
-			//printf("key found\n");
 			keypadPlayKeyAlert(kp);
 			kp->lastKeyPressTime0 = key->time = getTickCount();		
 			keypadInputKeyPress(kp, pad, key->type, key);
 			return 1;
 		}
 	}
-	//printf("key not found %i\n", keyChar);
 	return 0;
 }
 
 static inline int64_t keybtn_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//if (msg == CC_MSG_RENDER /*|| msg == CC_MSG_INPUT*/ || msg == CC_MSG_SETPOSITION) return 1;
-	//if (msg == CC_MSG_ENABLED || msg == CC_MSG_DISABLED) return 1;
-		
 	TCCBUTTON2 *btn = (TCCBUTTON2*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", btn->id, btn->type, msg, (int)data1, (int)data2, dataPtr);
-	//const int id = (int)data2;
 
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
-		//printf("BUTTON_MSG_SELECTED_PRESS\n");
-		
 		TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 		TKEYPAD *kp = ccGetUserData(btn);
 		keypadPlayKeyAlert(kp);
@@ -1397,7 +1331,6 @@ static inline int64_t keybtn_cb (const void *object, const int msg, const int64_
 		keypadInputKeyPress(kp, pad, key->type, key);
 		
 	}else if (msg == BUTTON_MSG_SELECTED_RELEASE){
-		//printf("BUTTON_MSG_SELECTED_RELEASE\n");
 		if (!isVirtual(btn->cc->vp)) return 1;
 		
 		TKEYPAD *kp = ccGetUserData(btn);
@@ -1407,7 +1340,6 @@ static inline int64_t keybtn_cb (const void *object, const int msg, const int64_
 		
 		if (key->type == KP_KEYS_BACKSPACE){
 			double dt = getTime(btn->cc->vp) - kp->lastKeyReleaseTime;
-			//printf("key up %.0f\n", dt);
 			if (dt < KP_DBCLICK_BACKSPACE){
 				TKP_EDITBOX *eb = &kp->editbox;
 				keypadEditboxClear(eb);
@@ -1423,12 +1355,9 @@ static inline int64_t keybtn_cb (const void *object, const int msg, const int64_
 		TKP_KEY *key = keypadGetKey(pad, btn->id);
 		
 		if (key->type == KP_KEYS_BACKSPACE){
-			//printf("key slide KP_BACKSPACE %i %i\n", (int)data1, (int)data2);
-
 			TTOUCHCOORD *pos = (TTOUCHCOORD*)dataPtr;
 			int dt = pos->time - key->time;
 			if (dt > KP_SLIDE_BACKSPACE){
-				//printf("fkey slide %i %i %i %i\n", btn->id, idx, pos->dt, dt);
 				TKP_EDITBOX *eb = &kp->editbox;
 				keypadEditboxClear(eb);
 				key->time = pos->time + KP_SLIDE_BACKSPACE;
@@ -1472,8 +1401,6 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 	str_list *strList = NULL;
 	vkbSettingsGet(config, "keypad.key.", &strList);
 	if (strList){
-		//printf("vkey total keys defined %i\n", strList->total);
-
 		cfg->keyList.total = strList->total;
 		cfg->keyList.keys = my_calloc(strList->total, sizeof(TKPCFG_KEYCODE*));
 		
@@ -1482,13 +1409,11 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 				char *key = cfg_configStrListItem(strList, i);
 				if (key){
 					cfg->keyList.keys[i] = vkbParseStringKey(key);
-					//printf("@@ keypadBuild: %i, #%s# #%ls#\n", i, key, cfg->keyList.keys[i]->image);
 				}
 			}
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	
 	if (cfg->keyList.total < 10){
@@ -1500,8 +1425,6 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 	// configure keys in to keypads
 	vkbSettingsGet(config, "keypad.pad.", &strList);
 	if (strList){
-		//printf("vkey total pads defined %i\n", strList->total);
-
 		cfg->padList.total = strList->total;
 		cfg->padList.pads = my_calloc(strList->total, sizeof(TKPCFG_PADS*));
 
@@ -1514,7 +1437,6 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 		}
 		cfg_configStrListFreeStrings(strList);
 		cfg_configStrListFree(strList);
-		//my_free(strList);
 	}
 	if (cfg->padList.total < 1){
 		wprintf(L"keypad config '%ls' is invalid\n", configfile);
@@ -1555,19 +1477,14 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 	keypadSetActive(kp, keypadGetPadIdByIdx(kp, val-1));
 	keypadPadEnable(kp, keypadGetActive(kp));
 
-
-	//cfg_configWrite(config, configfile);
 	return 1;
 }
 
 int buildKeypad (TKEYPAD *kp)
 {
-	//printf("buildKeypad in %i\n", kp->isBuilt);
-	
 	if (!kp->isBuilt)
 		kp->isBuilt = keypadBuild(kp, &kp->cfg, KP_CONFIGFILE);
 
-	//printf("buildKeypad out %i\n", kp->isBuilt);
 	return kp->isBuilt;
 }
 
@@ -1588,8 +1505,6 @@ int keypadRender (void *object, TFRAME *frame)
 		kItem = kItem->next;
 	}
 
-	//dbwprintf(kp->cc->vp, L"str %i '%s'\n", wcslen(kp->editbox.buffer), kp->editbox.buffer);
-	
 	TKP_EDITBOX *eb = &kp->editbox;
 	keypadEditboxRender(eb, frame, eb->caret, 8, 96);
 	return 1;
@@ -1597,30 +1512,20 @@ int keypadRender (void *object, TFRAME *frame)
 
 void keypadEnable (void *object)
 {
-	//printf("keypadEnable\n");
-
 	TKEYPAD *kp = (TKEYPAD*)object;
 	if (!buildKeypad(kp))
 		return;
 
-	//printf("keypadEnable open sent\n");
 	/*int ret =*/ keypadInputDispatchEvent(kp, &kp->listener, KP_INPUT_OPENED, KP_MSG_PAD_OPENED, kp->id, 0, NULL);
-	//printf("keypadInputDispatchEvent enable %i\n", ret);
-
 	ccEnable(kp->editbox.label);
-	//return ret;
 }
 
 void keypadDisable (void *object)
 {
-	//printf("keypadDisabled\n");
-	
 	TKEYPAD *kp = (TKEYPAD*)object;
 	if (!kp->isBuilt) return;
 	
 	/*int ret =*/ keypadInputDispatchEvent(kp, &kp->listener, KP_INPUT_CLOSED, KP_MSG_PAD_CLOSED, kp->id, 0, NULL);
-	//printf("keypadDisable: keypadInputDispatchEvent close %i\n", ret);
-	
 	ccDisable(kp->editbox.label);
 }
 
@@ -1654,7 +1559,6 @@ static inline void vkcfgFreeKeyList (TKPCFG_KEYLIST *keyList)
 			vkcfgFreeKeycode(keyList->keys[i]);
 	}
 	my_free(keyList->keys);
-	//my_free(keyList);
 }
 
 static inline void vkcfgFreePadKeypos (TKPCFG_KEYPOS *keypos)
@@ -1677,7 +1581,6 @@ static inline void vkcfgFreePadList (TKPCFG_PADLIST *padList)
 		vkcfgFreePad(padList->pads[i]);
 
 	my_free(padList->pads);
-	//my_free(padList);
 }
 
 void keypadDelete (void *object)
@@ -1700,7 +1603,6 @@ void keypadDelete (void *object)
 	ccDelete(kp->editbox.label);
 	vkcfgFreePadList(&kp->cfg.padList);
 	vkcfgFreeKeyList(&kp->cfg.keyList);
-
 }
 
 int keypadNew (TCCOBJECT *object, void *unused, const int pageOwner, const int type, const TCommonCrtlCbMsg_t tv_cb, int *id, const int x, const int y)
@@ -1735,8 +1637,7 @@ int keypadNew (TCCOBJECT *object, void *unused, const int pageOwner, const int t
 	TCFGENTRY **config = vkey_configCreate(cfg);
 	cfg->config = config;
 	cfg_configApplyDefaults(config);
-	
-	//buildKeypad(kp);
+
 	return 1;
 }
 

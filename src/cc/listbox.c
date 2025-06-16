@@ -34,10 +34,8 @@ static inline int64_t scrollbarCalcRange (TLISTBOX *listbox)
 {
 	TPANE *pane = listbox->pane;
 	const int lineHeight = listbox->flags.lineHeight;
-	int64_t rmax = (pane->flags.total.text * lineHeight) + 1;//(pane->metrics.height-(lineHeight*2));//(lineHeight*5);
+	int64_t rmax = (pane->flags.total.text * lineHeight) + 1;
 	if (rmax < lineHeight) rmax = lineHeight;
-
-	//printf("scrollbarCalcRange aveHeight:%i  rmax:%i  total:%i, total:%i\n", lineHeight, (int)rmax, pane->flags.total.text, pane->totalHeight);
 
 	scrollbarSetRange(listbox->scrollbar.vert, 0, rmax, listbox->scrollbar.vert->firstItem, pane->metrics.height);
 
@@ -100,9 +98,6 @@ void listboxSetHighlightedColour (TLISTBOX *listbox, const unsigned int fore, co
 
 void listboxSetHighlightedItem (TLISTBOX *listbox, const int itemId)
 {
-	
-//	printf("listboxSetHighlightedItem %i (%i)\n", itemId, listbox->highlighted.itemId);
-	
 	if (listbox->highlighted.itemId == itemId) return;
 	
 	listboxSetItemColour(listbox, listbox->highlighted.itemId, listbox->highlighted.colourPre.fore, listbox->highlighted.colourPre.back, listbox->highlighted.colourPre.outline);
@@ -115,16 +110,12 @@ void listboxSetHighlightedItem (TLISTBOX *listbox, const int itemId)
 
 void listboxSetItemColour (TLISTBOX *listbox, const int itemId, const unsigned int fore, const unsigned int back, const unsigned int outline)
 {
-	//printf("listboxSetItemColour %i %X\n", itemId, fore);
-	
 	if (itemId)
 		labelRenderColourSet(listboxGetBase(listbox), itemId, fore, back, outline);
 }
 
 void listboxGetItemColour (TLISTBOX *listbox, const int itemId, unsigned int *fore, unsigned int *back, unsigned int *outline)
 {
-	//printf("listboxGetItemColour %i\n", itemId);
-	
 	if (itemId)
 		labelRenderColourGet(listboxGetBase(listbox), itemId, fore, back, outline);
 }
@@ -170,7 +161,6 @@ int listboxGetTotal (TLISTBOX *listbox)
 
 void listboxEnable (void *object)
 {
-	//printf("@@ listboxEnable\n");
 	TLISTBOX *listbox = (TLISTBOX*)object;
 
 	listbox->enabled = 1;
@@ -180,8 +170,6 @@ void listboxEnable (void *object)
 
 void listboxDisable (void *object)
 {
-	//printf("@@ listboxDisable\n");
-	
 	TLISTBOX *listbox = (TLISTBOX*)object;
 
 	listbox->enabled = 0;
@@ -239,9 +227,6 @@ int listboxHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 
 	int ret = ccHandleInput(listbox->scrollbar.vert, pos, flags);
 	if (!ret) ccHandleInput(listbox->pane, pos, flags);
-	
-	//printf("listboxHandleInput sb %i, %i %i %i %i\n", ret, listbox->metrics.x, listbox->metrics.y, listbox->metrics.width, listbox->metrics.height);
-
 	return ret;
 }
 
@@ -264,7 +249,6 @@ int listboxSetPosition (void *object, const int x, const int y)
 int listboxSetMetrics (void *object, const int x, const int y, const int width, const int height)
 {
 	TLISTBOX *listbox = (TLISTBOX*)object;
-	
 
 	listbox->metrics.x = x;
 	listbox->metrics.y = y;
@@ -296,8 +280,6 @@ int listboxScroll (TLISTBOX *listbox, const int nPixels)
 
 int listboxScrollUp (TLISTBOX *listbox)
 {
-	//printf("listboxScrollUp %i\n", listbox->flags.scrollDelta);
-	
 	paneScroll(listbox->pane, listbox->flags.scrollDelta);
 	scrollbarCalcRange(listbox);
 	return 1;
@@ -305,8 +287,6 @@ int listboxScrollUp (TLISTBOX *listbox)
 
 int listboxScrollDown (TLISTBOX *listbox)
 {
-	//printf("listboxScrollDown %i\n", listbox->flags.scrollDelta);
-	
 	paneScroll(listbox->pane, -listbox->flags.scrollDelta);
 	scrollbarCalcRange(listbox);
 	return 1;
@@ -326,9 +306,7 @@ int listboxSetFocus (TLISTBOX *listbox, const int nPixels)
 	paneScrollSet(listbox->pane, xOffset, nPixels, PANE_INVALIDATE);
 	scrollbarSetFirstItem(listbox->scrollbar.vert, abs(nPixels));
 	scrollbarCalcRange(listbox);
-	
-	//printf("listboxSetFocus %i\n", nPixels);
-	
+
 	return 1;
 }
 
@@ -345,7 +323,6 @@ static inline int64_t listbox_pane_cb (const void *object, const int msg, const 
 	//if (msg == CC_MSG_INPUT || msg == CC_MSG_HOVER || msg == CC_MSG_RENDER) return 1;
 	
 	TPANE *pane = (TPANE*)object;
-	//printf("listbox_pane_cb in %i %I64d %I64X %p\n", msg, data1, data2, dataPtr);
 
 	if (msg == PANE_MSG_TEXT_SELECTED){
 		TLISTBOX *listbox = (TLISTBOX*)ccGetUserData(pane);
@@ -361,7 +338,6 @@ static inline int64_t listbox_pane_cb (const void *object, const int msg, const 
 		scrollbarCalcRange(listbox);
 		
 		const int sbState = ccGetState(listbox->scrollbar.vert);
-		//printf("listbox PANE_MSG_VALIDATED %i\n", sbState);
 		if (!sbState)
 			paneSwipeDisable(listbox->pane);
 		else
@@ -377,9 +353,6 @@ static inline int64_t listbox_scrollbar_cb (const void *object, const int msg, c
 {
 	//if (msg == CC_MSG_INPUT || msg == CC_MSG_HOVER || msg == CC_MSG_RENDER) return 1;
 
-	
-	//printf("search_scrollbar_cb. msg:%i, data1:%I64d, data2:%I64d,  ptr:%p\n", msg, data1, data2, dataPtr);
-	
 	if (msg == SCROLLBAR_MSG_VALCHANGED){
 		TPANE *pane = ccGetUserData((void*)object);
 
@@ -393,7 +366,6 @@ int listboxNew (TCCOBJECT *object, void *unused, const int pageOwner, const int 
 {
 	TLISTBOX *listbox = (TLISTBOX*)object;
 	
-
 	if (id) *id = listbox->id;
 	listbox->type = type;
 
