@@ -1,10 +1,10 @@
 
-// anthrm - http://mylcd.sourceforge.net/
-// An LCD framebuffer and text rendering API
-// Michael McElligott
+// anthrm - https://github.com/MichaelMCE/
+
+
 // okio@users.sourceforge.net
 
-//  Copyright (c) 2005-2011  Michael McElligott
+//  Copyright (c) 2005-2025  
 //
 //  This program is my_free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
