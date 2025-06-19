@@ -1,6 +1,6 @@
 // mouse hooking
-//
-//  Copyright (c) 2005-2010  Michael McElligott
+// https://github.com/MichaelMCE
+//  Copyright (c) 2005-2025  
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
