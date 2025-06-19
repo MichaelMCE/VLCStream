@@ -57,7 +57,6 @@ int regCuGetDwordW (const wchar_t *key, const wchar_t *name)
 	return value;
 }
 
-
 char *regCuGetString (const char *key, const char *name, char *buffer, size_t blen)
 {
 	HKEY hKey = 0;

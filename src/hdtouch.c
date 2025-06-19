@@ -36,7 +36,6 @@ lDISPLAY hiddGetLibmylcdDID (THWD *hw)
 	return did;
 }
 
-
 static inline int hiddReportRotary (const TTOUCHINPUT *sbg, void *ptr)
 {
 	rotary_t enc;
@@ -83,8 +82,6 @@ static inline int hiddReportTouch (const TTOUCHINPUT *sbg, void *ptr)
 	pos.pressure = 100;
 	
 	int pressState = 0;
-	
-	//printf("press type:%i, %i %i,%i %i %.0f %.0f\n", sbg->type, pos.pen, sbg->x, sbg->y, sbg->id, pos.dt, sbg->time);
 
 	if (currentGestureState == 3){						// was up
 		pressState = 1;									// but is now down
@@ -113,22 +110,17 @@ static inline int hiddReportTouch (const TTOUCHINPUT *sbg, void *ptr)
 	
 	switch (pressState){
 	  case 1:
-	//	printf("## down %i\n", pos.id);
 		touchSimulate(&pos, TOUCH_VINPUT|0, ptr);
 		break;
 	  case 2:
-	//	printf("## drag %i\n", pos.id);
 		touchSimulate(&pos, TOUCH_VINPUT|1, ptr);
 		break;
 	  case 3:
-	//	printf("## up %i\n", pos.id);
 		touchSimulate(&pos, TOUCH_VINPUT|3, ptr);
 		break;
 	}
-	
 	return 1;
 }
-
 
 static inline int hiddTouchCB (const TTOUCHINPUT *sbg, void *ptr)
 {
@@ -146,7 +138,6 @@ static inline int hiddTouchCB (const TTOUCHINPUT *sbg, void *ptr)
 	return 1;
 }
 
-
 int hiddTouchCBEnable (TVLCPLAYER *vp)
 {
 	lDISPLAY did = hiddGetLibmylcdDID(vp->ml->hw);
@@ -157,9 +148,7 @@ int hiddTouchCBEnable (TVLCPLAYER *vp)
 			}
 		}
 	}else{
-		// printf("not found\n");
+
 	}
 	return 0;
 }
-
-

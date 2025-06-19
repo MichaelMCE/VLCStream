@@ -46,10 +46,9 @@ static inline int chrct (char *str, const char chr)
 	return ct;
 }
 
+// "<.exe.msi.msc.cpl.scr.cmd.elf.vbs.pif>module32.png"
 static inline int fileext_extlistLineExtract (char *str, TFILEEXTLINE *extList)
 {
-	//str = strdup("<.exe.msi.msc.cpl.scr.cmd.elf.vbs.pif>module32.png");
-
 	char *start = strchr(str, '<')+1;
 	if (!start || !*start) return 0;
 	char *end = strchr(start, '>');
@@ -69,10 +68,11 @@ static inline int fileext_extlistLineExtract (char *str, TFILEEXTLINE *extList)
 	
 	for (int i = 0; i < total; i++){
 		char *ext = strrchr(exts, '.');
-		if (!ext || !ext[1])
-			printf("invalid file extension: '%s'<-\n", start);
-		else
+		if (!ext || !ext[1]){
+			//printf("invalid file extension: '%s'<-\n", start);
+		}else{
 			extList->list[ct++] = my_strdup(ext);
+		}
 		*ext = 0;
 	}
 	

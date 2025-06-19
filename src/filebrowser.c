@@ -88,9 +88,6 @@ static inline int getDriveBusType (const int drive)
 		busType = devd.BusType;
 
 	CloseHandle(deviceHandle);
-
-	//printf("bustype: %c: %i %X\n", drive&0xFF, devd.RemovableMedia, devd.BusType);
-
 	return busType;
 }
 
@@ -453,7 +450,6 @@ int fbSort (TFB *fb, const int id, const int sortType)
 
 	return total;
 }
-
 
 static inline TFB_ITEM_DESC *fbItemDescAlloc ()
 {

@@ -24,7 +24,7 @@
 
 
 #include "common.h"
-#if (0&&ENABLE_ANTPLUS)
+#if (ENABLE_ANTPLUS)
 #include "antplus/anthrm.h"
 #endif
 
@@ -149,8 +149,6 @@ static inline double strGetFloat (wchar_t *str)
 			return (double)wcstod(digits, &end);
 		}
 	}
-	
-	__mingw_wprintf(L"strGetInt32: not a number or invalid input #%ls# #%ls#\n", str, digits);
 	return 0.0;
 }
 
@@ -194,7 +192,6 @@ static inline int playlistSetTrackPaths (TPLAYLISTMANAGER *plm, const int uid, c
 	else
 		return -2;
 }
-
 
 void playlistsForceRefresh (TVLCPLAYER *vp, const int when)
 {
@@ -347,7 +344,6 @@ static inline int editBoxCmdExecute (TEDITBOX *input, wchar_t *cmdName, int clen
 {
 	TEDITBOXCMD *cmd = editBoxGetCmd(input, cmdName);
 	if (cmd){
-		//wprintf(L"found cmd '%ls'\n", cmd->name);
 		cmd->pfunc(var, vlen, cmd->uptr, cmd->data1, 0/*do something with this*/);
 		return 1;
 	}
@@ -407,7 +403,6 @@ static inline int editboxParseCommands (TEDITBOX *input, TVLCPLAYER *vp, wchar_t
 				var = removeLeadingSpacesW(var);
 				vlen = wcslen(var);
 			}
-			//wprintf(L"#%ls# #%ls#\n",cmd, var);
 			editBoxCmdExecute(input, cmd, clen, var, vlen);
 		}
 	}
@@ -425,7 +420,6 @@ int editboxProcessString (TEDITBOX *input, wchar_t *txt, int ilen, void *ptr)
 		txt = removeLeadingSpacesW(txt);
 		txt = removeTrailingSpacesW(txt);
 	}
-	//wprintf(L"%i '%ls'\n", ilen, txt);
 
 	if (*txt == CMDPARSER_CMDIDENT && ilen > 0){
 		editboxParseCommands(input, vp, ++txt, --ilen);
@@ -463,7 +457,6 @@ static inline int editBoxRegisterCmdFunc (TEDITBOX *input, wchar_t *_cmdName, vo
 {
 	TEDITBOXCMD *cmd = &input->registeredCmds[input->registeredCmdTotal++];
 	if (input->registeredCmdTotal >= EDITBOXCMD_MAXCMDS){
-		//printf("editBoxRegisterCmdFunc failed due to lack of cmd space (%i)\n", EDITBOXCMD_MAXCMDS);
 		return 0;
 	}
 
@@ -506,7 +499,6 @@ static inline void cmd_sort (wchar_t *var, int vlen, void *uptr, int direction, 
 	vlen = wcslen(var);
 	if (vlen < 4) return;
 
-	//wprintf(L"editboxCmdSort: #%ls# %i %i\n", var, vlen, direction);
 	playlistSort(plcD, vp->tagc, tagLookupW(var), direction);
 	playlistsForceRefresh(vp, 0);
 }
@@ -569,7 +561,6 @@ static inline void cmd_shutdown (wchar_t *var, int vlen, void *uptr, int unused1
 	closeEditbox(vp);
 	//pageSet(vp, PAGE_NONE);
   	//pageSetSec(vp, -1);
-  	//printf("cmd_shutdown: TODO: add close all\n");
   	timerSet(vp, TIMER_SHUTDOWN, 150);
   	renderSignalUpdate(vp);
 }
@@ -946,6 +937,8 @@ static inline void cmd_resync (wchar_t *var, int vlen, void *uptr, int unused1, 
 	if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSBHID", LDRV_DISPLAY))){
 		
 	}else if ((did=lDriverNameToID(vp->ml->hw, "USBD480:LIBUSB", LDRV_DISPLAY))){
+
+	}else if ((did=lDriverNameToID(vp->ml->hw, "HisDisplay", LDRV_DISPLAY))){
 		
 	}else if ((did=lDriverNameToID(vp->ml->hw, "G19", LDRV_DISPLAY))){
 		
@@ -987,7 +980,6 @@ static inline void cmd_search (wchar_t *var, int vlen, void *uptr, int unused1, 
 					dbwprintf(vp, L"searching for %ls: %ls", getTagW(mtag), query);
 					int trk = editBoxDoSearch(vp, mtag, query, SEARCH_CURRENT);
 					if (trk >= 0){
-						//dbwprintf(vp, L"found '%s:%ls' at track %i", getTagW(mtag), query, trk);
 						dbwprintf(vp, L"found %ls: %ls", getTagW(mtag), query);
 					}
 				}
@@ -1049,10 +1041,6 @@ static inline void cmd_usbd480Backlight (wchar_t *var, int vlen, void *uptr, int
 
 static inline void cmd_systemCmds (wchar_t *var, int vlen, void *uptr, int cmd, int unused2)
 {
-	//TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
-	
-	//wprintf(L"cmd_systemCmds #%ls# %i\n", var, cmd);
-	
 	if (cmd == SYSTEMCMDS_Lock)
 		workstationLock();
 	else if (cmd == SYSTEMCMDS_Reboot)
@@ -1232,8 +1220,6 @@ static inline void cmd_load (wchar_t *mrl, int mlen, void *uptr, int play, int u
 
 	if (mrl && mlen){
 		const int from = playlistGetTotal(plcD);
-		//wprintf(L"cmd_load #%s# %i\n", mrl, isDirectoryW(mrl));
-
 		if (isPlaylistW(mrl)){
 			int total = importPlaylistW(vp->plm, plcD, vp->tagc, vp->am, mrl, pageGetPtr(vp, PAGE_FILE_PANE));
 			dbwprintf(vp, L" %i tracks loaded from '%ls'", total, mrl);
@@ -1351,9 +1337,6 @@ static inline int copyPlaylistTracks (TPLAYLISTMANAGER *plm, PLAYLISTCACHE *plcF
 {
 
 	if (!plcF || !plcT) return 0;
-
-//	printf("copying %i %i '%s' '%s'\n", from, to, plcF->name, plcT->name);
-
 	int itemsCopied = 0;
 
 	if (playlistLock(plcF)){
@@ -1427,11 +1410,8 @@ static inline int playlistExcludeRecordsByFilter (TVLCPLAYER *vp, PLAYLISTCACHE 
 */
 	for (int i = 0; i < total; i++){
 		TPLAYLISTITEM *item = playlistGetItem(src, i);
-		if (!item){
-			//printf("invalid item %i for '%s' (%i)\n", i, src->name, src->total);
-			continue;
-		}
-		
+		if (!item) continue;
+
 		if (item->objType == PLAYLIST_OBJTYPE_PLC){
 			if (item->obj.plc){
 				PLAYLISTCACHE *plc = playlistManagerCreatePlaylist(vp->plm, item->obj.plc->title, 0);
@@ -1914,16 +1894,13 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 		wchar_t *trk = strGetStringNext(L" ");
 		wchar_t *opt = strGetStringNext(L"\0");
 
-		if (!cmd || !trk){
-			//printf("invalid input for option\n");
+		if (!cmd || !trk){	// invalid input for option
 			return;
 		}
-		if (!*cmd || !*trk){
-			//printf("invalid value for option\n");
+		if (!*cmd || !*trk){	// invalid value for option
 			return;
 		}		
-		if (*trk++ != CMDPARSER_NUMIDENT){
-			//printf("invalid track\n");
+		if (*trk++ != CMDPARSER_NUMIDENT){	// invalid track
 			return;
 		}
 
@@ -1932,7 +1909,6 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 		pos--;
 
 		if (!wcscmp(cmd, L"set")){
-			//wprintf(L"pl option set %i '%s'\n", pos, opt);
 			char *opt8 = convertto8(opt);
 			if (opt8){
 				playlistSetOptions(plcD, pos, opt8, 1);
@@ -2004,9 +1980,7 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 			PLAYLISTCACHE *plc = playlistManagerCreatePlaylist(vp->plm, name, 0);
 			playlistAddPlc(getPrimaryPlaylist(vp), plc);
 		}
-		
-		//invalidateShelfAlbum(vp, pageGetPtr(vp, PAGE_PLY_SHELF), -1/*vp->displayPlaylist*/);
-		//timerSet(vp, TIMER_PLYTVREBUILD, 0);
+
 		playlistsForceRefresh(vp, 0);
 
 	}else if (!wcscmp(state, L"load") || !wcscmp(state, L"ld")){
@@ -2119,8 +2093,6 @@ static inline void cmd_playlist (wchar_t *var, int vlen, void *uptr, int unused1
 
 			wchar_t *forthis = strGetStringNext(L"\0");
 			if (forthis && *forthis){
-				//wprintf(L"filter include #%s# (%i) for #%s#\n", filter, mtag, forthis);
-
 				char *out = convertto8(forthis);
 				PLAYLISTCACHE *to = playlistManagerCreatePlaylist(vp->plm, out, 0);
 				int newTotal = playlistIncludeRecordsByFilter(vp, plcD, to, mtag, out);
@@ -2241,7 +2213,6 @@ static inline void cmd_list (wchar_t *var, int vlen, void *uptr, int unused1, in
 	}
 }
 
-
 static inline int cmd_help (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 {
 
@@ -2267,12 +2238,9 @@ static inline int cmd_help (wchar_t *var, int vlen, void *uptr, int unused1, int
 		return 0;
 	}
 
-	//wprintf(L"cmd_help: '%s' '%ls'\n", ebcmd->name, info);
-	
 	dbwprintfEx(vp, MARQUEE_WRAP, L"%ls: '%ls'", ebcmd->name, info);
 	return 1;
 }
-
 
 static inline void printImageStats (TVLCPLAYER *vp)
 {
@@ -2459,7 +2427,6 @@ static inline void cmd_timeJump (wchar_t *var, int vlen, void *uptr, int directi
 	}
 }
 
-/*
 void dumpPlaylists (TVLCPLAYER *vp, TPLAYLISTMANAGER *plm)
 {
 	if (playlistManagerLock(plm)){
@@ -2478,8 +2445,6 @@ void dumpPlaylists (TVLCPLAYER *vp, TPLAYLISTMANAGER *plm)
 		playlistManagerUnlock(plm);
 	}
 }
-*/
-
 
 static inline void cmd_plm (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 {
@@ -2759,9 +2724,7 @@ static inline void cmd_getlengths (wchar_t *var, int vlen, void *uptr, int unuse
 		
 		int trk = 0;
 		int trklen = 0;
-		
-		//dbprintf(vp, "processing: %i of %i: '%s'", i, ptotal, plcD->title);
-		
+
 		while(trk < total && vp->applState){
 			if (playlistGetItemType(plcD, trk) == PLAYLIST_OBJTYPE_PLC){
 				trk++;
@@ -2833,7 +2796,8 @@ int artworkFlush (TVLCPLAYER *vp, TARTMANAGER *am)
 	
 	return artManagerFlush(am);
 }	
-/*
+
+#if 0
 static inline void cmd_flushArt (wchar_t *var, int vlen, void *uptr, int unused1, int unused2)
 {
 	TVLCPLAYER *vp = (TVLCPLAYER*)uptr;
@@ -2857,7 +2821,8 @@ static inline void cmd_flushMeta (wchar_t *var, int vlen, void *uptr, int unused
 	}
 	//countItems(vp, vp->metac);
 }
-*/
+#endif
+
 void cmdPrintAbout (TVLCPLAYER *vp)
 {
 	char buffer[256] = {0};
@@ -2913,7 +2878,6 @@ void cmdPrintAbout (TVLCPLAYER *vp)
 		dbprintf(vp, " Device: %s, %ix%i", name, width, height);
 		my_free(name);
 	}
-	
 	dbprintf(vp, " &#169; %s", mySELF);
 }
 

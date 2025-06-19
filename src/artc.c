@@ -92,14 +92,12 @@ static inline TART_BRANCH *amGetBranch (TARTMANAGER *am, const int idx)
 {
 	if (idx < am->branchTotal)
 		return am->buckets[idx];
-	//else
-		//printf("amGetBranch FAILED: idx:%i, buckets:%i\n", idx, am->branchTotal);
 	return NULL;
 }
 
 static inline TLISTITEM *amGetList (TARTMANAGER *am, const int id)
 {
-//	printf("amGetList %X\n", id);
+
 	return amGetBranch(am, artIdToBranchId(id))->items;
 }
 
@@ -111,8 +109,7 @@ static inline TART_ITEM *_artManagerIdToItem (TART_BRANCH *ab, const int id)
 		if (ai && ai->id == id) return ai;
 		item = listGetNext(item);
 	}
-	
-	//printf("_artManagerIdToItem: id not found %i %i\n", id>>16, id&0xFFFF);
+
 	return NULL;
 }
 
@@ -170,7 +167,6 @@ static inline int artManagerItemReadMetrics (TART_ITEM *ai)
 {
 	if (ai->state&ARTC_STATE_HASPATH){
 		int gotMetrics = 0;
-		//wprintf(L"artManagerItemReadMetrics %X %i %i '%s'\n", ai->id, ai->state&ARTC_STATE_HASPATH, ai->state&ARTC_STATE_HASMETRICS, ai->path);
 
 		if (extMatch(ai->path, L".png")){
 			gotMetrics = lImageGetMetrics(ai->path, IMG_PNG, &ai->image.width, &ai->image.height, NULL);
@@ -236,7 +232,6 @@ static inline int artManagerItemReadMetrics (TART_ITEM *ai)
 	return 0;
 }
 
-
 static inline int artManagerItemReadPixels (TARTMANAGER *am, TART_ITEM *ai)
 {
 
@@ -244,10 +239,6 @@ static inline int artManagerItemReadPixels (TARTMANAGER *am, TART_ITEM *ai)
 		return 0;
 
 	if (ai->state&ARTC_STATE_HASPATH /*&& ai->image.type != IMG_BMP*/){
-		//wprintf(L"@@ amReadPixels %i %i, '%s'\n", ai->id>>16, ai->id&0xFFF, ai->path);
-		//wprintf(L"am Read %i, '%s'\n", ai->id&0xFFF, ai->path);
-		//wprintf(L"@@ artManagerItemReadPixels %i '%s'\n",  ai->id, ai->path);
-		
 		TFRAME *surface = lNewImage(am->hw, ai->path, ai->image.bpp);
 		if (surface){
 			if (ai->state&ARTC_STATE_ISRESIZED){
@@ -275,7 +266,6 @@ static inline int artManagerItemReadPixels (TARTMANAGER *am, TART_ITEM *ai)
 				
 				TFRAME *img = lNewFrame(am->hw, ai->image.width, ai->image.height, ai->image.bpp);
 				if (img){
-					//printf("ai->image.type %i %i\n", ai->image.type, IMG_PNG);
 					if (ai->image.hasAlpha)
 						copyAreaScaled(surface, img, 0, 0, surface->width, surface->height, 0, 0, img->width, img->height);
 					else
@@ -379,7 +369,6 @@ int artManagerImageResize (TARTMANAGER *am, const int id, const int width, const
 
 				ai->image.width = ai->surface->width;
 				ai->image.height = ai->surface->height; 
-				//printf("%i %i\n", ai->image.width, ai->image.height);
 				ret = 1;
 			}
 			artManagerImageRelease(am, id);
@@ -404,7 +393,6 @@ TFRAME *artManagerImageClone (TARTMANAGER *am, const int id)
 int artManagerImagePreload (TARTMANAGER *am, const int id)
 {
 	TART_ITEM *ai = artManagerIdToItem(am, id);
-	//wprintf(L"artManagerImageAcquire %X %p %i %i '%s'\n", id, ai, ai->state&ARTC_STATE_HASSURFACE, ai->state&ARTC_STATE_HASPATH, ai->path);
 	if (ai){
 		if (!(ai->state&ARTC_STATE_HASSURFACE))
 			artManagerItemReadPixels(am, ai);
@@ -422,7 +410,6 @@ TFRAME *artManagerImageAcquire (TARTMANAGER *am, const int id)
 
 	if (abLock(ab)){
 		TART_ITEM *ai = artManagerIdToItem(am, id);
-		//wprintf(L"artManagerImageAcquire %X %p %i %i '%s'\n", id, ai, ai->state&ARTC_STATE_HASSURFACE, ai->state&ARTC_STATE_HASPATH, ai->path);
 		if (ai){
 			if (!(ai->state&ARTC_STATE_HASMETRICS))
 				artManagerItemGetMetrics(ai, NULL, NULL);
@@ -438,14 +425,12 @@ TFRAME *artManagerImageAcquire (TARTMANAGER *am, const int id)
 		}
 		abUnlock(ab);
 	}
-	//printf("artManagerImageAcquire %X NULL\n", id);
 	return NULL;
 }
 
 static inline TFRAME *_artManagerImageAcquireEx (TARTMANAGER *am, const int id, const double scale, const int opacity)
 {
 	TART_ITEM *ai = artManagerIdToItem(am, id);
-	//wprintf(L"imgManagerImageAcquireEx %X %p %i %i %i '%s'\n", id, ai, ai->state&ARTC_STATE_HASMETRICS, ai->state&ARTC_STATE_HASSURFACE, ai->state&ARTC_STATE_HASPATH, ai->path);
 	if (!ai) return NULL;
 		
 	if (!(ai->state&ARTC_STATE_HASMETRICS))
@@ -470,7 +455,6 @@ static inline TFRAME *_artManagerImageAcquireEx (TARTMANAGER *am, const int id, 
 				TART_SCALED *as = ai->scaled[i];
 				if (as){
 					if (as->width == w && as->height == h && as->opacity == opacity){
-						//printf("amImageAcquireScaled %X, %i %i %i, %.3f, %i %i %i\n", id, i, w, h, scale, as->width, as->height, opacity);
 						return as->surface;
 					}
 				}
@@ -486,7 +470,6 @@ static inline TFRAME *_artManagerImageAcquireEx (TARTMANAGER *am, const int id, 
 					as->surface = lNewFrame(am->hw, w, h, /*ai->surface->bpp*/LFRM_BPP_32A);
 					if (as->surface){
 						if (opacity == 100 || opacity <= 0){
-							//printf("ai->image.type %i %i\n", ai->image.type, IMG_PNG);
 							if (ai->image.hasAlpha)
 								copyAreaScaled(ai->surface, as->surface, 0, 0, ai->surface->width, ai->surface->height, 0, 0, w, h);
 							else
@@ -512,8 +495,6 @@ static inline TFRAME *_artManagerImageAcquireEx (TARTMANAGER *am, const int id, 
 		// we've failed...
 		ai->acquireRefCt--;
 	}
-
-	//printf("artManagerImageAcquire %X NULL\n", id);
 	return NULL;
 }
 
@@ -643,8 +624,6 @@ static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int
 	while(item){
 		TART_ITEM *ai = listGetStorage(item);
 		if (ai && ai->id == id){
-			//printf("%X: %i %i\n", id, ai->multiRefCt, ai->acquireRefCt);
-			
 			if (ai->state&ARTC_STATE_HASPATH){
 				if (!ai->multiRefCt && !ai->acquireRefCt)
 					hashRemove(am, ai->path);
@@ -666,7 +645,6 @@ static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int
 					return 1;
 				}
 			//}else if (ai->acquireRefCt && !force){
-			//	printf("am Delete item not released id:%i acquireRefCt:%i multiRefCt:%i\n", ai->id&0xFFF, ai->acquireRefCt, ai->multiRefCt);
 			}
 			
 			if (ai->multiRefCt && !ai->acquireRefCt)
@@ -681,8 +659,6 @@ static inline int artManagerItemDelete (TARTMANAGER *am, const int id, const int
 
 int artManagerImageDelete (TARTMANAGER *am, const int id)
 {
-	//printf("am delete %X\n", id);
-	
 	return artManagerItemDelete(am, id, 0);
 }
 
@@ -731,7 +707,6 @@ int artManagerImageSetPath (TARTMANAGER *am, const int id, const wchar_t *path)
 			
 		if (am->pathPrefix){
 			wchar_t buffer[MAX_PATH+1];
-			//_snwprintf(buffer, MAX_PATH, L"%s/%s/%s", SKINDROOT, am->pathPrefix, path);
 			__mingw_snwprintf(buffer, MAX_PATH, L"%ls/%ls", am->pathPrefix, path);
 			ai->path = my_wcsdup(buffer);
 		}else{
@@ -793,7 +768,6 @@ static inline int isImageAvailable (const wchar_t *path)
 {
 	if (extMatch(path, L".exe") || extMatch(path, L".dll")){
 		int ret = lImageGetMetrics(path, IMG_ICO, NULL, NULL, NULL) > 0;
-		//wprintf(L"isImageAvailable %i '%s'\n", ret, path);
 		return ret;
 	}
 	return 1;
@@ -852,8 +826,6 @@ int artManagerImageAddEx (TARTMANAGER *am, const wchar_t *path, const int width,
 	
 				if (width && height)
 					artManagerItemSetCustomMetrics(ai, width, height);
-				
-				//wprintf(L"added %i %i '%s' ### '%s'\n", ai->id>>16, ai->id&0xFFFF, ai->path, path);
 				abUnlock(ab);
 			}
 		}
@@ -921,7 +893,6 @@ int artManagerUnreleasedCount (TARTMANAGER *am)
 				while(item){
 					TART_ITEM *ai = listGetStorage(item);
 					if (ai->acquireRefCt){
-						//wprintf(L"artManagerUnreleased %i %i '%s'\n", ai->id&0xFFF, ai->acquireRefCt, ai->path);
 						ct++;
 					}
 					item = listGetNext(item);
@@ -1057,7 +1028,6 @@ int *artManagerGetIds (TARTMANAGER *am, int *count)
 						while(item && *count < total){
 							TART_ITEM *ai = listGetStorage(item);
 							if (ai && ai->id){
-								//printf("artManagerGetIds %i: %X, %i %i\n", i, ai->id, ai->bestfit.width, ai->resize.height);
 								int area = ai->bestfit.width * ai->bestfit.height;
 								if (area > 6400){	// don't give me ui/skin data
 									list[*count] = ai->id;

@@ -1078,7 +1078,6 @@ TFRAME *newStringList (THWD *hw, const TMETRICS *metrics, const int bpp, const i
 	return str;
 }
 
-
 TFRAME *newStringEx2 (THWD *hw, const TMETRICS *metrics, const int bpp, const int flags, const int font, const char *text, int x, int y, const int maxW, const int maxH, const int nsex_flags)
 {
 	if (!*text) return NULL;
