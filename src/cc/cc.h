@@ -190,11 +190,9 @@ typedef struct TLABEL TLABEL;
 typedef struct TCCBUTTON TCCBUTTON;
 typedef struct TCCBUTTON2 TCCBUTTON2;
 typedef struct TCCBUTTONS TCCBUTTONS;
-//typedef struct TCCBUTTONS2 TCCBUTTONS2;
 typedef struct TKEYPAD TKEYPAD;
 typedef struct TPANE TPANE;
 typedef struct TGRAPH TGRAPH;
-//typedef struct TLISTBOX TLISTBOX;
 
 
 typedef int64_t (*TCommonCrtlCbMsg_t) (const void *object, const int msg, const int64_t dataInt1, const int64_t dataInt2, void *dataPtr);
@@ -354,62 +352,9 @@ int ccHoverRenderSigGetState (TCC *cc);
 double ccHoverRenderSigGetFPS (TCC *cc);
 
 TCCOBJECT *ccGetObject (TCCOBJECT *obj, const int id);
-/*
-static inline int ccGetId (TVLCPLAYER *vp, const int lookup_idx)
-{
-	return vp->gui.ccIds[lookup_idx];
-}*/
 #define ccGetId(v,i) ((v)->gui.ccIds[(i)])
 
 int ccDumpRect (TCCOBJ *list, const int page, int x1, int y1, int x2, int y2);
-//void ccdumpobjs (TCCOBJ *list);
-
-
-
-
-/*
-
-int64_t Msg (const void *object, const int msg, const int64_t dataInt1, const int64_t dataInt2, void *dataPtr)
-{
-	return 0;
-}
-
-int Render (void *object, TFRAME *frame)
-{
-	return 0;
-}
-
-void Delete (void *object)
-{
-	return;
-}
-
-void Enable (void *object)
-{
-	return;
-}
-
-void Disable (void *object)
-{
-	return;
-}
-
-int Input (void *object, TTOUCHCOORD *pos, const int flags)
-{
-	return 0;
-}
-
-int SetPosition (void *object, const int x, const int y)
-{
-	return 0;
-}
-
-int SetMetrics (void *object, const int x, const int y, const int width, const int height)
-{
-	return 0;
-}
-
-*/
 
 #endif
 

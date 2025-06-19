@@ -156,8 +156,6 @@ static inline void _drawScrollBar (TSCROLLBAR *scrollbar, TFRAME *des, const int
 int _scrollbarHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 {
 	TSCROLLBAR *scrollbar = (TSCROLLBAR*)object;
-	//printf("_scrollbarHandleInput %i %i %i, %i %i %i\n", pos->x, pos->y, ccGetPositionY(scrollbar), flags, scrollbar->inputId, pos->id);
-
 	int ret = 0;
 	
 	if (scrollbar->enabled){

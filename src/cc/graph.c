@@ -215,9 +215,6 @@ static inline void graphSheetRender_Scope (TGRAPHSHEET *sheet, TFRAME *frame, TM
 			}
 		}
 	}
-	
-
-
 
 	x = metrics->x;
 
@@ -429,7 +426,6 @@ static inline TGRAPHSHEET *graphSheetFromId (TGRAPH *graph, const int id)
 		TGRAPHSHEET *sheet = graph->sheets[i];
 		
 		if (sheet->id == id){
-			//printf("graphSheetFromId idx:%i '%s' %i %i\n", i, sheet->name, sheet->id, id);
 			return sheet;
 		}
 	}

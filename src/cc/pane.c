@@ -528,8 +528,6 @@ static inline int paneValidateVert (TPANE *pane)
 
 				obj->image.metrics.x = col;
 				obj->image.metrics.y = y1;
-				//labelItemPositionSet(pane->base, obj->image.itemId, obj->image.metrics.x, obj->image.metrics.y);
-
 				if (!obj->text.overlapIcon)
 					col = x1 + obj->image.metrics.width;
 
@@ -537,8 +535,6 @@ static inline int paneValidateVert (TPANE *pane)
 
 			obj->text.metrics.x = col;
 			obj->text.metrics.y = y1;
-			//labelItemPositionSet(pane->base, obj->text.itemId, obj->text.metrics.x, obj->text.metrics.y);
-
 			if (!obj->text.metrics.height){
 				obj->text.metrics.width = pane->metrics.width - obj->text.metrics.x;
 				labelStringGetMetrics(pane->base, obj->text.itemId, NULL, NULL, &obj->text.metrics.width, &obj->text.metrics.height);
@@ -777,14 +773,8 @@ static inline int paneValidateHori (TPANE *pane)
 
 	// disable everything then only enable whats visible
 	labelItemsDisable(pane->base);
-
 	TLISTITEM *item = pane->items;
 
-	/*
-	int n = 0;
-	while(item && n-- > 0)
-		item = listGetNext(item);
-	*/
 
 	while(item){
 		TPANEOBJ *obj = listGetStorage(item);
@@ -1624,10 +1614,6 @@ static inline int64_t cclblDrag_cb (const void *object, const int msg, const int
 {
 	TLABEL *label = (TLABEL*)object;
 
-	//if (msg != CC_MSG_RENDER && msg != CC_MSG_SETPOSITION)
-	//	printf("cclbldrag_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", label->id, label->type, msg, (int)data1, (int)data2, dataPtr);
-
-
 	if (msg == CC_MSG_ENABLED){
 		TPANE *pane = ccGetUserData(label);
 		TPANEINPUT *input = &pane->input;
@@ -1720,9 +1706,6 @@ static inline int paneSelectSlide (TPANE *pane, const int x, const int y, TTOUCH
 
 	if (!pane->input.slideEnabled)
 		return -1;
-
-	//const int area = abs(input->travelled.x) * abs(input->travelled.y);
-	//printf("area %i %i %i\n", area, input->travelled.x, input->travelled.y);
 
 	int ret = -1;
 	if (input->slideMode == PANE_SLIDEMODE_PANE){
@@ -1836,7 +1819,6 @@ void paneDragSelectPress (TPANE *pane, TLABEL *lbl, const int itemId, const int 
 void paneDragSelectSlide (TPANE *pane, TLABEL *lbl, const int itemId, const int itemType, const int x, const int y)
 {
 	TPANEINPUT *input = &pane->input;
-	//printf("### paneDragSelectSlide %i %i %i,%i %i,%i\n", itemId, itemType, x, y, input->start.x, input->start.y);
 
 	if (input->drag.state == PANE_SLIDE_PRESS){
 		int dx = abs(input->travelled.x);
@@ -1879,8 +1861,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 	TLABEL *lbl = (TLABEL*)object;
 	TPANE *pane = ccGetUserData(lbl);
 
-	//if (msg != CC_MSG_RENDER && msg != LABEL_MSG_DELETE)
-	//	printf("ccpane_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", lbl->id, lbl->type, msg, (int)data1, (int)data2, dataPtr);
 
 	switch (msg){
 	case LABEL_MSG_BASE_SELECTED_PRESS:
@@ -1929,10 +1909,6 @@ static inline int64_t cclbl_cb (const void *object, const int msg, const int64_t
 	TLABEL *lbl = (TLABEL*)object;
 	TPANE *pane = ccGetUserData(lbl);
 	TPANEINPUT *input = &pane->input;
-
-	//if (msg != CC_MSG_RENDER)
-	//	printf("ccpane_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", lbl->id, lbl->type, msg, (int)data1, (int)data2, dataPtr);
-
 	int paneMsg;
 
 	switch(msg){

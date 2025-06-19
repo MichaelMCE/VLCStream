@@ -146,9 +146,7 @@ typedef struct {
 	
 	int artId;		// artwork image manager id (vp->am)
 	double scale;
-	
 	void *opaque;
-	
 	int cbId;
 }TTV_ITEM_DESC_IMAGE;
 
@@ -156,11 +154,7 @@ typedef struct {
 	int objType;		// a cc object, utf8 encoded text label, an image label or number
 	int enabled;
 
-	//struct {
-	//	TCCOBJECT *obj;		// a common control object
-	//}cc;
 	struct {
-		//char *text;
 		int colour;
 		int font;
 		int flags;
@@ -169,21 +163,15 @@ typedef struct {
 	}label;
 	int32_t varInt32;
 	float varFloat;
-	//TTV_ITEM_DESC_IMAGE varImage;
 
 	struct {
 		int drawExpander;
 		int expanderState;
-		//TFRAME *imgOpen;
-		//TFRAME *imgClose;
 	}expander;
 	
 	struct {
 		int drawCheckbox;
 		int checkState;
-		//TFRAME *imgBase;
-		//TFRAME *imgChecked;
-		//TFRAME *imgNotChecked;
 	}checkbox;
 
 	TTV_ITEM_DESC_IMAGE *image;

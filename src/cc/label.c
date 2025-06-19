@@ -715,7 +715,6 @@ static inline void labelArtcSetImage (TLABEL *label, TLABELARTCA *image, const i
 		int h = MIN(height, ccGetHeight(label) - image->pos.y);
 		lResizeFrame(image->drawable, w, h, 1);
 	}
-
 	//imageManagerImageRelease(image->im, image->imgId);
 }
 
@@ -759,7 +758,6 @@ static inline void labelImageSetScale (TLABELIMAGE *image, const double scale)
 
 		memset(image->working->pixels, 0, image->working->frameSize);
 		labelImageRenderScaled(image->img, image->working, 0, 0, scale);
-		//lSaveImage(image->working, L"setscale.png", IMG_PNG, 0, 0);
 
 	}else{
 		image->scaleBy = 1.0;
@@ -776,8 +774,6 @@ static inline void labelImageSetScale (TLABELIMAGE *image, const double scale)
 
 static inline void labelArtcSetScale (TLABELARTCA *image, const double scale)
 {
-
-	//printf("labelArtcSetScale %i %p %i\n", image->drawableDrawn, image->drawable, image->imgId);
 	TFRAME *img;
 	if (image->scaleAcquired >= 1.0 || image->scaleAcquired <= 0.0)
 		img = artManagerImageAcquire(image->im, image->imgId);
@@ -796,7 +792,7 @@ static inline void labelArtcSetScale (TLABELARTCA *image, const double scale)
 
 		memset(image->drawable->pixels, 0, image->drawable->frameSize);
 		labelImageRenderScaled(img, image->drawable, 0, 0, scale);
-		//lSaveImage(image->working, L"setscale.png", IMG_PNG, 0, 0);
+
 	}else{
 		image->scaleBy = 1.0;
 		image->scaleImage = 0;
@@ -832,8 +828,6 @@ static inline void labelArtcSetPosition (TLABEL *label, TLABELARTCA *image, cons
 	image->pos.x = xLocal;
 	image->pos.y = yLocal;
 
-	//labelArtcSetImage(label, image, image->imgId, 0);
-
 	if (image->scaleImage)
 		labelArtcSetScale(image, image->scaleBy);
 }
@@ -860,9 +854,7 @@ static inline int labelObjTextCreateDefault (TLABEL *label, TLABELTEXT *text, co
 {
 	text->hw = label->cc->vp->ml->hw;
 	strncpy(text->string, str, MAX_PATH_UTF8);
-	//text->string[1][0] = 0;
 	text->charRenderOffset = 0;
-	//text->charRenderOffset[1] = 0;
 	
 	if ((flags&PF_CLIPWRAP) | (flags&PF_WORDWRAP))
 		text->wrapText = (flags&PF_CLIPWRAP)|(flags&PF_WORDWRAP);
@@ -2457,7 +2449,6 @@ int labelArtcGetMetrics (TLABEL *label, const int id, int *width, int *height)
 	if (ccLock(label)){
 		TLABELARTCA *image = labelGetItem(label, id);
 		if (image){
-			//int artId = labelArtcGetImageSrc(label, image);
 			ret = artManagerImageGetMetrics(image->im, image->imgId, width, height);
 			if (image->scaleAcquired > 0.0){
 				if (width) *width *= image->scaleAcquired;
@@ -2476,7 +2467,6 @@ int labelArtcGetWidth (TLABEL *label, const int id)
 	if (ccLock(label)){
 		TLABELARTCA *image = labelGetItem(label, id);
 		if (image){
-			//int artId = labelArtcGetImageSrc(label, image);
 			artManagerImageGetMetrics(image->im, image->imgId, &width, NULL);
 			if (image->scaleAcquired > 0.0)
 				width *= image->scaleAcquired;
@@ -2493,7 +2483,6 @@ int labelArtcGetHeight (TLABEL *label, const int id)
 	if (ccLock(label)){
 		TLABELARTCA *image = labelGetItem(label, id);
 		if (image){
-			//int artId = labelArtcGetImageSrc(label, image);
 			artManagerImageGetMetrics(image->im, image->imgId, NULL, &height);
 			if (image->scaleAcquired > 0.0)
 				height *= image->scaleAcquired;
@@ -2684,7 +2673,6 @@ static inline int labelHandleInput (void *object, TTOUCHCOORD *pos, const int fl
 				my_memcpy(&dpos, pos, sizeof(TTOUCHCOORD));
 				dpos.x = abs(x1 - pos->x);
 				dpos.y = abs(y1 - pos->y);
-				//printf("labelhandleinput pen %i %i\n", dpos.pen, flags);
 #if 0
 				ccSendMessage(label, LABEL_MSG_BASE_SELECTED, ((x&0xFFFF)<<16)|(y&0xFFFF), flags, &dpos);
 				my_memcpy(&dpos, pos, sizeof(TTOUCHCOORD));

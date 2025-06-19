@@ -222,9 +222,6 @@ static inline int64_t ccbtn_cb (const void *object, const int msg, const int64_t
 {
 	if (msg == CC_MSG_RENDER || msg == CC_MSG_INPUT) return 1;
 
-	//TCCOBJECT *obj = (TCCOBJECT*)object;
-	//printf("ccbtn_cb, id:%i, objType:%i, msg:%i, data1:%i, data2:%i, ptr:%p\n", obj->id, obj->type, msg, (int)data1, (int)data2, dataPtr);
-
 	TCCBUTTON *button = (TCCBUTTON*)object;
 	if (msg == BUTTON_MSG_SELECTED_PRESS){
 		TPANEL *panel = (TPANEL*)ccGetUserData(button);
@@ -761,7 +758,6 @@ int panelNew (TCCOBJECT *object, void *unused, const int pageOwner, const int ty
 	swipe->adjust = 0.0;
 	swipe->decayRate = 0.010;
 	swipe->decayFactor = 10.000;
-
 
 	return 1;
 }

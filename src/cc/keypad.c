@@ -189,16 +189,16 @@ int keypadCfgBuildPad (TKEYPAD *kp, TVKSETTINGS *cfg, const int padNo)
 	for (int i = 0; i < padKeys->total; i++){
 		TKPCFG_KEYPOS *key = padKeys->list[i];
 		if (!key){
-			printf("key %i missing in pad %i\n", i, padNo);
+			printf("keypadCfgBuildPad: key %i missing in pad %i\n", i, padNo);
 			continue;
 		}
 		
 		TKPCFG_KEYCODE *uc = keypadCfgGetKey(cfg, key->code);
 		if (!uc){
-			printf("uc missing for %i %i\n", i, key->code);
+			printf("keypadCfgBuildPad: uc missing for %i %i\n", i, key->code);
 			continue;
 		}
-		_snwprintf(image, MAX_PATH, L"vkeyboard/%ls", uc->image);
+		__mingw_snwprintf(image, MAX_PATH, L"vkeyboard/%ls", uc->image);
 
 		int id = keypadAddKey(kp, pad->id, uc->type, &key->pos, uc->type != KP_KEYS_ENTER, uc->code, image);
 		if (id) tKeys++;
@@ -1389,8 +1389,10 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 	if (!entries){
 		cfg_configWrite(config, configfile);
 		entries = cfg_configRead(config, configfile);
-		if (!entries)
-			wprintf(L"problem reading keypad config '%ls'\n", configfile);
+		if (!entries){
+			// problem reading keypad config 
+			// continue anyway
+		}
 	}
 
 	vkbSettingsGet(config, "keypad.position.x", &kp->metrics.x);
@@ -1417,7 +1419,7 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 	}
 	
 	if (cfg->keyList.total < 10){
-		wprintf(L"keypad config '%ls' is invalid\n", configfile);
+		// invalid config file
 		return 0;
 	}
 
@@ -1439,7 +1441,7 @@ static inline int keypadBuild (TKEYPAD *kp, TVKSETTINGS *cfg, const wchar_t *con
 		cfg_configStrListFree(strList);
 	}
 	if (cfg->padList.total < 1){
-		wprintf(L"keypad config '%ls' is invalid\n", configfile);
+		// invalid config file
 		return 0;
 	}
 

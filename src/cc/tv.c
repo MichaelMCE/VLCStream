@@ -475,7 +475,7 @@ static inline TTV_RENDER_ITEM *tvRenderLabel (TTV *tv, TFRAME *frame, TTV_ITEM *
 	int font = desc->label.font;
 	int flags = desc->label.flags;
 	char *str = item->name;
-	if (!str) return NULL;//str = "----";
+	if (!str) return NULL;
 
 	int w = (rt->bx2 - rt->sx)+1;
 
@@ -562,9 +562,6 @@ static inline void drawExpanderClosed (TFRAME *frame, const int x, const int y, 
 
 static inline TTV_RENDER_ITEM * tvRenderExpander (TTV *tv, TFRAME *frame, TTV_ITEM *item, TLPRINTR *rt, TTV_RENDER_ITEM *post, const int colour)
 {
-	//const int expsize = 9;
-	//int x = post->pos.x1 - 12;
-	
 	const int expsize = EXPANDER_SIZE+1;
 	int x = post->pos.x1 - expsize - 3;
 	int y = rt->sy + EXPANDER_OFFSET_Y; //post->pos.y1;
@@ -621,9 +618,6 @@ static inline int isChecked (TTV_ITEM *item)
 
 static inline TTV_RENDER_ITEM * tvDrawCheckbox (TTV *tv, TFRAME *frame, TTV_ITEM *item, TLPRINTR *rt, TTV_RENDER_ITEM *post, const int colour)
 {
-	//const int cbsize = 10;
-	//int x = post->pos.x1 - 15;
-	
 	const int cbsize = CHECKBOX_SIZE;
 	int x = post->pos.x1 - cbsize - 5;
 	int y = rt->sy + 4 + CHECKBOX_OFFSET_Y; //post->pos.y1;
@@ -814,7 +808,6 @@ static inline int tvInputGetTouchedPostId (TTV *tv, TTOUCHCOORD *pos, const int 
 	
 	for (int i = 0; i < tv->tPostItems; i++, post++){
 		if (isOverlap(pos, &post->pos)){
-			//printf("post id %i %X\n", post->id, post->id);
 			return post->id;
 		}
 	}
@@ -827,7 +820,6 @@ static inline TTV_RENDER_ITEM *tvInputGetTouchedPost (TTV *tv, TTOUCHCOORD *pos,
 	
 	for (int i = 0; i < tv->tPostItems; i++, post++){
 		if (isOverlap(pos, &post->pos)){
-			//printf("post id %i %X\n", post->id, post->id);
 			return post;
 		}
 	}
@@ -1428,8 +1420,6 @@ static inline int _tvHandleInput (TTV *tv, TTOUCHCOORD *pos, const int flags)
 			
 			if (tv->dragEnabled){
 				tv->drag.post = *post;
-				//my_memcpy(&tv->drag.post, post, sizeof(TTV_RENDER_ITEM));
-				
 				tv->drag.ox = pos->x - tv->drag.post.pos.x1;
 				tv->drag.oy = pos->y - tv->drag.post.pos.y1;
 				tv->drag.sx = tv->drag.post.pos.x1;
@@ -1522,8 +1512,6 @@ int tvHandleInput (void *object, TTOUCHCOORD *pos, const int flags)
 					}
 				}
 			}else if (!flags){						// mouse down
-				//printf("mouse down %X %i\n", tv->drag.post.id, tv->drag.state);
-			
 				tv->drag.dest.id = 0;
 				tv->drag.state = 1;
 				tv->drag.state = ret = _tvHandleInput(tv, pos, flags);
