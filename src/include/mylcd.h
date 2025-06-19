@@ -1,10 +1,10 @@
 
-// libmylcd - http://mylcd.sourceforge.net/
-// An LCD framebuffer and text rendering API
-// Michael McElligott
+// https://github.com/MichaelMCE/
+
+
 // okio@users.sourceforge.net
 
-//  Copyright (c) 2005-2011  Michael McElligott
+//  Copyright (c) 2005-2025  
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
@@ -29,7 +29,7 @@
 #define libmylcdVERSIONmj	1.0
 #define libmylcdVERSIONmi	0
 #define libmylcdVERSION		"1.0.0"
-#define mySELF				"Michael McElligott"
+#define mySELF				""
 
 // draw pixel styles
 #define LSP_CLEAR			0
