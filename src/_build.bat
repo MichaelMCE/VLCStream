@@ -3,7 +3,7 @@
 rem call gccpath
 
 call make xcpy SDK=0
-call make -j12 SDK=3222 vlcstream.exe
+call make -j12 SDK=3222 APP_TYPE=windows vlcstream.exe 
 
 del _vlcstream.exe
 rename vlcstream.exe _vlcstream.exe

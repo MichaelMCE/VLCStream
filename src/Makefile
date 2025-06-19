@@ -1,25 +1,50 @@
 
 
+# Temporary object (.o) file location. Use ./ for source directory
+# Here, M: is a RamDrive.
+TEMPDIR ?= M:
+
+# Create windows or console program
+APP_TYPE = windows
+$(info  APP_TYPE: ${APP_TYPE})
+
+# Select location of VLC SDK directory
+SDK3220 = sdk32_2.0
+SDK3222 = sdk32_2.2
+SDK6430 = sdk64_3.0.0
+SDK6419 = sdk64_3.0.19
+
+ifeq ($(SDK),0)
+# be silent
+
+else ifeq ($(SDK),3220)
+VLCSDK = sdk/$(SDK3220)
+$(info VLC SDK: x32 v2.0.0, : ${VLCSDK}/)
+
+else ifeq ($(SDK),3222)
+VLCSDK = sdk/$(SDK3222)
+$(info VLC SDK: x32 v2.2.0 : ${VLCSDK}/)
+
+else ifeq ($(SDK),6430)
+VLCSDK = sdk/$(SDK6430)
+$(info VLC SDK: x64 v3.0.0 : ${VLCSDK}/)
+
+else ifeq ($(SDK),6419)
+VLCSDK = sdk/$(SDK6419)
+$(info VLC SDK: x64 v3.0.19 : ${VLCSDK}/)
+
+else 
+# set default
+VLCSDK = sdk/$(SDK3222)
+$(info VLC SDK: x32 v2.2.0 : ${VLCSDK}/)
+endif
 
 
-APP_TYPE = -mwindows
-#APP_TYPE = -mconsole
 
-CC=gcc
-GPP=g++
-X64ARCH=x64
-X32ARCH=x32
-VLCFLAGS= -DMODULE_STRING="\"VLCStream\""
-PROGRAMS=vlcstream.exe vlcsStart.exe vlcsAddto.exe vlcsCtrl.exe
-TEMPDIR=M:
-
-
-
+# Select 32/64bit architecture
 ############################################################################
-############################################################################
-
 ifeq ($(WIN64),1)
-SYSARCH=$(X64ARCH)
+SYSARCH=x64
 RESTARGET= 
 BUILDM32M64 =-m64 -DWIN64=1 -D__WIN64__=1 -DHAVE_STRUCT_TIMESPEC -D_CRT_NON_CONFORMING_SWPRINTFS -D__USE_MINGW_ANSI_STDIO
 CONTRIBS =../../contribs/$(SYSARCH)/
@@ -27,7 +52,7 @@ CFLAGSARCH =-march=x86-64 -mtune=generic -m64
 
 else
 
-SYSARCH=$(X32ARCH)
+SYSARCH=x32
 RESTARGET= --target=pe-i386
 BUILDM32M64 =-m32 -DWIN32=1 -D__WIN32__=1 
 CONTRIBS =../../contribs/$(SYSARCH)/
@@ -42,48 +67,26 @@ CFLAGSARCH =
 
 endif
 
-############################################################################
-############################################################################
-
-
-
-SDK3220 = sdk32_2.0
-SDK3222 = sdk32_2.2
-SDK6430 = sdk64_3.0.0
-SDK6419 = sdk64_3.0.19
-
-
-ifeq ($(SDK),0)
-# be silent
-
-else ifeq ($(SDK),3220)
-VLCSDK = sdk/$(SDK3220)
-$(info VLC SDK: x32 v2.0.0)
-
-else ifeq ($(SDK),3222)
-VLCSDK = sdk/$(SDK3222)
-$(info VLC SDK: x32 v2.2.0)
-
-else ifeq ($(SDK),6430)
-VLCSDK = sdk/$(SDK6430)
-$(info VLC SDK: x64 v3.0.0)
-
-else ifeq ($(SDK),6419)
-VLCSDK = sdk/$(SDK6419)
-$(info VLC SDK: x64 v3.0.19)
-
-else 
-# set default
-VLCSDK = sdk/$(SDK3222)
-$(info VLC SDK: x32 v2.2.0)
-
+ifeq ($(SYSARCH),x32)
+$(info Arch: ${SYSARCH}, i686)
+else ifeq ($(SYSARCH),x64)
+$(info Arch: ${SYSARCH}, x86-64)
 endif
+############################################################################
 
+$(info  Temporary directory: ${TEMPDIR})
+$(info   )
+
+
+CC=gcc
+GPP=g++
+VLCFLAGS= -DMODULE_STRING="\"VLCStream\""
+PROGRAMS=vlcstream.exe vlcsStart.exe vlcsAddto.exe vlcsCtrl.exe
 
 PFLAGS = -Wno-bool-compare
-OPFLAGS = 
+#OPFLAGS = 
 #OPFLAGS = -mfpmath=387 -DHAVE_MMX -DUSE_MMX -mmmx
-#OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -mmmx -DUSE_SSE -DHAVE_SSE -msse 
+OPFLAGS = -mfpmath=sse,387 -DHAVE_MMX -DUSE_MMX -DUSE_MMX2 -DHAVE_MMX2 -mmmx -DUSE_SSE -DHAVE_SSE -msse -DUSE_SSE2 -DHAVE_SSE2
 
 CFLAGS = -fno-strict-aliasing $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -I$(VLCSDK)/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -D__MSVCRT_VERSION__=0x0701 -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -D_WIN32_WINDOWS=0x0700 -D_WIN32_IE=0x0603 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -O3 -std=gnu18
 CPPFLAGS = $(OPFLAGS) $(BUILDM32M64) -Iinclude/ -L"include"  -I../../include/ -I$(VLCSDK)/include/ -I$(CONTRIBS)include/ $(PFLAGS) $(VLCFLAGS) $(CFLAGSARCH) -Wall -Werror -DPSAPI_VERSION=1 -D_WIN32 -mwin32 -DINITGUID -DUSE___UUIDOF=0 -O3 -std=c++17
@@ -146,7 +149,7 @@ xcpy:
 vlcstream.exe: $(BASEOBJS2)
 	$(info   )
 	windres --output-format=coff $(RESTARGET) -i vlcstream.rc -o $(TEMPDIR)/res.o
-	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) $(APP_TYPE)
+	$(CC) $(LIBS) -o $@ $^ $(TEMPDIR)/res.o $(LIBDEPEND) -m${APP_TYPE}
 	strip.exe $@
 
 
@@ -161,16 +164,16 @@ ifeq (,$(wildcard $@))
 	del /F $@ 
 endif
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsCtrl.rc -o $(TEMPDIR)/resc.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resc.o -s -lgdi32 -m${APP_TYPE} $(BUILDM32M64)
 
 vlcsAddto.exe: $(TEMPDIR)/extra/vlcsAddto.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsAddto.rc -o $(TEMPDIR)/resa.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/resa.o -s -lgdi32 -m${APP_TYPE} $(BUILDM32M64)
 	strip.exe $@
 
 vlcsStart.exe: $(TEMPDIR)/extra/vlcsStart.o
 	windres --output-format=coff $(RESTARGET) -i $(TEMPDIR)/extra/vlcsStart.rc -o $(TEMPDIR)/ress.o
-	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 $(APP_TYPE) $(BUILDM32M64)
+	$(CC) -Os -o $@ $^ $(TEMPDIR)/ress.o -s -lgdi32 -m${APP_TYPE} $(BUILDM32M64)
 	strip.exe $@
 
 
