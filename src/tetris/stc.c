@@ -46,7 +46,7 @@ static void setMatrixCells (char *matrix, int width, int height, int value)
 }
 
 /* Initialize tetromino cells for every type of tetromino */
-static void setTetromino(int indexTetromino, StcTetromino *tetromino)
+static void setTetromino (int indexTetromino, StcTetromino *tetromino)
 {
 
     /* Initialize tetromino cells to empty cells */
@@ -325,8 +325,8 @@ static void onFilledRows(StcGame *game, int filledRows)
 {
     /* Update total number of filled rows */
     game->stats.lines += filledRows;
-    
-	platformOnFilledRows(game, filledRows);    
+
+	platformOnFilledRows(game, filledRows);
 
     /* Increase score accordingly to the number of filled rows */
     switch (filledRows){
@@ -351,7 +351,7 @@ static void onFilledRows(StcGame *game, int filledRows)
         game->stats.level++;
 
         /* Increase speed for falling tetrominoes */
-        game->data->fallingDelay = (int)(DELAY_FACTOR_FOR_LEVEL_UP * game->data->fallingDelay 
+        game->data->fallingDelay = (int)(DELAY_FACTOR_FOR_LEVEL_UP * game->data->fallingDelay
                                          / DELAY_DIVISOR_FOR_LEVEL_UP);
     }
 }
@@ -388,10 +388,10 @@ static void moveTetromino(StcGame *game, int x, int y)
 
                 /* Check if the landing tetromino has created full rows */
                 numFilledRows = 0;
-                
+
                 for (j = 1; j < BOARD_TILEMAP_HEIGHT; ++j){
                     hasFullRow = 1;
-                    
+
                     for (i = 0; i < BOARD_TILEMAP_WIDTH; ++i){
                         if (game->map[i][j] == EMPTY_CELL){
                             hasFullRow = 0;
@@ -402,7 +402,7 @@ static void moveTetromino(StcGame *game, int x, int y)
                      * we do that by just moving all the above rows one row below */
                     if (hasFullRow){
 						platformOnFilledRow(game, j+1);
-						
+
                         for (x = 0; x < BOARD_TILEMAP_WIDTH; ++x){
                             for (y = j; y > 0; --y){
                                 game->map[x][y] = game->map[x][y - 1];
@@ -456,11 +456,11 @@ static void dropTetromino(StcGame *game)
 
     /* Update score */
     if (game->showShadow){
-        game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1) 
+        game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1)
                                     / SCORE_DROP_WITH_SHADOW_DIVISOR);
     }
     else{
-        game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1) 
+        game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1)
                                     / SCORE_DROP_DIVISOR);
     }
 #else
@@ -471,7 +471,7 @@ static void dropTetromino(StcGame *game)
     moveTetromino(game, 0, 1); /* Force lock */
 
     /* Update score */
-    game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1) 
+    game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1)
                                 / SCORE_DROP_DIVISOR);
 #endif
 }
@@ -573,7 +573,7 @@ void gameUpdate (StcGame *game, const int x, const int y, const int blockWidth, 
                 }
                 if ((game->data->events & EVENT_MOVE_DOWN) != 0){
                     /* Update score if the user accelerates downfall */
-                    game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1) 
+                    game->stats.score += (long)(SCORE_2_FILLED_ROW * (game->stats.level + 1)
                                                 / SCORE_MOVE_DOWN_DIVISOR);
 
                     moveTetromino(game, 0, 1);
@@ -620,7 +620,7 @@ void gameOnKeyDown (StcGame *game, int command)
         game->data->events |= EVENT_ROTATE_CW;
         break;
     case EVENT_ROTATE_CCW:
-        game->data->events |= EVENT_ROTATE_CCW;    
+        game->data->events |= EVENT_ROTATE_CCW;
 #ifdef STC_AUTO_ROTATION
         game->data->delayRotation = ROTATION_AUTOREPEAT_DELAY;
 #endif
