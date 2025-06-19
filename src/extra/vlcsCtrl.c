@@ -189,7 +189,6 @@ int main (const int argc, const char *argv[])
 	HDESK desk = OpenDesktopA("Sysinternals Desktop 1", 0, TRUE, DESKTOP_WRITEOBJECTS);
 	//HDESK desk = OpenDesktopA("default", 0, TRUE, DESKTOP_WRITEOBJECTS);
 	if (desk){
-		//printf("SetThreadDesktop %p, %i\n", desk, SetThreadDesktop(desk));
 		SetThreadDesktop(desk);
 		Sleep(1);
 	}
@@ -218,8 +217,6 @@ int main (const int argc, const char *argv[])
 				
 				char *rcmd = strtok(str, " ,");
 				while(rcmd && !found){
-					//printf("%i #%s#\n", i, rcmd);
-        	
 					if (!stricmp(cmd, rcmd)){
 						if (argc == 2){
 							initCmd(cmds[i].ipcType, cmds[i].op, NULL);
@@ -233,8 +230,7 @@ int main (const int argc, const char *argv[])
 							}
 							initCmd(cmds[i].ipcType, cmds[i].op, var);
 						}
-        	
-						//printf("command sent: %s\n", str);
+
 						free(str);
 						found = 1;
 					}
@@ -242,8 +238,6 @@ int main (const int argc, const char *argv[])
 				}
 				free(str);
 			}
-			//if (!found)
-			//	printf("unknown command '%s'\n", cmd);
 		}
 	}
 
