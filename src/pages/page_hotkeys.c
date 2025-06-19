@@ -481,4 +481,3 @@ int page_ghkCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_t
 	
 	return 1;
 }
-

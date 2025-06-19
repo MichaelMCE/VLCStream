@@ -1532,7 +1532,6 @@ static inline int64_t filepane_label_cb (const void *object, const int msg, cons
 	return 1;
 }
 
-
 static inline int page_filePaneStartup (TFILEPANE *filepane, TVLCPLAYER *vp, const int width, const int height)
 {
 	filepane->btns = buttonsCreate(vp->cc, PAGE_FILE_PANE, FILEPANE_TOTAL, ccbtn_cb);
@@ -1738,10 +1737,11 @@ int page_filePaneCallback (void *pageStruct, const int msg, int64_t dataInt1, in
 }
 
 #if 0
-const float PulseScale = 8;		// ratio of "tail" to "acceleration"
 
-float PulseNormalize = 1;
+const float PulseScale = 8;		// ratio of "tail" to "acceleration"
+float PulseNormalize = 1.0f;
 void ComputePulseScale();
+
 
 // viscous fluid with a pulse for part and decay for the rest
 static inline float Pulse_ (float x)
@@ -1750,16 +1750,16 @@ static inline float Pulse_ (float x)
 
 	// test
 	x = x * PulseScale;
-	if (x < 1) {
-		val = x - (1 - exp(-x));
+	if (x < 1.0f) {
+		val = x - (1.0f - exp(-x));
 	} else {
 		// the previous animation ended here:
 		float start = exp(-1);
 
 		// simple viscous drag
 		x -= 1;
-		float expx = 1 - exp(-x);
-		val = start + (expx * (1.0 - start));
+		float expx = 1.0f - exp(-x);
+		val = start + (expx * (1.0f - start));
 	}
 
 	return val * PulseNormalize;
@@ -1767,7 +1767,7 @@ static inline float Pulse_ (float x)
 
 void ComputePulseScale ()
 {
-	PulseNormalize = 1.f / Pulse_(1);
+	PulseNormalize = 1.0f / Pulse_(1.0f);
 }
 
 // viscous fluid with a pulse for part and decay for the rest

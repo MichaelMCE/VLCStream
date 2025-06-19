@@ -120,7 +120,6 @@ static inline double calcDistM (double lat1, double lon1, double lat2, double lo
 {
 	const double R = 6378137.0;		// Earths radius
 	const double pi80 = M_PI / 180.0;
-
 	
 	lat1 *= pi80;
 	lon1 *= pi80;
@@ -1142,7 +1141,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 
 	if (ccRender(tcx->info.pane, frame))
 		return 1;
-	
 
 	int enablePointInspect = tcx->route.render.cursorMode == 2;
 	int enableRouteInspect = tcx->route.render.cursorMode == 1;
@@ -1178,7 +1176,6 @@ static inline int page_tcxRender (TTCX *tcx, TFRAME *frame)
 			routeDrawRouteMark(frame, rc, graph->hoveredPt.x, 220<<24|COL_WHITE, 200<<24 | 0x111111);
 		routeDrawStartMarker(frame, rc);
 		routeDrawEndMarker(frame, rc);
-
 	}
 
 	if (enableMapInspect){
@@ -1282,7 +1279,6 @@ static inline int page_tcxRenderBegin (TTCX *tcx, TVLCPLAYER *vp, int64_t time0,
 	lSetRenderEffect(frame->hw, LTR_OUTLINE2);
 
 	tcx->drawCursor = cursorGetState(tcx->graph->cc->cursor);
-	
 	ccHoverRenderSigEnable(vp->cc, 35.0);
 	
 	tcx->background.original = imageManagerImageAcquire(vp->im, vp->gui.image[IMGC_BGIMAGE]);	// don't delete original back
@@ -1590,15 +1586,12 @@ static inline int64_t info_pane_cb (const void *object, const int msg, const int
 	}else if (msg == CC_MSG_DISABLED){
 		paneRemoveAll(tcx->info.pane);
 	}
-	
-	
+
 	return 1;
 }
 
 static inline int64_t cc_graph_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
-	//printf("ccGraph_cb in %p, %i %I64d %I64d %p\n", object, msg, data1, data2, dataPtr);
-	
 	if (msg == CC_MSG_HOVER){
 		TTCX *tcx = ccGetUserData((void*)object);
 		tcx->drawCursorTimeout = TCX_CURSOR_TIMEOUT;
@@ -1733,7 +1726,6 @@ static inline int64_t cc_label_cb (const void *object, const int msg, const int6
 			tcx->route.render.sheets = graphRenderGetSheetCount(tcx->graph);
 		}
 	}
-
 	return 1;
 }
 
@@ -1896,9 +1888,7 @@ static inline int page_tcxStartup (TTCX *tcx, TVLCPLAYER *vp, const int width, c
 	tcx->sheets.power.multiplier = 1.0;
 	tcx->sheets.power.colour = 220<<24|COL_BLUE;
 
-
 	//const int CUBESIZE = 32;
-	
 	TLABEL *label = ccCreateEx(vp->cc, PAGE_TCX, CC_LABEL, cc_label_cb, NULL, 0, 0, tcx);
 	labelBaseColourSet(label, tcx->sheets.altitude.colour);
 	ccSetMetrics(label, 0, 0, CUBESIZE, CUBESIZE);
@@ -1933,7 +1923,6 @@ static inline int page_tcxStartup (TTCX *tcx, TVLCPLAYER *vp, const int width, c
 	label->renderflags = LABEL_RENDER_BASE;
 	tcx->sheets.power.ui.view.label = label;
 	ccSetUserDataInt(label, tcx->sheets.power.id);
-
 	
 	TCCBUTTON *btn = ccCreateEx(vp->cc, PAGE_TCX, CC_BUTTON, cc_btn_cb, NULL, 0, 0, tcx);
 	tcx->ui.route = btn;

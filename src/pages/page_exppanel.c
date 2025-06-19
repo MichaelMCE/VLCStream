@@ -215,8 +215,7 @@ int64_t expan_panel_cb (const void *object, const int msg, const int64_t data1, 
 		}else if (panelImgAttributeCheck(panel, data1, PANEL_ITEM_LINK) > 0){
 			TFILEPANE *filepane = pageGetPtr(panel->cc->vp, PAGE_FILE_PANE);
 			intptr_t idx = (intptr_t)dataPtr;
-			//printf("PANEL_ITEM_LINK idx: %i\n", idx);
-			
+
 			if (idx&16384){
 				idx &= ~16384;
 				TSTRSHORTCUT *sc = fbShortcutsGet(&expan->userLinks, idx);
@@ -399,7 +398,6 @@ static inline int expanPanButtonPress (TEXPPANEL *expan, TCCBUTTON *btn, const i
 			playlistAddPlc(getPrimaryPlaylist(vp), plc);
 
 			int count = filepaneBuildPlaylistDir(filepane, plc, expan->selectedFile, FILEMASKS_MEDIA, 1);
-			
 			dbprintf(vp, " %i items added to %s", count, name);
 			my_free(name);
 
@@ -845,7 +843,6 @@ static inline int page_expPanInput (TEXPPANEL *expan, TVLCPLAYER *vp, const int 
 		
 	return 1;
 }
-
 
 static inline int buildExpanderBar (TPANEL *panel, const int fw, wchar_t *srcImg)
 {

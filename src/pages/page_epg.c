@@ -152,11 +152,8 @@ static inline TGUIDE_EVENT *epgGuideGetEvent (TTREE *tree, const int branchId, c
 		while(item){
 			if (ct++ == eventIdx){
 				TTREEENTRY *entry = treeListGetSubEntry(item);
-				//printf("@@ '%s'\n", entry->name);
-				
 				if (entry){
 					TGUIDE_EVENT *guide = treeEntryGetStorage(entry);
-					//printf(":: '%s'\n", guide->name);
 					return guide;
 				}else{
 					return NULL;
@@ -562,7 +559,6 @@ static int dvbCreatePlaylistAuto (TVLCPLAYER *vp, PLAYLISTCACHE *plc, const char
 				__mingw_snprintf(buffer, MAX_PATH_UTF8, "%s <%s%cprogram=%i>", path, poptions, OPTSEPARATOR, epg[i]->programme);
 			else
 				__mingw_snprintf(buffer, MAX_PATH_UTF8, "%s <program=%i>", path, epg[i]->programme);
-			//printf("'%s'\n",buffer);
 
 			pos = playlistAdd(plc, buffer);
 			if (pos >= 0){

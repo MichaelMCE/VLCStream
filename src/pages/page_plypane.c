@@ -556,11 +556,8 @@ static inline int64_t plypane_pane_cb (const void *object, const int msg, const 
 		}else{
 			track--;
 			// is a track - selected/play it
-			//printf("play track %i, playlist %X\n", track, pid);
 			PLAYLISTCACHE *plc = playlistManagerGetPlaylistByUID(vp->plm, pid);
 			if (!plc) return 1;
-			
-			//printf("plypane_cb: data1 %i %i\n", (int)data1, (msg == PANE_MSG_IMAGE_SELECTED));
 			int itemId = data1 + (msg == PANE_MSG_IMAGE_SELECTED);
 				
 			if (getPlayState(vp) && isPlayingItem(vp, plc, track)){

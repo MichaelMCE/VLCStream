@@ -511,8 +511,6 @@ static inline void plytvDeleteChecked (TPLYTV *plytv, TTV *tv)
 // TIMER_PLYTV_REFRESH
 void plytvRefresh (TVLCPLAYER *vp)
 {
-	//printf("plytvRefresh\n");
-	
 	if (hasPageBeenAccessed(vp, PAGE_PLY_TV)){
 		TPLYTV *plytv = pageGetPtr(vp, PAGE_PLY_TV);
 		if (plytv->buildNo)	{

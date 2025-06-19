@@ -113,10 +113,8 @@ const char *alarmCfgGetPeriodStr (TALARM *alarm)
 {
 	TALARMTIMER *alm = alarmIdToAlm(alarm, alarm->active.aid);
 	if (alm){
-		//printf("alarmCfgGetPeriodStr: %i '%s'\n", alarm->active.aid, alarmCfgModeToPeriod(alm->trigger.period));
 		return alarmCfgModeToPeriod(alm->trigger.period);
 	}
-		
 	return alarmCfgModeToPeriod(ALARM_FIRE_DEFAULT);
 }
 
@@ -957,7 +955,6 @@ static inline int alarmTimeGetDigitIdxChar (TALARM *alarm, const int idx)
 	return labelItemDataGet(lblstr->label, lblstr->strId);
 }
 
-
 static inline int64_t alarmLblstr_cb (const void *object, const int msg, const int64_t data1, const int64_t data2, void *dataPtr)
 {
 	TLABEL *label = (TLABEL*)object;
@@ -966,8 +963,7 @@ static inline int64_t alarmLblstr_cb (const void *object, const int msg, const i
 		int idx =  ccGetUserDataInt(label)&0x0000FF;
 		TLABELSTR *lblstr = alarm->ui.time[idx];
 		int c = labelItemDataGet(lblstr->label, lblstr->strId);
-		//printf("%c\n", c);
-		
+
 		c++;
 		if (idx == 0){
 			if (c > '2') c = '0';

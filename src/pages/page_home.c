@@ -180,8 +180,6 @@ static inline int alButtonPress (TAPPLAUNCHER *al, TCCBUTTON *btn, int id, const
 						else
 							desc->trackPosition = 0;
 						desc->uid = plc->uid;
-						//printf("using playlist %X, track %i\n", plc->uid, desc->trackPosition);
-						
 						page2Set(vp->pages, PAGE_RENDER_CONCURRENT|homeBtns[i].page, 1);
 						return 1;
 					}
@@ -550,7 +548,6 @@ static inline int page_homeStartup (TAPPLAUNCHER *al, TVLCPLAYER *vp, const int 
 	btn = buttonsCreateButton(btns, L"home/dragrect.png", NULL, ABUTTON_CONSOLE, 1, 0, 0, 0);
 	btn->flags.disableRender = 1;
 	ccSetPosition(btn, fw-1 - ccGetWidth(btn), 0);
-
 		
 	for (int i = 0; i < HOME_BTN_TOTAL && homeBtns[i].page; i++){
 		btn = buttonsCreateButton(btns, homeBtns[i].path, homeBtns[i].pathAlt, HOME_BTN_ID(homeBtns[i].page), homeBtns[i].enabled, 0, 0, 0);
@@ -713,7 +710,6 @@ int page_homeCallback (void *pageStruct, const int msg, int64_t dataInt1, int64_
 	}else if (msg == PAGE_MSG_INPUT_MCAP){
 		buttonsStateSet(home->btns, ABUTTON_MHOOK, dataInt1);
 	}
-
 	
 	return 1;
 }

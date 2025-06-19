@@ -71,7 +71,7 @@ static inline int getMode (const unsigned char *bpm, const int len)
 			mode = i;
 		}
 	}
-	//printf("getMode %i %i\n", most, mode);
+
 	return mode;
 }
 
@@ -430,7 +430,7 @@ static inline int page_antRender (TANTPLUS *ant, TVLCPLAYER *vp, TFRAME *frame)
 {
 	if (ant->hr){
 		ant->connectStatus = hrmRender(ant->hr, frame);
-		//printf("page_antRender hrmRender():%i\n", ant->connectStatus);
+
 		if (ant->connectStatus > 0){
 			TGRAPHSHEET *sheet = graphSheetAcquire(ant->graph, NULL, ant->graphSheetIds[ant->sheetFocus]);
 			if (sheet){
@@ -587,8 +587,6 @@ static inline int page_antRenderBegin (TANTPLUS *ant, TVLCPLAYER *vp, int64_t ti
 
 static inline int page_antRenderEnd (TANTPLUS *ant, TVLCPLAYER *vp, int64_t time0, int64_t zDepth, void *opaquePtr)
 {
-	//printf("page_hrmRenderEnd %i %p\n", hrm->state, hrm->context);
-	
 	for (int i = 0; i < 10; i++)
 		imageManagerImageRelease(vp->im, vp->gui.image[IMGC_ANT_DIGIT_0+i]);
 	

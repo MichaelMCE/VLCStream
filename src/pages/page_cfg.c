@@ -142,7 +142,6 @@ void cfgSetClockType (TCFG *cfg, const int clk)
 	cfgSetClockLabel(cfg, cfg->clockType);
 }
 
-
 static inline void cfgSetAspectLabel (TCFG *cfg, const int ar)
 {
 	labelItemPositionSet(cfg->aspectLabel, cfg->aspectStrId, 0, cfgAspect[ar].yRenderOffset);

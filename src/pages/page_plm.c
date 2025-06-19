@@ -793,5 +793,3 @@ int page_plyPlmCallback (void *pageStruct, const int msg, int64_t dataInt1, int6
 	
 	return 1;
 }
-
-

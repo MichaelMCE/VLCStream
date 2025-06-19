@@ -201,7 +201,6 @@ void metaCopyDesc (TMETADESC *desc, TMETA *meta)
 	my_memcpy(desc, &meta->desc, sizeof(TMETADESC));
 }
 
-
 static inline void metaUpdateLocalTrackMeta (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 {
 	char *path = getPlayingPath(vp);
@@ -218,7 +217,7 @@ static inline void metaUpdateLocalTrackMeta (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 							if (*tag){
 								if (!isMediaLocal(tag)){
 									removeTrailingSpaces(tag);
-									//printf("# tag %i '%s'\n", i, tag);
+
 									tagAdd(vp->tagc, path, i, tag, 1);
 									PLAYLISTCACHE *plc = getQueuedPlaylist(vp);
 									if (plc)
@@ -232,7 +231,6 @@ static inline void metaUpdateLocalTrackMeta (TVLCPLAYER *vp, TVLCCONFIG *vlc)
 						if (tag){
 							if (*tag){
 								removeTrailingSpaces(tag);
-								//printf("# tag %i '%s'\n", i, tag);
 								tagAdd(vp->tagc, path, i, tag, 1);
 							}
 							my_free(tag);
@@ -606,7 +604,6 @@ int metaRender (TVLCPLAYER *vp, TFRAME *frame, TMETA *meta, TMETADESC *desc, con
 	}
 
 	shadowTextDisable(frame->hw);
-
 	if (drawui) return 1;
 
 	if (vp->gui.drawMetaTrackbar && meta->trackSlider && !getIdle(vp)){
@@ -713,10 +710,10 @@ static inline int page_metaStartup (TMETA *meta, TVLCPLAYER *vp, const int fw, c
 		slider->canDrag = 0;	// disable input
 		slider->pad.top = 8;
 		slider->pad.btm = 8;
-		sliderFaceSet(slider, SLIDER_FACE_LEFT, L"cc/slider_h_solid_left.png");
+		sliderFaceSet(slider, SLIDER_FACE_LEFT,  L"cc/slider_h_solid_left.png");
 		sliderFaceSet(slider, SLIDER_FACE_RIGHT, L"cc/slider_h_solid_right.png");
-		sliderFaceSet(slider, SLIDER_FACE_MID, L"cc/slider_h_solid_mid.png");
-		sliderFaceSet(slider, SLIDER_FACE_TIP, L"cc/slider_h_solid_tip.png");
+		sliderFaceSet(slider, SLIDER_FACE_MID,   L"cc/slider_h_solid_mid.png");
+		sliderFaceSet(slider, SLIDER_FACE_TIP,   L"cc/slider_h_solid_tip.png");
 		sliderFacesApply(slider);
 		sliderHoverDisable(slider);
 		ccSetMetrics(slider, x1, y1, -1, -1);

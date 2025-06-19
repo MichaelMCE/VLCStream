@@ -463,7 +463,6 @@ void plyQueueNewTrackEvent (TPLYQUEUE *plyqueue, unsigned int uid, const int tra
 	
 }
 
-
 // called before each render
 void page_queueRenderBegin (TPLYQUEUE *plyqueue, int64_t destId, int64_t data2, void *opaquePtr)
 {
@@ -560,8 +559,6 @@ static void doRotary (TPLYQUEUE *plyqueue, rotary_t *enc)
 // receives any input attached to this page
 int page_queueInput (TPLYQUEUE *plyqueue, const int msg, const int flags, void *dataPtr)
 {
-	//printf("page_queueInput %i %i\n", msg, flags);
-
 	switch(msg){
 	  case PAGE_IN_WHEEL_FORWARD:
 		playlistQueueAdjustPosition(plyqueue, 0, itemRowHeight);
@@ -587,7 +584,6 @@ int page_queueCb (void *pageStruct, const int msg, int64_t dataInt1, int64_t dat
 		return page_queueRender(plyqueue, dataPtr);
 
 	}else if (msg == PAGE_MSG_OBJ_HOVER){
-		//page_queueObjHover(plyqueue, dataInt1, dataInt2, dataPtr);
 		
 	}else if (msg == PAGE_CTL_RENDER_START){
 		page_queueRenderBegin(plyqueue, dataInt1, dataInt2, opaquePtr);

@@ -1558,7 +1558,6 @@ static inline int page_plyctrlShutdown (TVIDEOOVERLAY *plyctrl, TVLCPLAYER *vp)
 	}
 
 	listDestroyNext(plyctrl->scale.head.next);
-
 	return 1;
 }
 
