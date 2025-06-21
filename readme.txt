@@ -1,14 +1,6 @@
 VLCStream - A desktop and/or headless media player with native support for touch input and external displays
 
 
-Install:
-Get VLC 2.0.x from: http://www.videolan.org/
-
-
-Unpack the Vlcstream archive in to the VLC install location.
-(vlcstream.exe and vlc.exe should be in the same directory.)
-
-
 Executing:
 Run vlcstream.exe, drag'n'drop media on to this file or pass media path to vlcstream.eze via a Windows console prompt or shortcut.
 Eg; vlcstream "f:\path\to\file.ext"
@@ -307,20 +299,11 @@ Playlist file 'vlcsplaylist.m3u8' is used to store the current playlist between 
 
 
 
-
-
-Feedback and suggestions welcomed.
 ----------------------------------
-
-Michael McElligott
-web: http://mylcd.sourceforge.net
+VLCStream v1.0.0
 https://github.com/MichaelMCE/VLCStream
-
-Contact:
 Email: okio@users.sourceforge.net
-http://mylcd.sourceforge.net/vlc/index.html
-
-
+Michael McElligott
 ----------------------------------
 
 
