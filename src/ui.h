@@ -22,7 +22,7 @@
 #define _UI_H_
 
 #define PLAYER_NAME				"VLCStream"
-#define PLAYER_DATE				"10June2025"	/* __DATE__ */
+#define PLAYER_DATE				"21June2025"	/* __DATE__ */
 #define PLAYER_VERSION			PLAYER_NAME "-" PLAYER_DATE
 
 #define VCHROMA					"RV32"			/* Select VLC output chroma */
@@ -43,7 +43,7 @@
 #define VLCSPLAYLISTEXT			".m3u8"
 #define VLCSPLAYLISTEXTW		L".m3u8"
 #define PLAYLIST_PRIMARY		"root playlist"
-#define GLOBALFILEMASK			L"*.*"		// used as part of the explorer file discovery
+#define GLOBALFILEMASK			L"*.*"				// used as part of the explorer file discovery
 #define MYCOMPUTERNAME			L"My Computer"		/* default alias to use in the event actual alias could not be retrieved */
 #define MYDOCUMENTS				L"My Documents"		/* as above */
 #define MYDESKTOP				L"Desktop"
